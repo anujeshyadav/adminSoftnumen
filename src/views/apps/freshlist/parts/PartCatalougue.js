@@ -72,8 +72,9 @@ function PartCatalougue() {
       });
   }, []);
   useEffect(() => {
-    // const initialQuantities = new Array(ListData?.length).fill(0);
-    // setQuantities(initialQuantities);
+    const initialQuantities = new Array(ListData?.length).fill(0);
+    console.log(ListData);
+    setQuantities(initialQuantities);
   }, [ListData]);
 
   useEffect(() => {
@@ -82,18 +83,28 @@ function PartCatalougue() {
       .then((res) => {
         console.log(res.cart);
         setSelectedCart(res.cart);
-        // let list = ListData?.map((ele, i) => {
-        //   console.log(ele);
-        // });
-        // context?.setPartsCatalougueCart(res?.cart);
-        //     const initialQuantities = new Array(ListData?.length).fill(0);
-        // console.log(initialQuantities);
+        let data = res.cart?.map((val, i) => {
+          debugger;
+          console.log(val?.product?.Part_Number);
+          console.log(val?.quantity);
+          console.log(ListData);
+          let selectedinput = ListData?.forEach((ele, index) => {
+            console.log(ele);
+          });
+        });
+        // const initialQuantities = new Array(ListData?.length).fill(0);
         // setQuantities(initialQuantities);
+        // setQuantities((prevQuantity) => {d
+        //   const newQuantities = [...prevQuantity];
+        //   newQuantities[index] += 1;
+        //   console.log(ele?.product?.Part_Price * newQuantities);
+        //   return newQuantities;
+        // });
       })
       .catch((err) => {
         console.log(err.response);
       });
-  }, []);
+  }, [ListData]);
   // useEffect(() => {
   //   console.log(cart);
   //   console.log(context);
@@ -327,9 +338,6 @@ function PartCatalougue() {
               <tbody>
                 {ListData &&
                   ListData?.map((val, i) => {
-                    debugger;
-                    console.log(val);
-                    console.log(SelectedCart);
                     return (
                       <tr key={val._id}>
                         <th scope="row">{i + 1}</th>
