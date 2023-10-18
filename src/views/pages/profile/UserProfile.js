@@ -34,6 +34,7 @@ class UserProfile extends React.Component {
       adminimg: "",
       Date_format: "",
       Date_Time_format: "",
+      Currency: "",
       selectedName: "",
       Locale: "",
       Loading: "Submit",
@@ -67,6 +68,7 @@ class UserProfile extends React.Component {
       Locale: pageparmission?.locale,
       Date_Time_format: pageparmission?.dateTimeFormat,
       T_Zone: pageparmission?.timeZone,
+      Currency: pageparmission?.currency,
       // cnfmPassword: pageparmission?.Userinfo?.password,
     });
     // console.log(this.context);
@@ -92,6 +94,7 @@ class UserProfile extends React.Component {
     data.append("dateTimeFormat", this.state.Date_Time_format);
     data.append("locale", this.state.Locale);
     data.append("timeZone", this.state.T_Zone);
+    data.append("currency", this.state.Currency);
     if (this.state.selectedFile !== null) {
       data.append("file", this.state.selectedFile);
     }
@@ -441,6 +444,33 @@ class UserProfile extends React.Component {
                             D of MMMM, YYYY HH:mm (e.g., 16 of October, 2023
                             15:30)
                           </option>
+                        </CustomInput>
+                      </Col>
+                      <Col sm="12" lg="6" md="6" className="p-1">
+                        <Label>Currency</Label>
+                        <CustomInput
+                          name="Currency"
+                          value={this.state.Currency}
+                          onChange={this.changeHandler}
+                          required
+                          type="select"
+                        >
+                          <option value="NS">--Select--</option>
+                          <option value="usd">
+                            United States Dollar (USD)
+                          </option>
+                          <option value="eur">Euro (EUR)</option>
+                          <option value="gbp">
+                            British Pound Sterling (GBP)
+                          </option>
+                          <option value="jpy">Japanese Yen (JPY)</option>
+                          <option value="cad">Canadian Dollar (CAD)</option>
+                          <option value="aud">Australian Dollar (AUD)</option>
+                          <option value="chf">Swiss Franc (CHF)</option>
+                          <option value="cny">Chinese Yuan (CNY)</option>
+                          <option value="inr">Indian Rupee (INR)</option>
+                          <option value="rub">Russian Ruble (RUB)</option>
+                          <option value="brl">Brazilian Real (BRL)</option>
                         </CustomInput>
                       </Col>
                     </Row>

@@ -12,6 +12,7 @@ import {
   Table,
   Row,
   Col,
+  Label,
 } from "reactstrap";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import PerfectScrollbar from "react-perfect-scrollbar";
@@ -157,6 +158,10 @@ class NavbarUser extends React.PureComponent {
     userData: "",
     modal: false,
     myCart: [],
+    SetTotal: [],
+    TaxType: "",
+    TaxPercentage: 5,
+    Shippingfee: 5,
     Total: Number,
     Update_User_details: {},
     Quantity: [],
@@ -286,6 +291,7 @@ class NavbarUser extends React.PureComponent {
         );
         let qty = res?.cart?.map((val, i) => val?.quantity);
         this.setState({ Quantity: qty });
+        this.setState({ SetTotal: total });
 
         let findtotal = total?.reduce((a, b) => a + b, 0);
         console.log(findtotal);
@@ -303,9 +309,7 @@ class NavbarUser extends React.PureComponent {
 
   removeItem = (id) => {
     let cart = this.state.shoppingCart;
-
     let updatedCart = cart.filter((i) => i.id !== id);
-
     this.setState({
       shoppingCart: updatedCart,
     });
@@ -313,14 +317,16 @@ class NavbarUser extends React.PureComponent {
   handleQuantityChange = (e) => {
     console.log(e.target.value);
   };
+
   handleDecreaseCount = (ele, index, e) => {
     e.preventDefault();
+    debugger;
     const user = this.context;
-    let total = user?.PartsCatalougueCart?.map((ele, i) => {
-      return ele?.product?.Part_Price * ele?.quantity;
-    });
-    total[index] = ele?.product?.Part_Price * (this.state.Quantity[index] + 1);
-    let findtotal = total?.reduce((a, b) => a + b, 0);
+
+    this.state.SetTotal[index] =
+      ele?.product?.Part_Price * (this.state.Quantity[index] - 1);
+    console.log(this.state.SetTotal);
+    let findtotal = this.state.SetTotal?.reduce((a, b) => a + b, 0);
     this.setState({ Total: findtotal });
     this.setState((prevState) => {
       const newQuantities = [...prevState.Quantity];
@@ -334,11 +340,12 @@ class NavbarUser extends React.PureComponent {
   handleIncreaseCount = (ele, index, e) => {
     e.preventDefault();
     const user = this.context;
-    let total = user?.PartsCatalougueCart?.map((ele, i) => {
-      return ele?.product?.Part_Price * ele?.quantity;
-    });
-    total[index] = ele?.product?.Part_Price * (this.state.Quantity[index] + 1);
-    let findtotal = total?.reduce((a, b) => a + b, 0);
+
+    this.state.SetTotal[index] =
+      ele?.product?.Part_Price * (this.state.Quantity[index] + 1);
+    console.log(this.state.SetTotal);
+
+    let findtotal = this.state.SetTotal?.reduce((a, b) => a + b, 0);
     console.log(findtotal);
     this.setState({ Total: findtotal });
     this.setState((prevState) => {
@@ -353,9 +360,16 @@ class NavbarUser extends React.PureComponent {
     this.setState({ langDropdown: !this.state.langDropdown });
   render() {
     let pageparmission = JSON.parse(localStorage.getItem("userData"));
+    debugger;
     const user = this.context;
-    const taxAmount = (this.state.Total * 0.18).toFixed(2);
-    const Shipping = (this.state.Total * 0.1).toFixed(2);
+    const taxAmount = (
+      this.state.Total *
+      (this.state.TaxPercentage / 100)
+    ).toFixed(2);
+    const Shipping = (
+      this.state.Total *
+      (this.state.Shippingfee / 100)
+    ).toFixed(2);
     const Grand = (
       this.state.Total * 1 +
       Number(taxAmount) +
@@ -448,8 +462,81 @@ class NavbarUser extends React.PureComponent {
                     Added To Cart
                   </ModalHeader>
                   <ModalBody className="myproducttable">
+                    <div className="p-1">
+                      <Row>
+                        <Col lg="2" md="2" sm="12" xs="12">
+                          <Label>Tax Percentage Type</Label>
+                          <select
+                            onChange={(e) =>
+                              this.setState({ TaxType: e.target.value })
+                            }
+                            name="TaxType"
+                            className="form-control"
+                            id="productSelect"
+                          >
+                            <option value="Individual">Individual</option>
+                            <option value="All">All </option>
+                          </select>
+                        </Col>
+                        {this.state.TaxType == "All" ? (
+                          <Col lg="2" md="2" sm="12" xs="12">
+                            <Label>Tax Percentage</Label>
+                            <select
+                              onChange={(e) =>
+                                this.setState({
+                                  TaxPercentage: e.target.value,
+                                })
+                              }
+                              name="Taxpercentage"
+                              className="form-control"
+                              id="productSelect"
+                            >
+                              <option value={5}>5%</option>
+                              <option value={12}>12% </option>
+                              <option value={18}>18%</option>
+                            </select>
+                          </Col>
+                        ) : (
+                          <>
+                            <Col lg="2" md="2" sm="12" xs="12">
+                              <Label>Tax Percentage Individual</Label>
+                              <select
+                                onChange={(e) =>
+                                  this.setState({
+                                    TaxPercentage: e.target.value,
+                                  })
+                                }
+                                name="Taxpercentage"
+                                className="form-control"
+                                id="productSelect"
+                              >
+                                <option value={5}>5%</option>
+                                <option value={12}>12% </option>
+                                <option value={18}>18%</option>
+                              </select>
+                            </Col>
+                          </>
+                        )}
+                        <Col lg="2" md="2" sm="12" xs="12">
+                          <Label>Shipping Fee</Label>
+                          <select
+                            onChange={(e) =>
+                              this.setState({ Shippingfee: e.target.value })
+                            }
+                            name="Shippingfee"
+                            className="form-control"
+                            id="productSelect"
+                          >
+                            <option value={10}>10%</option>
+                            <option value={12}>12% </option>
+                            <option value={18}>18%</option>
+                          </select>
+                        </Col>
+                      </Row>
+                    </div>
+                    <hr />
                     <Table
-                      style={{ height: "300px", overflowY: "scroll" }}
+                      style={{ height: "221px", overflowY: "scroll" }}
                       bordered
                       hover
                       striped
@@ -618,16 +705,33 @@ class NavbarUser extends React.PureComponent {
                 }
                 return (
                   <>
-                    <div className="d-flex justify-content-between">
+                    <div
+                      style={{ cursor: "pointer" }}
+                      className="d-flex justify-content-between"
+                    >
                       <Media key={i} className="d-flex align-items-start">
-                        <Media left href="#">
-                          <Icon.PlusSquare
-                            className="font-medium-5 primary"
-                            size={21}
-                          />
+                        <Media
+                          onClick={() => {
+                            this.handleShowCart();
+                            this.toggleModal();
+                          }}
+                          left
+                          href="#"
+                        >
+                          {i + 1}
                         </Media>
-                        <Media body>
+                        <Media
+                          onClick={() => {
+                            this.handleShowCart();
+                            this.toggleModal();
+                          }}
+                          body
+                        >
                           <Media
+                            onClick={() => {
+                              this.handleShowCart();
+                              this.toggleModal();
+                            }}
                             heading
                             className="primary media-heading"
                             tag="h6"

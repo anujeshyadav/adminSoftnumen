@@ -72,8 +72,8 @@ function PartCatalougue() {
       });
   }, []);
   useEffect(() => {
-    // const initialQuantities = new Array(ListData?.length).fill(0);
-    // setQuantities(initialQuantities);
+    const initialQuantities = new Array(ListData?.length).fill(0);
+    setQuantities(initialQuantities);
   }, [ListData]);
 
   useEffect(() => {
@@ -327,9 +327,6 @@ function PartCatalougue() {
               <tbody>
                 {ListData &&
                   ListData?.map((val, i) => {
-                    debugger;
-                    console.log(val);
-                    console.log(SelectedCart);
                     return (
                       <tr key={val._id}>
                         <th scope="row">{i + 1}</th>
