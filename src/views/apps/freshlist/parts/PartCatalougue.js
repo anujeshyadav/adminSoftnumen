@@ -33,6 +33,7 @@ import UserContext from "../../../../context/Context";
 import { Link, useLocation, matchPath } from "react-router-dom";
 import { MdOutlineDownloadDone } from "react-icons/md";
 import swal from "sweetalert";
+import { toast } from "react-toastify";
 
 function PartCatalougue() {
   const [CollapseIndex, setCollapseIndex] = useState("");
@@ -41,6 +42,7 @@ function PartCatalougue() {
   const [ListData, setListData] = useState([]);
   const [Breadcums, setBreadcums] = useState([]);
   const [Fullimage, setFullimage] = useState(false);
+  const [SelectedCart, setSelectedCart] = useState([]);
   const [totalItemCount, setTotalItemCount] = useState(0);
 
   const [cart, setCart] = useState([]);
@@ -78,9 +80,11 @@ function PartCatalougue() {
     let userData = JSON.parse(localStorage.getItem("userData"));
     AddToCartGet(userData?._id)
       .then((res) => {
-        debugger;
         console.log(res.cart);
-
+        setSelectedCart(res.cart);
+        // let list = ListData?.map((ele, i) => {
+        //   console.log(ele);
+        // });
         // context?.setPartsCatalougueCart(res?.cart);
         //     const initialQuantities = new Array(ListData?.length).fill(0);
         // console.log(initialQuantities);
@@ -148,7 +152,6 @@ function PartCatalougue() {
           .then((res) => {
             console.log(res.data);
             let userData = JSON.parse(localStorage.getItem("userData")); //forgot to close
-
             AddToCartGet(userData?._id)
               .then((res) => {
                 context?.setPartsCatalougueCart(res?.cart);
@@ -178,7 +181,7 @@ function PartCatalougue() {
       });
       setQuantities((prevQuantities) => {
         const newQuantities = [...prevQuantities];
-        newQuantities[index] = 0;
+        // newQuantities[index] = 0;
         return newQuantities;
       });
     }
