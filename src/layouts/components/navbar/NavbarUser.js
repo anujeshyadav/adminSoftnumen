@@ -360,7 +360,6 @@ class NavbarUser extends React.PureComponent {
     this.setState({ langDropdown: !this.state.langDropdown });
   render() {
     let pageparmission = JSON.parse(localStorage.getItem("userData"));
-    debugger;
     const user = this.context;
     const taxAmount = (
       this.state.Total *
