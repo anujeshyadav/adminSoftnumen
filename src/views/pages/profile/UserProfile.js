@@ -18,6 +18,7 @@ import swal from "sweetalert";
 import axiosConfig from "../../../axiosConfig";
 import { EditUserProfile } from "../../../ApiEndPoint/ApiCalling";
 import UserContext from "../../../context/Context";
+import moment from "moment-timezone";
 
 class UserProfile extends React.Component {
   static contextType = UserContext;
@@ -339,14 +340,27 @@ class UserProfile extends React.Component {
                           <option value="EST">
                             Eastern Standard Time (EST)
                           </option>
-                          <option value="EDT">
-                            Eastern Daylight Time (EDT)
-                          </option>
+
                           <option value="PST">
                             Pacific Standard Time (PST)
                           </option>
-                          <option value="PDT">
+                          <option value="America/Los_Angeles">
                             Pacific Daylight Time (PDT)
+                          </option>
+                          <option value="CST">
+                            (Central Standard Time - CST)
+                          </option>
+                          <option value="America/Phoenix">
+                            (Mountain Standard Time - MST)
+                          </option>
+                          <option value="America/Denver">
+                            (Mountain Daylight Time - MDT)
+                          </option>
+                          <option value="America/Chicago">
+                            (Central Daylight Time - CDT)
+                          </option>
+                          <option value="America/New_York">
+                            Eastern Daylight Time (EDT)
                           </option>
                           <option value="HST">
                             Hawaii Standard Time (HST)
@@ -364,17 +378,17 @@ class UserProfile extends React.Component {
                             Australian Eastern Daylight Time (AEDT)
                           </option>
                           <option value="JST">Japan Standard Time (JST)</option>
-                          <option value="KST">Korea Standard Time (KST)</option>
-                          <option value="IST">
+                          <option value="JST">China Standard Time (CST)</option>
+                          <option value="Asia/Calcutta">
                             Indian Standard Time (IST)
                           </option>
-                          <option value="AST">
+                          {/* <option value="AST">
                             Arabian Standard Time (AST)
-                          </option>
-                          <option value="GST">Gulf Standard Time (GST)</option>
-                          <option value="SAST">
+                          </option> */}
+                          {/* <option value="GST">Gulf Standard Time (GST)</option> */}
+                          {/* <option value="SAST">
                             South Africa Standard Time (SAST)
-                          </option>
+                          </option> */}
                         </CustomInput>
                       </Col>
                       <Col sm="12" lg="6" md="6" className="p-1">
@@ -455,22 +469,59 @@ class UserProfile extends React.Component {
                           required
                           type="select"
                         >
-                          <option value="NS">--Select--</option>
-                          <option value="usd">
-                            United States Dollar (USD)
-                          </option>
-                          <option value="eur">Euro (EUR)</option>
-                          <option value="gbp">
-                            British Pound Sterling (GBP)
-                          </option>
-                          <option value="jpy">Japanese Yen (JPY)</option>
-                          <option value="cad">Canadian Dollar (CAD)</option>
-                          <option value="aud">Australian Dollar (AUD)</option>
-                          <option value="chf">Swiss Franc (CHF)</option>
-                          <option value="cny">Chinese Yuan (CNY)</option>
-                          <option value="inr">Indian Rupee (INR)</option>
-                          <option value="rub">Russian Ruble (RUB)</option>
-                          <option value="brl">Brazilian Real (BRL)</option>
+                          <option value="USD">--Select--</option>
+                          <option value="USD">USD</option>
+                          <option value="AED">AED</option>
+                          <option value="ARS">ARS</option>
+                          <option value="AUD">AUD</option>
+                          <option value="BGN">BGN</option>
+                          <option value="BRL">BRL</option>
+                          <option value="BSD">BSD</option>
+                          <option value="CAD">CAD</option>
+                          <option value="CHF">CHF</option>
+                          <option value="CLP">CLP</option>
+                          <option value="CNY">CNY</option>
+                          <option value="COP">COP</option>
+                          <option value="CZK">CZK</option>
+                          <option value="DKK">DKK</option>
+                          <option value="DOP">DOP</option>
+                          <option value="EGP">EGP</option>
+                          <option value="EUR">EUR</option>
+                          <option value="FJD">FJD</option>
+                          <option value="GBP">GBP</option>
+                          <option value="GTQ">GTQ</option>
+                          <option value="HKD">HKD</option>
+                          <option value="HRK">HRK</option>
+                          <option value="HUF">HUF</option>
+                          <option value="IDR">IDR</option>
+                          <option value="ILS">ILS</option>
+                          <option value="INR">INR</option>
+                          <option value="ISK">ISK</option>
+                          <option value="JPY">JPY</option>
+                          <option value="KRW">KRW</option>
+                          <option value="KZT">KZT</option>
+                          <option value="MVR">MVR</option>
+                          <option value="MXN">MXN</option>
+                          <option value="MYR">MYR</option>
+                          <option value="NOK">NOK</option>
+                          <option value="NZD">NZD</option>
+                          <option value="PAB">PAB</option>
+                          <option value="PEN">PEN</option>
+                          <option value="PHP">PHP</option>
+                          <option value="PKR">PKR</option>
+                          <option value="PLN">PLN</option>
+                          <option value="PYG">PYG</option>
+                          <option value="RON">RON</option>
+                          <option value="RUB">RUB</option>
+                          <option value="SAR">SAR</option>
+                          <option value="SEK">SEK</option>
+                          <option value="SGD">SGD</option>
+                          <option value="THB">THB</option>
+                          <option value="TRY">TRY</option>
+                          <option value="TWD">TWD</option>
+                          <option value="UAH">UAH</option>
+                          <option value="UYU">UYU</option>
+                          <option value="ZAR">ZAR</option>
                         </CustomInput>
                       </Col>
                     </Row>

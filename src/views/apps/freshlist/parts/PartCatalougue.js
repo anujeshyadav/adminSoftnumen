@@ -29,11 +29,14 @@ import { BsCartCheckFill, BsFillArrowRightSquareFill } from "react-icons/bs";
 import * as Icon from "react-feather";
 import ZoomimageTest from "./ZoomimageTest";
 // import { ReactPanZoom } from "./Ra";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import UserContext from "../../../../context/Context";
 import { Link, useLocation, matchPath } from "react-router-dom";
 import { MdOutlineDownloadDone } from "react-icons/md";
 import swal from "sweetalert";
-import { toast } from "react-toastify";
+import Exchange from "./Exchange";
+import TimeZoneConverter from "./Timezone";
 
 function PartCatalougue() {
   const [CollapseIndex, setCollapseIndex] = useState("");
@@ -44,6 +47,7 @@ function PartCatalougue() {
   const [Fullimage, setFullimage] = useState(false);
   const [SelectedCart, setSelectedCart] = useState([]);
   const [totalItemCount, setTotalItemCount] = useState(0);
+  const [Loader, setLoader] = useState(false);
 
   const [cart, setCart] = useState([]);
   const [quantities, setQuantities] = useState(
@@ -60,9 +64,7 @@ function PartCatalougue() {
         console.log(res?.Parts_Catalogue);
         setAllData(res?.Parts_Catalogue);
         let keys = Object.keys(res?.Parts_Catalogue);
-        console.log(keys);
         setCollapseIndex(0);
-        console.log(res?.Parts_Catalogue);
         setListData(res?.Parts_Catalogue[keys[0]]);
         setBreadcums(res?.Parts_Catalogue[keys[0]]);
         setfrontSide(keys);
@@ -71,49 +73,25 @@ function PartCatalougue() {
         console.log(err);
       });
   }, []);
-  useEffect(() => {
-    const initialQuantities = new Array(ListData?.length).fill(0);
-    console.log(ListData);
-    setQuantities(initialQuantities);
-  }, [ListData]);
 
   useEffect(() => {
     let userData = JSON.parse(localStorage.getItem("userData"));
     AddToCartGet(userData?._id)
       .then((res) => {
-        console.log(res.cart);
-        setSelectedCart(res.cart);
-        let data = res.cart?.map((val, i) => {
-          debugger;
-          console.log(val?.product?.Part_Number);
-          console.log(val?.quantity);
-          console.log(ListData);
-          let selectedinput = ListData?.forEach((ele, index) => {
-            console.log(ele);
-          });
+        setSelectedCart(res?.cart);
+        const initialQuantities = ListData?.map((product) => {
+          const cartItem = res?.cart?.find(
+            (item) => item?.product?._id === product._id
+          );
+          return cartItem ? cartItem?.quantity : 0;
         });
-        // const initialQuantities = new Array(ListData?.length).fill(0);
-        // setQuantities(initialQuantities);
-        // setQuantities((prevQuantity) => {d
-        //   const newQuantities = [...prevQuantity];
-        //   newQuantities[index] += 1;
-        //   console.log(ele?.product?.Part_Price * newQuantities);
-        //   return newQuantities;
-        // });
+
+        setQuantities(initialQuantities);
       })
       .catch((err) => {
         console.log(err.response);
       });
   }, [ListData]);
-  // useEffect(() => {
-  //   console.log(cart);
-  //   console.log(context);
-
-  //   // context?.setPartsCatalougueCart(cart);
-  // }, [cart, context]);
-  // useEffect(() => {
-  //   console.log(Breadcums);
-  // }, [Breadcums]);
 
   const handleIncreaseCount = (index) => {
     setQuantities((prevQuantities) => {
@@ -133,17 +111,10 @@ function PartCatalougue() {
     });
   };
 
-  const handleEditCartItemQuantity = (index, event) => {
-    const newCart = [...cart];
-    newCart[index].quantity = parseInt(event.target.value, 10);
-    setCart(newCart);
-    setTotalItemCount((count) => count + parseInt(event.target.value, 10));
-  };
-
   // add to cart
   const addToCart = (index, ele) => {
     let userData = JSON.parse(localStorage.getItem("userData"));
-
+    setLoader(true);
     if (quantities[index] > 0) {
       setCart((prevCart) => {
         const newCart = [...prevCart];
@@ -162,6 +133,8 @@ function PartCatalougue() {
         AddCartsPartsCatalgue(value)
           .then((res) => {
             console.log(res.data);
+            setLoader(false);
+            toast.success("Added To Cart");
             let userData = JSON.parse(localStorage.getItem("userData")); //forgot to close
             AddToCartGet(userData?._id)
               .then((res) => {
@@ -202,7 +175,6 @@ function PartCatalougue() {
     if (ele) {
       setFullimage(true);
     }
-    // console.log(ele, AllData[ele]);
     setListData(AllData[ele]);
     setBreadcums(AllData[ele]);
     setCollapseIndex(i);
@@ -210,6 +182,10 @@ function PartCatalougue() {
 
   return (
     <>
+      <Row>
+        {/* <TimeZoneConverter /> */}
+        {/* <Exchange /> */}
+      </Row>
       <Row>
         <Col>
           <Breadcrumb>
@@ -225,6 +201,7 @@ function PartCatalougue() {
       </Row>
 
       <Row>
+        <ToastContainer />
         {!Fullimage && (
           <>
             <Col className="mb-2" lg="3" md="3" sm="3" xs="12">
@@ -355,13 +332,6 @@ function PartCatalougue() {
                               color="primary"
                               size="sm"
                               onClick={() => handleDecreaseCount(i)}
-                              // onClick={() => {
-                              //   // handleDecreaseCount();
-                              //   const selectedProduct = val[i];
-                              //   const quantity = quantities[i];
-                              //   console.log(quantity);
-                              //   console.log(selectedProduct);
-                              // }}
                             >
                               -
                             </Button>
@@ -406,19 +376,10 @@ function PartCatalougue() {
                             >
                               {quantities[i] > 0 ? (
                                 <>
-                                  {/* <Button
-                                    onClick={() => addToCart(i)}
-                                    style={{ padding: "7px 8px" }}
-                                    color="success"
-                                    size="sm"
-                                  >
-                                    +
-                                  </Button> */}
                                   <MdOutlineDownloadDone
-                                    title="Click to add to Cart"
+                                    title=" click here to add Cart"
                                     onClick={() => addToCart(i, val)}
                                     style={{
-                                      // padding: "7px 8px",
                                       cursor: "pointer",
                                     }}
                                     color="green"
