@@ -38,7 +38,7 @@ import {
   FaArrowAltCircleRight,
   FaFilter,
 } from "react-icons/fa";
-import "moment-timezone";
+import moment from "moment-timezone";
 import swal from "sweetalert";
 import {
   CreateAccountList,
@@ -51,10 +51,12 @@ import {
   BsFillArrowUpSquareFill,
 } from "react-icons/bs";
 import * as XLSX from "xlsx";
+import UserContext from "../../../../context/Context";
 
 const SelectedCols = [];
 
 class ProductType extends React.Component {
+  static contextType = UserContext;
   constructor(props) {
     super(props);
     this.gridRef = React.createRef();
@@ -97,35 +99,16 @@ class ProductType extends React.Component {
   };
 
   async componentDidMount() {
+    const UserInformation = this.context?.UserInformatio;
+    // console.log(UserInformation);
+
     await CreateAccountView()
       .then((res) => {
         var mydropdownArray = [];
         var adddropdown = [];
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData));
-        const checkboxinput = JSON.parse(
-          jsonData
-        ).CreateAccount?.CheckBox?.input?.map((ele) => {
-          return {
-            headerName: ele?.label?._text,
-            field: ele?.name?._text,
-            filter: true,
-            sortable: true,
-            cellRendererFramework: (params) => {
-              return params.data?.Status === "Active" ? (
-                <div className="badge badge-pill badge-success">
-                  {params.data.Status}
-                </div>
-              ) : params.data?.Status === "Deactive" ? (
-                <div className="badge badge-pill badge-warning">
-                  {params.data.Status}
-                </div>
-              ) : (
-                "NA"
-              );
-            },
-          };
-        });
+
         const inputs = JSON.parse(jsonData).CreateAccount?.input?.map((ele) => {
           return {
             headerName: ele?.label._text,
@@ -144,7 +127,7 @@ class ProductType extends React.Component {
             filter: true,
             sortable: true,
             cellRendererFramework: (params) => {
-              console.log(params?.data);
+              // console.log(params?.data);
               return params.data?.Status === "Active" ? (
                 <div className="badge badge-pill badge-success">
                   {params.data.Status}
@@ -182,7 +165,7 @@ class ProductType extends React.Component {
         }
 
         let myHeadings = [
-          ...checkboxinput,
+          // ...checkboxinput,
           ...inputs,
           ...adddropdown,
           ...addRadio,
@@ -239,7 +222,99 @@ class ProductType extends React.Component {
               );
             },
           },
+          {
+            headerName: "Whatsapp",
+            field: "whatsapp",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              console.log(params?.data?.whatsapp);
+              return params.data?.whatsapp === true ? (
+                <div className="badge badge-pill badge-success">YES</div>
+              ) : params.data?.whatsapp === false ? (
+                <div className="badge badge-pill badge-warning">NO</div>
+              ) : (
+                "NA"
+              );
+            },
+          },
+          {
+            headerName: "SMS",
+            field: "sms",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              console.log(params?.data?.sms);
+              return params.data?.sms === true ? (
+                <div className="badge badge-pill badge-success">YES</div>
+              ) : params.data?.sms === false ? (
+                <div className="badge badge-pill badge-warning">No</div>
+              ) : (
+                "NA"
+              );
+            },
+          },
+          {
+            headerName: "Gmail",
+            field: "gmail",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              console.log(params?.data?.gmail);
+              return params.data?.gmail === true ? (
+                <div className="badge badge-pill badge-success">YES</div>
+              ) : params.data?.gmail === false ? (
+                <div className="badge badge-pill badge-warning">NO</div>
+              ) : (
+                "NA"
+              );
+            },
+          },
           ...myHeadings,
+          {
+            headerName: "Created date",
+            field: "createdAt",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              let convertedTime = "NA";
+              if (params?.data?.createdAt != undefined) {
+                convertedTime = moment(params?.data?.createdAt?.split(".")[0])
+                  .tz(UserInformation?.timeZone)
+                  .format(UserInformation?.dateTimeFormat);
+              }
+
+              return (
+                <>
+                  <div className="actions cursor-pointer">
+                    <span>{convertedTime}</span>
+                  </div>
+                </>
+              );
+            },
+          },
+          {
+            headerName: "Updated date",
+            field: "updatedAt",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              let convertedTime = "NA";
+              if (params?.data?.updatedAt != undefined) {
+                convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
+                  .tz(UserInformation?.timeZone)
+                  .format(UserInformation?.dateTimeFormat);
+              }
+
+              return (
+                <>
+                  <div className="actions cursor-pointer">
+                    <span>{convertedTime}</span>
+                  </div>
+                </>
+              );
+            },
+          },
         ];
         this.setState({ columnDefs: Product });
         this.setState({ AllcolumnDefs: Product });

@@ -70,3 +70,6 @@ export const SearchPolicy = "/policy/view-policies";
 export const Add_To_Cart_PartsCatelougue = "/cart/add-to-cart";
 export const Add_To_Cart_Get = "/cart/get-cart-items/";
 export const Delete_CartItem_PartsCat = "/cart/remove-cart-item";
+
+// currency converter api
+export const Currency_Convertor = "https://api.exchangerate-api.com/v4/latest/";

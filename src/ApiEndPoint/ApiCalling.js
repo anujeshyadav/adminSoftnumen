@@ -410,3 +410,12 @@ export const DeleteCartItemPartsCatelogue = async data => {
     .then(res => res.data);
   return response;
 };
+
+// currency convertor
+
+export const Currency_Convertor = async (currency) => {
+  let response = await axiosConfig
+    .get(`${Currency_Convertor}`, currency)
+    .then((res) => res.data);
+  return response;
+};

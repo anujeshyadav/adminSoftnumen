@@ -11,6 +11,8 @@ const State = (props) => {
   const [PartsCatloguelength, setPartsCatloguelength] = useState(0);
 
   useEffect(() => {
+    let user = JSON.parse(localStorage.getItem("userData"));
+    setUserInformatio(user);
     // CreateAccountView()
     //   .then((res) => {
     //     const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });

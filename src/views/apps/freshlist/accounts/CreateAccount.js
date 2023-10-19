@@ -17,6 +17,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Country, State, City } from "country-state-city";
 import Select from "react-select";
+import moment from "moment-timezone";
 
 import swal from "sweetalert";
 import "../../../../../src/layouts/assets/scss/pages/users.scss";
@@ -43,7 +44,7 @@ const CreateAccount = () => {
   const [error, setError] = useState("");
   const [permissions, setpermissions] = useState({});
 
-  const createUserXmlView = useContext(UserContext);
+  const Context = useContext(UserContext);
 
   const handleInputChange = (e, type, i) => {
     const { name, value, checked } = e.target;
@@ -93,8 +94,7 @@ const CreateAccount = () => {
   };
   useEffect(() => {
     console.log(formData);
-    // console.log(Countries);
-    // console.log(States);
+    console.log(Context?.UserInformatio?.dateFormat);
 
     console.log(Cities?.latitude, Cities?.longitude);
   }, [formData]);
@@ -189,22 +189,14 @@ const CreateAccount = () => {
 
                 {CreatAccountView &&
                   CreatAccountView?.CreateAccount?.input?.map((ele, i) => {
-                    {
-                      /* console.log(ele); */
-                    }
-
-                    {
-                      /* let View = "";
-                    let Edit = "";
-                    if (ele?.role) {
-                      let roles = ele?.role?.find(
-                        (role) => role._attributes?.name === "WARRANTY APPROVER"
-                      );
-
-                      View = roles?.permissions?._text.includes("View");
-                      Edit = roles?.permissions?._text.includes("Edit");
-                    } */
-                    }
+                    debugger;
+                    console.log(Context?.UserInformatio?.dateFormat);
+                    // console.log(Countries);
+                    // console.log(States);
+                    const convertedTime = moment("2022-08-05T12:00:00")
+                      .tz("America/New_York")
+                      .format("D MMM, YYYY HH:mm");
+                    console.log(convertedTime);
                     if (!!ele?.phoneinput) {
                       return (
                         <>
@@ -366,44 +358,106 @@ const CreateAccount = () => {
                         );
                       } else {
                         return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup key={i}>
-                              <Label>{ele?.label?._text}</Label>
+                          <>
+                            {ele?.type?._attributes?.type == "date" ? (
+                              <>
+                                <Col key={i} lg="6" md="6" sm="12">
+                                  <FormGroup key={i}>
+                                    <Label>{ele?.label?._text}</Label>
 
-                              <Input
-                                onKeyDown={(e) => {
-                                  if (
-                                    ele?.type?._attributes?.type == "number"
-                                  ) {
-                                    ["e", "E", "+", "-"].includes(e.key) &&
-                                      e.preventDefault();
-                                  }
-                                }}
-                                type={ele?.type?._attributes?.type}
-                                placeholder={ele?.placeholder?._text}
-                                name={ele?.name?._text}
-                                value={formData[ele?.name?._text]}
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    e,
-                                    ele?.type?._attributes?.type,
-                                    i
-                                  )
-                                }
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
+                                    <Input
+                                      onKeyDown={(e) => {
+                                        if (
+                                          ele?.type?._attributes?.type ==
+                                          "number"
+                                        ) {
+                                          ["e", "E", "+", "-"].includes(
+                                            e.key
+                                          ) && e.preventDefault();
+                                        }
+                                      }}
+                                      type={ele?.type?._attributes?.type}
+                                      placeholder={ele?.placeholder?._text}
+                                      name={ele?.name?._text}
+                                      dateFormat={
+                                        Context?.UserInformatio?.dateFormat
+                                      }
+                                      value={
+                                        moment(formData[ele?.name?._text])
+                                          .tz(Context?.UserInformatio?.timeZone)
+                                          .format(
+                                            Context?.UserInformatio?.dateFormat
+                                          )
+                                        // formData[ele?.name?._text]
+                                      }
+                                      // value={formData[ele?.name?._text]}
+                                      onChange={(e) =>
+                                        handleInputChange(
+                                          e,
+                                          ele?.type?._attributes?.type,
+                                          i
+                                        )
+                                      }
+                                    />
+                                    {index === i ? (
+                                      <>
+                                        {error && (
+                                          <span style={{ color: "red" }}>
+                                            {error}
+                                          </span>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <></>
+                                    )}
+                                  </FormGroup>
+                                </Col>
+                              </>
+                            ) : (
+                              <>
+                                <Col key={i} lg="6" md="6" sm="12">
+                                  <FormGroup key={i}>
+                                    <Label>{ele?.label?._text}</Label>
+
+                                    <Input
+                                      onKeyDown={(e) => {
+                                        if (
+                                          ele?.type?._attributes?.type ==
+                                          "number"
+                                        ) {
+                                          ["e", "E", "+", "-"].includes(
+                                            e.key
+                                          ) && e.preventDefault();
+                                        }
+                                      }}
+                                      type={ele?.type?._attributes?.type}
+                                      placeholder={ele?.placeholder?._text}
+                                      name={ele?.name?._text}
+                                      value={formData[ele?.name?._text]}
+                                      onChange={(e) =>
+                                        handleInputChange(
+                                          e,
+                                          ele?.type?._attributes?.type,
+                                          i
+                                        )
+                                      }
+                                    />
+                                    {index === i ? (
+                                      <>
+                                        {error && (
+                                          <span style={{ color: "red" }}>
+                                            {error}
+                                          </span>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <></>
+                                    )}
+                                  </FormGroup>
+                                </Col>
+                              </>
+                            )}
+                          </>
                         );
                       }
                     } else {
