@@ -161,9 +161,6 @@ const CreatePolicy = () => {
     setFormValues([...formValues, { file: {} }]);
   };
 
-  useEffect(() => {
-    console.log(formValues);
-  });
   let removeFileAttach = i => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
@@ -174,7 +171,9 @@ const CreatePolicy = () => {
     newFormValues[i]["file"] = e.target.files;
     setFormValues(newFormValues);
   };
-
+  let removeFormFields = () => {
+    console.log(object);
+  };
   const submitHandler = e => {
     // e.preventDefault();
     // if (error) {
