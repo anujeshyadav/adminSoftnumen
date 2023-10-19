@@ -636,6 +636,23 @@ const ViewAccount = lazy(() =>
 const CreatePolicy = lazy(() =>
   import("./views/apps/freshlist/policy/CreatePolicy")
 );
+const SearchPolicy = lazy(() =>
+  import("./views/apps/freshlist/policy/SearchPolicy")
+);
+// ticket
+const CreateTicket = lazy(() =>
+  import("./views/apps/freshlist/customer/Ticketing/CreateTicket")
+);
+const TicketSearch = lazy(() =>
+  import("./views/apps/freshlist/customer/Ticketing/TicketSearch")
+);
+// inspection
+const CreateInspections = lazy(() =>
+  import("./views/apps/freshlist/inspection/CreateInspections")
+);
+const InspectionsSearch = lazy(() =>
+  import("./views/apps/freshlist/inspection/InspectionsSearch")
+);
 const RoleList = lazy(() => import("./views/apps/freshlist/accounts/RoleList"));
 // INhouseProduct
 const HouseProductList = lazy(() =>
@@ -1838,6 +1855,28 @@ class AppRouter extends React.Component {
           <AppRoute
             path="/app/SoftNumen/policy/CreatePolicy"
             component={CreatePolicy}
+          />
+          <AppRoute
+            path="/app/SoftNumen/policy/SearchPolicy"
+            component={SearchPolicy}
+          />
+          {/* ticketing */}
+          <AppRoute
+            path="/app/SoftNumen/ticket/CreateTicket"
+            component={CreateTicket}
+          />
+          <AppRoute
+            path="/app/SoftNumen/ticket/TicketSearch"
+            component={TicketSearch}
+          />
+          {/* Inspections */}
+          <AppRoute
+            path="/app/SoftNumen/Inspections/CreateInspections"
+            component={CreateInspections}
+          />
+          <AppRoute
+            path="/app/SoftNumen/Inspections/InspectionsSearch"
+            component={InspectionsSearch}
           />
           <AppRoute path="/app/Trupee/account/RoleList" component={RoleList} />
           {/* inhouse Product */}
