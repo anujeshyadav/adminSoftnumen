@@ -42,22 +42,19 @@ const CreatePolicy = () => {
   const [dropdownValue, setdropdownValue] = useState({});
   const [index, setindex] = useState("");
   const [error, setError] = useState("");
-  const [permissions, setpermissions] = useState({});
   const [selectedYear, setSelectedYear] = useState(null);
 
-  const [attach, setAttach] = useState("");
-  const [imgData, setImage] = useState([1]);
-  const [comment, setComment] = useState("");
   const [Comments, setComments] = useState([
     {
       name: JSON.parse(localStorage.getItem("userData")).UserName,
       userRole: JSON.parse(localStorage.getItem("userData")).Role,
-      comment: comment,
+      comment: "",
       time: new Date(),
     },
   ]);
 
   const [formValues, setFormValues] = useState([{ file: {} }]);
+
   const newComment = {
     userName: JSON.parse(localStorage.getItem("userData")).UserName,
     Role: JSON.parse(localStorage.getItem("userData")).Role,
@@ -116,13 +113,10 @@ const CreatePolicy = () => {
   };
   const handleyear = (date) => {
     setSelectedYear(date);
-    // console.log(date);
   };
   useEffect(() => {
     const userData = localStorage.getItem("userData");
-    // console.log(JSON.parse(userData));
     const { UserName, Role } = JSON.parse(userData);
-    // console.log(UserName, Role);
   }, [formData]);
   useEffect(() => {
     PolicyViewData()
@@ -141,40 +135,42 @@ const CreatePolicy = () => {
       });
   }, []);
 
+  useEffect(() => {
+    console.log(Comments);
+  }, [Comments]);
+
   let handleComment = (i, e) => {
-    console.log(i, e.target.value);
-    setComment(e.target.value);
-    // let newFormValues = [...formValues];
-    // newFormValues[i][e.target.name] = e.target.value;
-    // setFormValues(newFormValues);
-    // Comments:[{:Role:"","userName:"",comment:"this is practice",time:""}]
+    let newFormValues = [...Comments];
+    newFormValues[i][e.target.name] = e.target.value;
+    setComments(newFormValues);
   };
 
   let addFormFields = () => {
-    const previousComments = [...Comments];
-    // console.log(previousComments);
-    setComments([...previousComments, newComment]);
-    Comments.push([...Comments, newComment]);
+    setComments([...Comments, newComment]);
   };
 
   let addFileInput = () => {
     setFormValues([...formValues, { file: {} }]);
   };
 
-  useEffect(() => {
-    console.log(formValues);
-  });
   let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
   };
+
   let handleFileChange = (i, e) => {
+    console.log(e.target.files);
+    console.log((newFormValues[i].file = e.target.files));
     let newFormValues = [...formValues];
-    newFormValues[i]["file"] = e.target.files;
+    newFormValues[i].file = e.target.files;
     setFormValues(newFormValues);
   };
-
+  let removeFormFields = (i) => {
+    let newFormValues = [...Comments];
+    newFormValues.splice(i, 1);
+    setComments(newFormValues);
+  };
   const submitHandler = (e) => {
     // e.preventDefault();
     // if (error) {
@@ -512,102 +508,46 @@ const CreatePolicy = () => {
                   })}
               </Row>
 
-              {formValues.map((element, index) => (
-                <Row key={index} className="my-2">
-                  {/* <Col lg="4">
-                      <Label>Notification</Label>
+              {Comments &&
+                Comments?.map((element, index) => (
+                  <Row key={index} className="my-2">
+                    <Col lg="6" md="6" sm="12">
+                      <Label>Comment</Label>
                       <Input
-                        style={{ marginRight: "3px" }}
-                        type="checkbox"
-                        name="notification"
-                        onChange={e => handleInputChange(e, "checkbox")}
+                        type="textarea"
+                        name="comment"
+                        placeholder="Comment"
+                        value={element.comment || ""}
+                        onChange={(e) => handleComment(index, e)}
                       />
-                      <span
-                        className="mt-1 mx-1"
-                        style={{ marginRight: "40px" }}
-                      >
-                        <BsWhatsapp
-                          className="mx-1"
-                          color="#59CE72"
-                          size={25}
-                        />
-                      </span>
-                      <Input
-                        style={{ marginRight: "3px" }}
-                        type="checkbox"
-                        name="notification"
-                        onChange={e => handleInputChange(e, "checkbox")}
-                      />
-                      <span
-                        className="mt-1 mx-1"
-                        style={{ marginRight: "40px" }}
-                      >
-                        <FcPhoneAndroid size={30} />
-                      </span>
-                      <Input
-                        style={{ marginRight: "3px" }}
-                        type="checkbox"
-                        name="notification"
-                        onChange={e => handleInputChange(e, "checkbox")}
-                      />
-                      <span
-                        className="mt-1 mx-1"
-                        style={{ marginRight: "40px" }}
-                      >
-                        <BiEnvelope className="" size={30} />
-                      </span> */}
-                  {/* <Input
-                        type="text"
-                        name="notification"
-                        value={element.notification || ""}
-                        placeholder="notify"
-                        onChange={e => handleChange(index, e)}
-                      /> */}
-                  {/* </Col> */}
-                  <Col lg="6" md="6" sm="12">
-                    <Label>Comment</Label>
-                    <Input
-                      type="textarea"
-                      name="comment"
-                      placeholder="Comment"
-                      value={element.comment || ""}
-                      onChange={(e) => handleChange(index, e)}
-                    />
-                  </Col>
-                  <Col lg="3" md="3" sm="12">
-                    <Label>Attachment</Label>
-                    <Input
-                      type="file"
-                      name="attachment"
-                      onChange={(e) => handleChange(index, e)}
-                    />
-                  </Col>
-                  <Col className="d-flex" lg="3" md="3" sm="12">
-                    <div>
-                      {index ? (
-                        <Button
-                          type="button"
-                          className="btn btn-danger"
-                          onClick={() => removeFormFields(index)}
-                        >
-                          Remove
-                        </Button>
-                      ) : null}
-                    </div>
+                    </Col>
 
-                    <div>
-                      <Button
-                        className="ml-1 "
-                        color="primary"
-                        type="button"
-                        onClick={() => addFormFields()}
-                      >
-                        Add More
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
-              ))}
+                    <Col className="d-flex" lg="3" md="3" sm="12">
+                      <div>
+                        {index ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFormFields(index)}
+                          >
+                            Remove
+                          </Button>
+                        ) : null}
+                      </div>
+
+                      <div>
+                        <Button
+                          className="ml-1 "
+                          color="primary"
+                          type="button"
+                          onClick={() => addFormFields()}
+                        >
+                          Add More
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                ))}
 
               {formValues.map((index, i) => (
                 <Row>

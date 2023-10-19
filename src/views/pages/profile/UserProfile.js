@@ -469,7 +469,7 @@ class UserProfile extends React.Component {
                           required
                           type="select"
                         >
-                          <option value="USD">--Select--</option>
+                          <option value="NS">--Select--</option>
                           <option value="USD">USD</option>
                           <option value="AED">AED</option>
                           <option value="ARS">ARS</option>
