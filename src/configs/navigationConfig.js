@@ -400,7 +400,7 @@ const navigationConfig = [
         type: "item",
         icon: <FaList size={15} />,
         permissions: ["admin", "editor"],
-        // navLink: "/app/softNumen/warranty/createWarrenty",
+        navLink: "/app/SoftNumen/ticket/CreateTicket",
       },
       {
         id: "TicketSearch",
@@ -408,15 +408,11 @@ const navigationConfig = [
         type: "item",
         icon: <FaList size={15} />,
         permissions: ["admin", "editor"],
-        // navLink: "/app/softNumen/warranty/SearchWarrenty",
+        navLink: "/app/SoftNumen/ticket/TicketSearch",
       },
     ],
   },
-  // {
-  //   type: "groupHeader",
-  //   groupTitle: "Scrutiny/Inspections",
-  //   title: "Inspections",
-  // },
+
   {
     id: "Inspections",
     title: "Scrutiny/Inspections",
@@ -429,7 +425,7 @@ const navigationConfig = [
         type: "item",
         icon: <FaCode size={15} />,
         permissions: ["admin", "editor"],
-        navLink: "/app/softNumen/warranty/CreateWiki",
+        navLink: "/app/SoftNumen/Inspections/CreateInspections",
       },
 
       {
@@ -438,19 +434,14 @@ const navigationConfig = [
         type: "item",
         icon: <FaCircle size={8} />,
         permissions: ["admin", "editor"],
-        navLink: "/app/softNumen/system/ScrutinySystem",
+        navLink: "/app/SoftNumen/Inspections/InspectionsSearch",
       },
     ],
   },
 
-  // {
-  //   type: "groupHeader",
-  //   groupTitle: "Product Wiki",
-  //   title: "Product Wiki",
-  // },
   {
     id: "Product",
-    title: "Product",
+    title: "Product WIKI",
     type: "collapse",
     icon: <FaShoppingCart size={15} />,
     children: [
@@ -582,6 +573,14 @@ const navigationConfig = [
         icon: <FaPodcast size={15} />,
         permissions: ["admin", "editor"],
         navLink: "/app/SoftNumen/policy/CreatePolicy",
+      },
+      {
+        id: "SearchPolicy",
+        title: "Search Policy",
+        type: "item",
+        icon: <FaPodcast size={15} />,
+        permissions: ["admin", "editor"],
+        navLink: "/app/SoftNumen/policy/SearchPolicy",
       },
       {
         id: "ExtendedPolicy",
