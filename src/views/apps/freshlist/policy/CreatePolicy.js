@@ -13,6 +13,7 @@ import {
   CustomInput,
 } from "reactstrap";
 import { history } from "../../../../history";
+import YearPicker from "react-year-picker";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Country, State, City } from "country-state-city";
@@ -22,8 +23,7 @@ import swal from "sweetalert";
 import "../../../../../src/layouts/assets/scss/pages/users.scss";
 
 import {
-  CreateAccountSave,
-  CreateAccountView,
+  // PolicySaveData,
   PolicyViewData,
 } from "../../../../ApiEndPoint/ApiCalling";
 import { BiEnvelope } from "react-icons/bi";
@@ -43,13 +43,28 @@ const CreatePolicy = () => {
   const [index, setindex] = useState("");
   const [error, setError] = useState("");
   const [permissions, setpermissions] = useState({});
-  const [formValues, setFormValues] = useState([
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  const [attach, setAttach] = useState("");
+  const [imgData, setImage] = useState([1]);
+  const [comment, setComment] = useState("");
+  const [Comments, setComments] = useState([
     {
-      attachment: null,
-      comment: "",
-      notification: "",
+      name: JSON.parse(localStorage.getItem("userData")).UserName,
+      userRole: JSON.parse(localStorage.getItem("userData")).Role,
+      comment: comment,
+      time: new Date(),
     },
   ]);
+
+  const [formValues, setFormValues] = useState([{ file: {} }]);
+  const newComment = {
+    userName: JSON.parse(localStorage.getItem("userData")).UserName,
+    Role: JSON.parse(localStorage.getItem("userData")).Role,
+    comment: "",
+    time: new Date().toString(),
+  };
+
   const createUserXmlView = useContext(UserContext);
 
   const handleInputChange = (e, type, i) => {
@@ -99,12 +114,20 @@ const CreatePolicy = () => {
       }
     }
   };
-  useEffect(() => {}, [formData]);
+  const handleyear = date => {
+    setSelectedYear(date);
+    // console.log(date);
+  };
+  useEffect(() => {
+    const userData = localStorage.getItem("userData");
+    // console.log(JSON.parse(userData));
+    const { UserName, Role } = JSON.parse(userData);
+    // console.log(UserName, Role);
+  }, [formData]);
   useEffect(() => {
     PolicyViewData()
       .then(res => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData).Policy);
         setCreatePolicyView(JSON.parse(jsonData));
         let value = JSON.parse(jsonData)?.MyDropdown?.CheckBox?.input;
         value?.map(ele => {
@@ -118,37 +141,48 @@ const CreatePolicy = () => {
       });
   }, []);
 
-  let handleChange = (i, e) => {
-    let newFormValues = [...formValues];
-    newFormValues[i][e.target.name] = e.target.value;
-    setFormValues(newFormValues);
+  let handleComment = (i, e) => {
+    console.log(i, e.target.value);
+    setComment(e.target.value);
+    // let newFormValues = [...formValues];
+    // newFormValues[i][e.target.name] = e.target.value;
+    // setFormValues(newFormValues);
+    // Comments:[{:Role:"","userName:"",comment:"this is practice",time:""}]
   };
 
   let addFormFields = () => {
-    setFormValues([
-      ...formValues,
-      { comment: "", attachment: null, notification: "" },
-    ]);
+    const previousComments = [...Comments];
+    // console.log(previousComments);
+    setComments([...previousComments, newComment]);
+    Comments.push([...Comments, newComment]);
   };
 
-  let removeFormFields = i => {
+  let addFileInput = () => {
+    setFormValues([...formValues, { file: {} }]);
+  };
+
+  useEffect(() => {
+    console.log(formValues);
+  });
+  let removeFileAttach = i => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
   };
+  let handleFileChange = (i, e) => {
+    let newFormValues = [...formValues];
+    newFormValues[i]["file"] = e.target.files;
+    setFormValues(newFormValues);
+  };
 
   const submitHandler = e => {
-    e.preventDefault();
+    // e.preventDefault();
     // if (error) {
     //   swal("Error occured while Entering Details");
     // } else {
-    //   CreateAccountSave(formData)
+    //   PolicySaveData(formData)
     //     .then(res => {
-    //       setFormData({});
-    //       if (res.status) {
-    //         window.location.reload();
-    //         swal("Acccont Created Successfully");
-    //       }
+    //       console.log(res);
     //     })
     //     .catch(err => {
     //       console.log(err);
@@ -169,304 +203,68 @@ const CreatePolicy = () => {
           <CardBody>
             <Form className="m-1" onSubmit={submitHandler}>
               <Row className="mb-2">
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Policy?.DropdownRole?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Policy?.DropdownRole?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Policy?.DropdownRole?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Role---</option>
-                      {dropdownValue?.Policy?.DropdownRole?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
+                {CreatePolicyView?.Policy?.MyDropDown.map((drop, i) => {
+                  return (
+                    <Col lg="6" md="6" key={i}>
+                      <FormGroup>
+                        <Label>{drop.dropdown.label._text}</Label>
+                        <CustomInput
+                          required
+                          type="select"
+                          name={drop.dropdown.name._text}
+                          value={
+                            formData[drop?.dropdown?.dropdown?.name?._text]
+                          }
+                          onChange={handleInputChange}
+                        >
+                          <option value="">
+                            --Select {drop.dropdown.name._text}---
                           </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Policy?.DropdownPolicy?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Policy?.DropdownPolicy?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Policy?.DropdownPolicy?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Warranty---</option>
-                      {dropdownValue?.Policy?.DropdownPolicy?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
-                          </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Policy?.DropdownPartner?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Policy?.DropdownPartner?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Policy?.DropdownPartner?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Partner Code---</option>
-                      {dropdownValue?.Policy?.DropdownPartner?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
-                          </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Policy?.DropdownProduct?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Policy?.DropdownProduct?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Policy?.DropdownProduct?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Product ---</option>
-                      {dropdownValue?.Policy?.DropdownProduct?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
-                          </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Policy?.DropdownModel?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Policy?.DropdownModel?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Policy?.DropdownModel?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Model ---</option>
-                      {dropdownValue?.Policy?.DropdownModel?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
-                          </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Policy?.DropdownVariant?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Policy?.DropdownVariant?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Policy?.DropdownVariant?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Variant ---</option>
-                      {dropdownValue?.Policy?.DropdownVariant?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
-                          </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Policy?.DropdownUnit?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Policy?.DropdownUnit?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Policy?.DropdownUnit?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Unit ---</option>
-                      {dropdownValue?.Policy?.DropdownUnit?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
-                          </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Policy?.DropdownYear?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Policy?.DropdownYear?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Policy?.DropdownYear?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Year ---</option>
-                      {dropdownValue?.Policy?.DropdownYear?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
-                          </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col>
+                          {drop.dropdown.option.map((option, index) => {
+                            return (
+                              <option
+                                key={index}
+                                value={option?._attributes?.value}
+                              >
+                                {option?._attributes?.value}
+                              </option>
+                            );
+                          })}
+                        </CustomInput>
+                      </FormGroup>
+                    </Col>
+                  );
+                })}
+
                 {CreatePolicyView &&
                   CreatePolicyView?.Policy?.input?.map((ele, i) => {
+                    if (!!ele?.YearPicker) {
+                      return (
+                        <>
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>{ele?.label?._text}</Label>
+                              <YearPicker
+                                style={{ width: "100%" }}
+                                onChange={handleyear}
+                                selectedYear={selectedYear}
+                              />
+                              {index === i ? (
+                                <>
+                                  {error && (
+                                    <span style={{ color: "red" }}>
+                                      {error}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <></>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        </>
+                      );
+                    }
                     if (!!ele?.phoneinput) {
                       return (
                         <>
@@ -712,125 +510,57 @@ const CreatePolicy = () => {
                       );
                     }
                   })}
-
-                {/* <div className="container">
-                  <Label className="py-1">Notification</Label>
-                  <div>
-                    {CreatePolicyView &&
-                      CreatePolicyView?.CreateAccount?.CheckBox?.input?.map(
-                        (ele, i) => {
-                          return (
-                            <>
-                              <span key={i} className="mx-2">
-                                <Input
-                                  style={{ marginRight: "3px" }}
-                                  type={ele?.type?._attributes?.type}
-                                  name={ele?.name?._text}
-                                  onChange={e =>
-                                    handleInputChange(e, "checkbox")
-                                  }
-                                />
-                                <span
-                                  className="mt-1 mx-1"
-                                  style={{ marginRight: "40px" }}
-                                >
-                                  {ele?.label?._text == "Whatsapp" ? (
-                                    <BsWhatsapp
-                                      className="mx-1"
-                                      color="#59CE72"
-                                      size={25}
-                                    />
-                                  ) : (
-                                    <>
-                                      {ele.label?._text == "SMS" ? (
-                                        <>
-                                          <FcPhoneAndroid size={30} />
-                                        </>
-                                      ) : (
-                                        <>
-                                          <BiEnvelope className="" size={30} />
-                                        </>
-                                      )}
-                                    </>
-                                  )}
-                                </span>
-                              </span>
-                            </>
-                          );
-                        }
-                      )}
-                  </div>
-                </div> */}
               </Row>
 
-              {formValues.map((element, index) => (
-                <Row key={index} className="my-2">
-                  {/* <Col lg="4">
-                      <Label>Notification</Label>
+              {Comments &&
+                Comments?.map((element, index) => (
+                  <Row key={index} className="my-2">
+                    <Col lg="6" md="6" sm="12">
+                      <Label>Comment</Label>
                       <Input
-                        style={{ marginRight: "3px" }}
-                        type="checkbox"
-                        name="notification"
-                        onChange={e => handleInputChange(e, "checkbox")}
+                        type="textarea"
+                        name="comment"
+                        placeholder="Comment"
+                        value={comment || ""}
+                        onChange={e => handleComment(index, e)}
                       />
-                      <span
-                        className="mt-1 mx-1"
-                        style={{ marginRight: "40px" }}
-                      >
-                        <BsWhatsapp
-                          className="mx-1"
-                          color="#59CE72"
-                          size={25}
-                        />
-                      </span>
-                      <Input
-                        style={{ marginRight: "3px" }}
-                        type="checkbox"
-                        name="notification"
-                        onChange={e => handleInputChange(e, "checkbox")}
-                      />
-                      <span
-                        className="mt-1 mx-1"
-                        style={{ marginRight: "40px" }}
-                      >
-                        <FcPhoneAndroid size={30} />
-                      </span>
-                      <Input
-                        style={{ marginRight: "3px" }}
-                        type="checkbox"
-                        name="notification"
-                        onChange={e => handleInputChange(e, "checkbox")}
-                      />
-                      <span
-                        className="mt-1 mx-1"
-                        style={{ marginRight: "40px" }}
-                      >
-                        <BiEnvelope className="" size={30} />
-                      </span> */}
-                  {/* <Input
-                        type="text"
-                        name="notification"
-                        value={element.notification || ""}
-                        placeholder="notify"
-                        onChange={e => handleChange(index, e)}
-                      /> */}
-                  {/* </Col> */}
-                  <Col lg="6" md="6" sm="12">
-                    <Label>Comment</Label>
-                    <Input
-                      type="textarea"
-                      name="comment"
-                      placeholder="Comment"
-                      value={element.comment || ""}
-                      onChange={e => handleChange(index, e)}
-                    />
-                  </Col>
-                  <Col lg="3" md="3" sm="12">
-                    <Label>Attachment</Label>
+                    </Col>
+
+                    <Col className="d-flex" lg="3" md="3" sm="12">
+                      <div>
+                        {index ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFormFields(index)}
+                          >
+                            Remove
+                          </Button>
+                        ) : null}
+                      </div>
+
+                      <div>
+                        <Button
+                          className="ml-1 "
+                          color="primary"
+                          type="button"
+                          onClick={() => addFormFields()}
+                        >
+                          Add More
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                ))}
+
+              {formValues.map((index, i) => (
+                <Row>
+                  {console.log(index, i)}
+                  <Col lg="6" md="6" key={i}>
                     <Input
                       type="file"
-                      name="attachment"
-                      onChange={e => handleChange(index, e)}
+                      multiple
+                      onChange={e => handleFileChange(index, e)}
                     />
                   </Col>
                   <Col className="d-flex" lg="3" md="3" sm="12">
@@ -839,23 +569,23 @@ const CreatePolicy = () => {
                         <Button
                           type="button"
                           className="btn btn-danger"
-                          onClick={() => removeFormFields(index)}
+                          onClick={() => removeFileAttach(index)}
                         >
                           Remove
                         </Button>
                       ) : null}
                     </div>
-
-                    <div>
-                      <Button
-                        className="ml-1"
-                        type="button"
-                        onClick={() => addFormFields()}
-                      >
-                        Add More
-                      </Button>
-                    </div>
                   </Col>
+                  <div>
+                    <Button
+                      className="ml-1 my-2"
+                      color="primary"
+                      type="button"
+                      onClick={() => addFileInput()}
+                    >
+                      Add File Input
+                    </Button>
+                  </div>
                 </Row>
               ))}
 
