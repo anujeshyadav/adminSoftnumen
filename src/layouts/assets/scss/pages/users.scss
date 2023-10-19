@@ -19,6 +19,11 @@
   width: 100%;
 }
 
+[dir="ltr"] .year-picker {
+  text-align: left;
+  width: 100% !important;
+  height: 40px;
+}
 // User view Table
 .permissions-table {
   td,
