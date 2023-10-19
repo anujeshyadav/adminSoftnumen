@@ -52,14 +52,14 @@ const navigationConfig = [
   //   title: "Customers",
   // },
   {
-    id: "Customer",
-    title: "Customers",
+    id: "Account",
+    title: "Account",
     type: "collapse",
     icon: <FaUsers size={15} />,
     children: [
       {
-        id: "createstaff",
-        title: "Create staff",
+        id: "UserCreation",
+        title: "User Creation",
         type: "item",
         icon: <FaCircle size={8} />,
         permissions: ["admin", "editor"],
