@@ -31,7 +31,6 @@ import { FcPhoneAndroid } from "react-icons/fc";
 import { BsWhatsapp } from "react-icons/bs";
 import "../../../../assets/scss/pages/users.scss";
 import UserContext from "../../../../context/Context";
-import { CloudLightning } from "react-feather";
 
 const CreatePolicy = () => {
   const [CreatePolicyView, setCreatePolicyView] = useState({});

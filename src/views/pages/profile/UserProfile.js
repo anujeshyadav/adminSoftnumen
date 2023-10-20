@@ -15,7 +15,6 @@ import CheckBoxesVuexy from "../../../components/@vuexy/checkbox/CheckboxesVuexy
 import { Check } from "react-feather";
 import Breadcrumbs from "../../../components/@vuexy/breadCrumbs/BreadCrumb";
 import swal from "sweetalert";
-import axiosConfig from "../../../axiosConfig";
 import { EditUserProfile } from "../../../ApiEndPoint/ApiCalling";
 import UserContext from "../../../context/Context";
 import moment from "moment-timezone";
@@ -105,7 +104,6 @@ class UserProfile extends React.Component {
           .then((response) => {
             console.log(response);
             let userData = { ...response?.updateUser[0], ...response?.user };
-
             this.context?.setUserInformatio(userData);
             localStorage.setItem("userData", JSON.stringify(userData));
 
@@ -113,9 +111,10 @@ class UserProfile extends React.Component {
               swal("Success!", "Updated Successfully", "success");
               this.setState({ Loading: "Submit" });
             }
-            window.location.reload("/#/pages/profile");
+            // window.location.reload("/#/pages/profile");
           })
           .catch((error) => {
+            console.log("dddddd");
             swal("Error!", "Something went Wrong", "error");
             this.setState({ Loading: "Submit" });
             console.log(error.response);
@@ -129,7 +128,6 @@ class UserProfile extends React.Component {
         .then((response) => {
           console.log(response);
           let userData = { ...response?.updateUser[0], ...response?.user };
-
           this.context?.setUserInformatio(userData);
           localStorage.setItem("userData", JSON.stringify(userData));
 
@@ -137,10 +135,10 @@ class UserProfile extends React.Component {
             swal("Success!", "Updated Successfully", "success");
             this.setState({ Loading: "Submit" });
           }
-          window.location.reload("/#/pages/profile");
+          // window.location.reload("/#/pages/profile");
         })
         .catch((error) => {
-          debugger;
+          console.log("object");
           swal("Error!", "Something went Wrong", "error");
           console.log(error.response);
           this.setState({ Loading: "Submit" });
@@ -171,7 +169,7 @@ class UserProfile extends React.Component {
                   {this.state.LoginData?.profileImage ? (
                     <>
                       <img
-                        src={`http://3.7.55.231:5000/Images/${this.state.LoginData?.profileImage}`}
+                        src={`http://3.7.55.231:5000/Images/${this.context?.UserInformatio?.profileImage}`}
                         alt="adminimg"
                         className="img-fluid img-border rounded-circle box-shadow-1 mt-1"
                         width="250px"
@@ -181,7 +179,7 @@ class UserProfile extends React.Component {
                   ) : (
                     <>
                       <img
-                        src={`http://3.7.55.231:5000/Images/${this.state.LoginData?.user1?.profileImage}`}
+                        src={`http://3.7.55.231:5000/Images/${this.context?.UserInformatio?.profileImage}`}
                         alt="adminimg"
                         className="img-fluid img-border rounded-circle box-shadow-1 mt-1"
                         width="210px"
@@ -202,13 +200,13 @@ class UserProfile extends React.Component {
                     <li className="lst-2 p-1">
                       Email:{" "}
                       <span className="lst-3">
-                        <strong>{this.state.LoginData?.email}</strong>
+                        <strong>{this.context?.UserInformatio?.email}</strong>
                       </span>
                     </li>
                     <li className="lst-2 p-1">
                       Role:
                       <span className="lst-3">
-                        <strong>{this.state.LoginData?.Role}</strong>
+                        <strong>{this.context?.UserInformatio?.Role}</strong>
                       </span>
                     </li>
                   </ul>
@@ -329,9 +327,7 @@ class UserProfile extends React.Component {
                           <option value="Etc/UTC">
                             Coordinated Universal Time (UTC)
                           </option>
-                          <option value="GMT  ">
-                            Greenwich Mean Time (GMT)
-                          </option>
+                          <option value="GMT">Greenwich Mean Time (GMT)</option>
                           <option value="Europe/London">
                             British Summer Time (BST)
                           </option>

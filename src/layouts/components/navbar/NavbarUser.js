@@ -28,6 +28,7 @@ import logo from "../../assets/img/profile/pages/page-01.jpg";
 import { IntlContext } from "../../../utility/context/Internationalization";
 import { Route, useHistory } from "react-router-dom";
 import ToggleMode from "./ToggleMode";
+import logoinfo from "../../assets/img/logo/logo-info.png";
 import { BsCartCheckFill } from "react-icons/bs";
 import UserContext from "../../../context/Context";
 import { MdDelete } from "react-icons/md";
@@ -320,9 +321,6 @@ class NavbarUser extends React.PureComponent {
 
   handleDecreaseCount = (ele, index, e) => {
     e.preventDefault();
-    debugger;
-    const user = this.context;
-
     this.state.SetTotal[index] =
       ele?.product?.Part_Price * (this.state.Quantity[index] - 1);
     console.log(this.state.SetTotal);
@@ -339,8 +337,6 @@ class NavbarUser extends React.PureComponent {
 
   handleIncreaseCount = (ele, index, e) => {
     e.preventDefault();
-    const user = this.context;
-
     this.state.SetTotal[index] =
       ele?.product?.Part_Price * (this.state.Quantity[index] + 1);
     console.log(this.state.SetTotal);
@@ -376,7 +372,7 @@ class NavbarUser extends React.PureComponent {
     ).toFixed(2);
 
     const { userData } = this.state;
-    const renderCartItems = this.state.shoppingCart.map((item) => {
+    const renderCartItems = this.state.shoppingCart?.map((item) => {
       return (
         <>
           <div className="cart-item" key={item.id}>
@@ -480,7 +476,8 @@ class NavbarUser extends React.PureComponent {
                         {this.state.TaxType == "All" ? (
                           <Col lg="2" md="2" sm="12" xs="12">
                             <Label>Tax Percentage</Label>
-                            <select
+                            <input
+                              type="number"
                               onChange={(e) =>
                                 this.setState({
                                   TaxPercentage: e.target.value,
@@ -488,48 +485,56 @@ class NavbarUser extends React.PureComponent {
                               }
                               name="Taxpercentage"
                               className="form-control"
-                              id="productSelect"
-                            >
+                            />
+                            {/* <select id="productSelect">
                               <option value={5}>5%</option>
                               <option value={12}>12% </option>
                               <option value={18}>18%</option>
-                            </select>
+                            </select> */}
                           </Col>
                         ) : (
                           <>
                             <Col lg="2" md="2" sm="12" xs="12">
                               <Label>Tax Percentage Individual</Label>
-                              <select
+                              <input
+                                name="Taxpercentage"
+                                className="form-control"
+                                id="productSelect"
+                                type="number"
                                 onChange={(e) =>
                                   this.setState({
                                     TaxPercentage: e.target.value,
                                   })
                                 }
-                                name="Taxpercentage"
-                                className="form-control"
-                                id="productSelect"
+                              />
+                              {/* <select
+                              
                               >
                                 <option value={5}>5%</option>
                                 <option value={12}>12% </option>
                                 <option value={18}>18%</option>
-                              </select>
+                              </select> */}
                             </Col>
                           </>
                         )}
                         <Col lg="2" md="2" sm="12" xs="12">
                           <Label>Shipping Fee</Label>
-                          <select
+                          <input
+                            type="number"
                             onChange={(e) =>
                               this.setState({ Shippingfee: e.target.value })
                             }
                             name="Shippingfee"
                             className="form-control"
+                          />
+                          {/* <select
+                            
                             id="productSelect"
                           >
                             <option value={10}>10%</option>
                             <option value={12}>12% </option>
                             <option value={18}>18%</option>
-                          </select>
+                          </select> */}
                         </Col>
                       </Row>
                     </div>
@@ -554,9 +559,6 @@ class NavbarUser extends React.PureComponent {
                       </thead>
                       <tbody>
                         {user?.PartsCatalougueCart?.map((ele, i) => {
-                          {
-                            /* {this.state.myCart?.map((ele, i) => { */
-                          }
                           return (
                             <tr key={i}>
                               <th scope="row"> {i + 1}</th>
@@ -620,13 +622,23 @@ class NavbarUser extends React.PureComponent {
                                 </span>
                               </td>
                               {/* <td>{ele?.quantity}</td> */}
-                              <td>{ele?.product?.Part_Price}</td>
+                              <td>
+                                {(
+                                  user?.Currencyconvert *
+                                  ele?.product?.Part_Price
+                                ).toFixed(2)}
+                              </td>
                               {/* Part price */}
                               <td>
+                                {(
+                                  user?.Currencyconvert *
+                                  ele?.product?.Part_Price
+                                ).toFixed(2) * this.state.Quantity[i]}
+                              </td>
+                              {/* <td>
                                 {ele?.product?.Part_Price *
                                   this.state.Quantity[i]}
-                                {/* {ele?.product?.Part_Price * ele?.quantity} */}
-                              </td>
+                              </td> */}
                             </tr>
                           );
                         })}
@@ -637,21 +649,30 @@ class NavbarUser extends React.PureComponent {
                         <div className="mytotal mynavbaramont">
                           <div className="d-flex justify-content-end p-1">
                             <strong>
-                              Total Amount : &nbsp;{this.state.Total}
+                              Total Amount : &nbsp;
+                              {(
+                                user?.Currencyconvert * this.state.Total
+                              ).toFixed(2)}
                             </strong>
                           </div>
                           <div className="d-flex justify-content-end p-1">
-                            <strong>Tax Amount : &nbsp;{taxAmount}</strong>
+                            <strong>
+                              Tax Amount : &nbsp;
+                              {(user?.Currencyconvert * taxAmount).toFixed(2)}
+                            </strong>
                           </div>
                           <div className="d-flex justify-content-end p-1">
-                            <strong>Shipping fee : &nbsp;{Shipping}</strong>
+                            <strong>
+                              Shipping fee : &nbsp;
+                              {(user?.Currencyconvert * Shipping).toFixed(2)}
+                            </strong>
                           </div>
                           <hr />
                           <div className="d-flex justify-content-end p-1">
                             <h5>
                               <b>
                                 Grand Total : &nbsp;
-                                {Grand}
+                                {(user?.Currencyconvert * Grand).toFixed(2)}
                               </b>
                             </h5>
                           </div>
@@ -959,7 +980,7 @@ class NavbarUser extends React.PureComponent {
               {this.state.LoginData?.profileImage ? (
                 <>
                   <img
-                    src={`http://3.7.55.231:5000/Images/${this.state.LoginData?.profileImage}`}
+                    src={`http://3.7.55.231:5000/Images/${user?.UserInformatio?.profileImage}`}
                     className="round"
                     height="40"
                     width="40"
@@ -969,7 +990,7 @@ class NavbarUser extends React.PureComponent {
               ) : (
                 <>
                   <img
-                    src={`http://3.7.55.231:5000/Images/${this.state.LoginData?.user1?.profileImage}`}
+                    src={logoinfo}
                     className="round"
                     height="40"
                     width="40"
