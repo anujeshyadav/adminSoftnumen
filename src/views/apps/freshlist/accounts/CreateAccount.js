@@ -189,7 +189,6 @@ const CreateAccount = () => {
 
                 {CreatAccountView &&
                   CreatAccountView?.CreateAccount?.input?.map((ele, i) => {
-                    debugger;
                     console.log(Context?.UserInformatio?.dateFormat);
                     // console.log(Countries);
                     // console.log(States);

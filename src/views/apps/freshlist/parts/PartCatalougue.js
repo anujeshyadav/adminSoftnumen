@@ -75,6 +75,7 @@ function PartCatalougue() {
   }, []);
 
   useEffect(() => {
+    console.log(context?.Currencyconvert);
     let userData = JSON.parse(localStorage.getItem("userData"));
     AddToCartGet(userData?._id)
       .then((res) => {
@@ -303,6 +304,7 @@ function PartCatalougue() {
                 <tr>
                   <th>#</th>
                   <th>Part Name</th>
+                  <th>Part Price</th>
                   <th>Part Number</th>
                   <th>Qty</th>
                   <th>Add to Cart </th>
@@ -320,6 +322,11 @@ function PartCatalougue() {
                               <img src={val.Part_Image?.text} alt="img" />
                             </td> */}
                         <td>{val.Part_Name}</td>
+                        <td>
+                          {(context?.Currencyconvert * val.Part_Price).toFixed(
+                            2
+                          )}
+                        </td>
                         <td>{val.Part_Number}</td>
                         <td>
                           <span className="d-flex">
