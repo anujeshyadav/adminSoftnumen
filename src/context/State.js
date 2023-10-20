@@ -18,7 +18,6 @@ const State = (props) => {
   let user = JSON.parse(localStorage.getItem("userData"));
 
   useEffect(() => {
-    debugger;
     let user = JSON.parse(localStorage.getItem("userData"));
     setUserInformatio(user);
     console.log(user);

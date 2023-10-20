@@ -160,8 +160,9 @@ const CreatePolicy = () => {
 
   let handleFileChange = (i, e) => {
     const newFormValues = [...formValues];
-    const selectedFiles = Array.from(e.target.files);
-    newFormValues[index].files = selectedFiles;
+    const selectedFiles = e.target.files;
+    console.log(selectedFiles);
+    newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
   let removeFormFields = (i) => {
@@ -554,16 +555,16 @@ const CreatePolicy = () => {
                     <Input
                       type="file"
                       multiple
-                      onChange={(e) => handleFileChange(index, e)}
+                      onChange={(e) => handleFileChange(i, e)}
                     />
                   </Col>
                   <Col className="d-flex" lg="3" md="3" sm="12">
                     <div>
-                      {index ? (
+                      {i ? (
                         <Button
                           type="button"
                           className="btn btn-danger"
-                          onClick={() => removeFileAttach(index)}
+                          onClick={() => removeFileAttach(i)}
                         >
                           Remove
                         </Button>
