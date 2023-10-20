@@ -182,10 +182,7 @@ function PartCatalougue() {
 
   return (
     <>
-      <Row>
-        {/* <TimeZoneConverter /> */}
-        {/* <Exchange /> */}
-      </Row>
+      <Row>{/* <TimeZoneConverter /> */}</Row>
       <Row>
         <Col>
           <Breadcrumb>

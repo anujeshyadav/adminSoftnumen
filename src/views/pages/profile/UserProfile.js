@@ -326,22 +326,23 @@ class UserProfile extends React.Component {
                           type="select"
                         >
                           <option value="us">--Select--</option>
-                          <option value="UTC">
+                          <option value="Etc/UTC">
                             Coordinated Universal Time (UTC)
                           </option>
-                          <option value="GMT">Greenwich Mean Time (GMT)</option>
-                          <option value="BST">British Summer Time (BST)</option>
-                          <option value="CET">
+                          <option value="GMT  ">
+                            Greenwich Mean Time (GMT)
+                          </option>
+                          <option value="Europe/London">
+                            British Summer Time (BST)
+                          </option>
+                          <option value="Europe/Berlin">
                             Central European Time (CET)
                           </option>
-                          <option value="CEST">
+                          <option value="Europe/Berlin">
                             Central European Summer Time (CEST)
                           </option>
-                          <option value="EST">
-                            Eastern Standard Time (EST)
-                          </option>
 
-                          <option value="PST">
+                          <option value="America/Los_Angeles">
                             Pacific Standard Time (PST)
                           </option>
                           <option value="America/Los_Angeles">
@@ -362,23 +363,27 @@ class UserProfile extends React.Component {
                           <option value="America/New_York">
                             Eastern Daylight Time (EDT)
                           </option>
-                          <option value="HST">
+                          <option value="Pacific/Honolulu">
                             Hawaii Standard Time (HST)
                           </option>
-                          <option value="AKST">
+                          <option value="America/Anchorage">
                             Alaska Standard Time (AKST)
                           </option>
-                          <option value="AKDT">
+                          <option value="America/Anchorage">
                             Alaska Daylight Time (AKDT)
                           </option>
-                          <option value="AEST">
+                          <option value="Australia/Sydney">
                             Australian Eastern Standard Time (AEST)
                           </option>
-                          <option value="AEDT">
+                          <option value="Australia/Sydney">
                             Australian Eastern Daylight Time (AEDT)
                           </option>
-                          <option value="JST">Japan Standard Time (JST)</option>
-                          <option value="JST">China Standard Time (CST)</option>
+                          <option value="Asia/Tokyo">
+                            Japan Standard Time (JST)
+                          </option>
+                          <option value="Asia/Shanghai">
+                            China Standard Time (CST)
+                          </option>
                           <option value="Asia/Calcutta">
                             Indian Standard Time (IST)
                           </option>
