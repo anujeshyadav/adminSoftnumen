@@ -53,7 +53,7 @@ const CreatePolicy = () => {
     },
   ]);
 
-  const [formValues, setFormValues] = useState([{ file: {} }]);
+  const [formValues, setFormValues] = useState([{ files: [] }]);
 
   const newComment = {
     userName: JSON.parse(localStorage.getItem("userData")).UserName,
@@ -150,7 +150,7 @@ const CreatePolicy = () => {
   };
 
   let addFileInput = () => {
-    setFormValues([...formValues, { file: {} }]);
+    setFormValues([...formValues, { files: [] }]);
   };
 
   let removeFileAttach = (i) => {
@@ -160,10 +160,9 @@ const CreatePolicy = () => {
   };
 
   let handleFileChange = (i, e) => {
-    console.log(e.target.files);
-    console.log((newFormValues[i].file = e.target.files));
-    let newFormValues = [...formValues];
-    newFormValues[i].file = e.target.files;
+    const newFormValues = [...formValues];
+    const selectedFiles = Array.from(e.target.files);
+    newFormValues[index].files = selectedFiles;
     setFormValues(newFormValues);
   };
   let removeFormFields = (i) => {

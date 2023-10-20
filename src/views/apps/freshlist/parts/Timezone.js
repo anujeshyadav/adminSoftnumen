@@ -19,6 +19,7 @@ const TimeZoneConverter = () => {
     // setLocalTimeZone(timeZone);
     console.log(timeZone);
     const timeZones = moment.tz.names();
+    console.log(timeZones);
     const convertedTime = moment("2022-08-05T12:00:00")
       .tz("America/New_York")
       .format("D MMM, YYYY HH:mm");
