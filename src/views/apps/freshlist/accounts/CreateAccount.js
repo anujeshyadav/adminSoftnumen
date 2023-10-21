@@ -119,6 +119,8 @@ const CreateAccount = () => {
 
   const submitHandler = (e) => {
     e.preventDefault();
+    debugger;
+    console.log(formData);
     if (error) {
       swal("Error occured while Entering Details");
     } else {

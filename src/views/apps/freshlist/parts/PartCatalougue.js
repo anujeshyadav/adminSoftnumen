@@ -75,10 +75,10 @@ function PartCatalougue() {
   }, []);
 
   useEffect(() => {
-    console.log(context?.Currencyconvert);
     let userData = JSON.parse(localStorage.getItem("userData"));
     AddToCartGet(userData?._id)
       .then((res) => {
+        console.log(res?.cart);
         setSelectedCart(res?.cart);
         const initialQuantities = ListData?.map((product) => {
           const cartItem = res?.cart?.find(
@@ -86,11 +86,16 @@ function PartCatalougue() {
           );
           return cartItem ? cartItem?.quantity : 0;
         });
+        console.log(initialQuantities);
 
         setQuantities(initialQuantities);
       })
       .catch((err) => {
         console.log(err.response);
+        if (err?.response.data?.message) {
+          const initialQuantities = new Array(ListData?.length).fill(0);
+          setQuantities(initialQuantities);
+        }
       });
   }, [ListData]);
 
@@ -102,6 +107,7 @@ function PartCatalougue() {
     });
   };
 
+  // handle decrease count
   const handleDecreaseCount = (index) => {
     setQuantities((prevQuantities) => {
       const newQuantities = [...prevQuantities];
@@ -304,7 +310,15 @@ function PartCatalougue() {
                 <tr>
                   <th>#</th>
                   <th>Part Name</th>
-                  <th>Part Price</th>
+                  <th>
+                    Part Price(
+                    {context?.UserInformatio?.currency !== undefined ? (
+                      <>{context?.UserInformatio?.currency.split("_")[1]}</>
+                    ) : (
+                      <>$</>
+                    )}
+                    )
+                  </th>
                   <th>Part Number</th>
                   <th>Qty</th>
                   <th>Add to Cart </th>
@@ -359,11 +373,6 @@ function PartCatalougue() {
                             </div>{" "}
                             <Button
                               onClick={() => handleIncreaseCount(i)}
-                              // onClick={() => {
-                              //   const newQuantities = [...quantities];
-                              //   newQuantities[i] = e.target.value;
-                              //   setQuantities(newQuantities);
-                              // }}
                               style={{ padding: "7px 8px" }}
                               color="primary"
                               size="sm"

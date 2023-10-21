@@ -71,6 +71,12 @@ class UserProfile extends React.Component {
       Currency: pageparmission?.currency,
       // cnfmPassword: pageparmission?.Userinfo?.password,
     });
+    if (
+      pageparmission?.currency == undefined ||
+      pageparmission?.currency == null
+    ) {
+      this.setState({ Currency: "USD" });
+    }
     // console.log(this.context);
   }
 
@@ -328,59 +334,59 @@ class UserProfile extends React.Component {
                             Coordinated Universal Time (UTC)
                           </option>
                           <option value="GMT">Greenwich Mean Time (GMT)</option>
-                          <option value="Europe/London">
+                          <option value="Europe/London-BST">
                             British Summer Time (BST)
                           </option>
-                          <option value="Europe/Berlin">
+                          <option value="Europe/Berlin-CST">
                             Central European Time (CET)
                           </option>
-                          <option value="Europe/Berlin">
+                          <option value="Europe/Berlin-CEST">
                             Central European Summer Time (CEST)
                           </option>
 
-                          <option value="America/Los_Angeles">
+                          <option value="America/Los_Angeles-PST">
                             Pacific Standard Time (PST)
                           </option>
-                          <option value="America/Los_Angeles">
+                          <option value="America/Los_Angeles-PDT">
                             Pacific Daylight Time (PDT)
                           </option>
                           <option value="CST">
                             (Central Standard Time - CST)
                           </option>
-                          <option value="America/Phoenix">
+                          <option value="America/Phoenix-MST">
                             (Mountain Standard Time - MST)
                           </option>
-                          <option value="America/Denver">
+                          <option value="America/Denver-MDT">
                             (Mountain Daylight Time - MDT)
                           </option>
-                          <option value="America/Chicago">
+                          <option value="America/Chicago-CDT">
                             (Central Daylight Time - CDT)
                           </option>
-                          <option value="America/New_York">
+                          <option value="America/New_York-EDT">
                             Eastern Daylight Time (EDT)
                           </option>
-                          <option value="Pacific/Honolulu">
+                          <option value="Pacific/Honolulu -HST">
                             Hawaii Standard Time (HST)
                           </option>
-                          <option value="America/Anchorage">
+                          <option value="America/Anchorage-AKST">
                             Alaska Standard Time (AKST)
                           </option>
-                          <option value="America/Anchorage">
+                          <option value="America/Anchorage-AKDT">
                             Alaska Daylight Time (AKDT)
                           </option>
-                          <option value="Australia/Sydney">
+                          <option value="Australia/Sydney-AEST">
                             Australian Eastern Standard Time (AEST)
                           </option>
-                          <option value="Australia/Sydney">
+                          <option value="Australia/Sydney-AEDT">
                             Australian Eastern Daylight Time (AEDT)
                           </option>
-                          <option value="Asia/Tokyo">
+                          <option value="Asia/Tokyo-JST">
                             Japan Standard Time (JST)
                           </option>
-                          <option value="Asia/Shanghai">
+                          <option value="Asia/Shanghai-CST">
                             China Standard Time (CST)
                           </option>
-                          <option value="Asia/Calcutta">
+                          <option value="Asia/Calcutta-IST">
                             Indian Standard Time (IST)
                           </option>
                           {/* <option value="AST">
@@ -471,58 +477,53 @@ class UserProfile extends React.Component {
                           type="select"
                         >
                           <option value="NS">--Select--</option>
-                          <option value="USD">USD</option>
-                          <option value="AED">AED</option>
-                          <option value="ARS">ARS</option>
-                          <option value="AUD">AUD</option>
-                          <option value="BGN">BGN</option>
-                          <option value="BRL">BRL</option>
-                          <option value="BSD">BSD</option>
-                          <option value="CAD">CAD</option>
-                          <option value="CHF">CHF</option>
-                          <option value="CLP">CLP</option>
-                          <option value="CNY">CNY</option>
-                          <option value="COP">COP</option>
-                          <option value="CZK">CZK</option>
-                          <option value="DKK">DKK</option>
-                          <option value="DOP">DOP</option>
-                          <option value="EGP">EGP</option>
-                          <option value="EUR">EUR</option>
-                          <option value="FJD">FJD</option>
-                          <option value="GBP">GBP</option>
-                          <option value="GTQ">GTQ</option>
-                          <option value="HKD">HKD</option>
-                          <option value="HRK">HRK</option>
-                          <option value="HUF">HUF</option>
-                          <option value="IDR">IDR</option>
-                          <option value="ILS">ILS</option>
-                          <option value="INR">INR</option>
-                          <option value="ISK">ISK</option>
-                          <option value="JPY">JPY</option>
-                          <option value="KRW">KRW</option>
-                          <option value="KZT">KZT</option>
-                          <option value="MVR">MVR</option>
-                          <option value="MXN">MXN</option>
-                          <option value="MYR">MYR</option>
-                          <option value="NOK">NOK</option>
-                          <option value="NZD">NZD</option>
-                          <option value="PAB">PAB</option>
-                          <option value="PEN">PEN</option>
-                          <option value="PHP">PHP</option>
-                          <option value="PKR">PKR</option>
-                          <option value="PLN">PLN</option>
-                          <option value="PYG">PYG</option>
-                          <option value="RON">RON</option>
-                          <option value="RUB">RUB</option>
-                          <option value="SAR">SAR</option>
-                          <option value="SEK">SEK</option>
-                          <option value="SGD">SGD</option>
-                          <option value="THB">THB</option>
-                          <option value="TRY">TRY</option>
-                          <option value="TWD">TWD</option>
-                          <option value="UAH">UAH</option>
-                          <option value="UYU">UYU</option>
-                          <option value="ZAR">ZAR</option>
+                          <option value="USD_$">USD</option>
+                          <option value="AED_AED">AED</option>
+                          <option value="ARS_$">ARS</option>
+                          <option value="AUD_$">AUD</option>
+                          <option value="BGN_лв">BGN</option>
+                          <option value="BRL_R$">BRL</option>
+                          <option value="BSD_$">BSD</option>
+                          <option value="CAD_$">CAD</option>
+                          <option value="CLP_$">CLP</option>
+                          <option value="CNY_¥">CNY</option>
+                          <option value="COP_$">COP</option>
+                          <option value="CZK_Kč">CZK</option>
+                          <option value="DKK_kr">DKK</option>
+                          <option value="DOP_RD$">DOP</option>
+                          <option value="EGP_£">EGP</option>
+                          <option value="EUR_€">EUR</option>
+                          <option value="FJD_$">FJD</option>
+                          <option value="GBP_£">GBP</option>
+                          <option value="GTQ_Q">GTQ</option>
+                          <option value="HKD_$">HKD</option>
+                          <option value="HUF_Ft">HUF</option>
+                          <option value="IDR_Rp">IDR</option>
+                          <option value="ILS_₪">ILS</option>
+                          <option value="INR_₹">INR</option>
+                          <option value="ISK_kr">ISK</option>
+                          <option value="JPY_¥">JPY</option>
+                          <option value="KRW_₩">KRW</option>
+                          <option value="KZT_лв">KZT</option>
+                          <option value="MXN_$">MXN</option>
+                          <option value="MYR_RM">MYR</option>
+                          <option value="NOK_kr">NOK</option>
+                          <option value="NZD_$">NZD</option>
+                          <option value="PAB_B/.">PAB</option>
+                          <option value="PEN_S/.">PEN</option>
+                          <option value="PHP_₱">PHP</option>
+                          <option value="PKR_₨">PKR</option>
+                          <option value="PLN_zł">PLN</option>
+                          <option value="PYG_Gs">PYG</option>
+                          <option value="RON_lei">RON</option>
+                          <option value="RUB_₽">RUB</option>
+                          <option value="SEK_kr">SEK</option>
+                          <option value="SGD_$">SGD</option>
+                          <option value="THB_฿">THB</option>
+                          {/* <option value="TRY_">TRY</option> */}
+                          <option value="TWD_NT$">TWD</option>
+                          <option value="UAH_₴">UAH</option>
+                          <option value="UYU_$U">UYU</option>
                         </CustomInput>
                       </Col>
                     </Row>

@@ -47,9 +47,12 @@ import {
   Customer_Upload_View,
   invoice_billing_View,
   Dealers_View,
+  Delete_Delivery_Address,
+  Save_Delivery_Address,
   Supplier_View,
   SerViceCenter_View,
   WarrentyUpload_View,
+  GET_Delivery_Address,
   Distributor_View,
   ProductUpload_View,
   PolicyView,
@@ -434,3 +437,25 @@ export const CurrencyConvertor = async (currency) => {
     .then((res) => res.data);
   return response;
 };
+
+// Delivery Address
+export const GetDeliveryAddress = async (id) => {
+  let response = await axiosConfig
+    .get(`${GET_Delivery_Address}` + id)
+    .then((res) => res.data);
+  return response;
+};
+export const DeleteDeliveryAddress = async (id) => {
+  let response = await axiosConfig
+    .get(`${Delete_Delivery_Address}` + id)
+    .then((res) => res.data);
+  return response;
+};
+export const SaveDeliveryAddress = async (data) => {
+  let response = await axiosConfig
+    .post(`${Save_Delivery_Address}`, data)
+    .then((res) => res.data);
+  return response;
+};
+
+// end Delivery address
