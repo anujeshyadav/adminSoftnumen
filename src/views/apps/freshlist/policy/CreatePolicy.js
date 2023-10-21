@@ -161,7 +161,6 @@ const CreatePolicy = () => {
   let handleFileChange = (i, e) => {
     const newFormValues = [...formValues];
     const selectedFiles = e.target.files;
-    console.log(selectedFiles);
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };

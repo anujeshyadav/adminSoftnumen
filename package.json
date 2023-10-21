@@ -78,7 +78,7 @@
     "react-id-swiper": "~2.4.0",
     "react-image-pan-zoom-rotate": "^1.6.0",
     "react-input-mask": "~2.0.4",
-    "react-intl": "^3.11.0",
+    "react-intl": "^3.12.1",
     "react-joyride": "^2.2.1",
     "react-leaflet": "^2.6.1",
     "react-moment": "^1.1.1",

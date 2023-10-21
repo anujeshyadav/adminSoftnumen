@@ -18,6 +18,8 @@ const State = (props) => {
   let user = JSON.parse(localStorage.getItem("userData"));
 
   useEffect(() => {
+    const locale = navigator.language || "en";
+    console.log(locale);
     let user = JSON.parse(localStorage.getItem("userData"));
     setUserInformatio(user);
     console.log(user);
