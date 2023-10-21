@@ -102,6 +102,7 @@ function PartCatalougue() {
     });
   };
 
+  // handle decrease count
   const handleDecreaseCount = (index) => {
     setQuantities((prevQuantities) => {
       const newQuantities = [...prevQuantities];
