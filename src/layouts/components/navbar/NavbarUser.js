@@ -20,11 +20,11 @@ import axiosConfig from "../../../axiosConfig";
 import * as Icon from "react-feather";
 import classnames from "classnames";
 import ReactCountryFlag from "react-country-flag";
+import "../../assets/scss/pages/users.scss";
 import Autocomplete from "../../../components/@vuexy/autoComplete/AutoCompleteComponent";
 //import { useAuth0 } from "../../../authServices/auth0/auth0Service"
 import { history } from "../../../history";
-import images from "../../assets/img/logo/g.png";
-import logo from "../../assets/img/profile/pages/page-01.jpg";
+
 import { IntlContext } from "../../../utility/context/Internationalization";
 import { Route, useHistory } from "react-router-dom";
 import ToggleMode from "./ToggleMode";
@@ -37,6 +37,7 @@ import {
   DeleteCartItemPartsCatelogue,
 } from "../../../ApiEndPoint/ApiCalling";
 import swal from "sweetalert";
+
 const total = [];
 const handleNavigation = (e) => {
   e.preventDefault();
@@ -539,117 +540,124 @@ class NavbarUser extends React.PureComponent {
                       </Row>
                     </div>
                     <hr />
-                    <Table
-                      style={{ height: "221px", overflowY: "scroll" }}
-                      bordered
-                      hover
-                      striped
-                    >
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Part Name</th>
-                          <th>Part Number</th>
-                          <th>Type</th>
-                          <th>Image </th>
-                          <th>Part Quantity</th>
-                          <th>Part Price</th>
-                          <th>Total Price</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {user?.PartsCatalougueCart?.map((ele, i) => {
-                          return (
-                            <tr key={i}>
-                              <th scope="row"> {i + 1}</th>
+                    <div className="tableheadingparts">
+                      <Table
+                        style={{ height: "221px", overflowY: "scroll" }}
+                        bordered
+                        hover
+                        striped
+                      >
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Part Name</th>
+                            <th>Part Number</th>
+                            <th>Type</th>
+                            <th>Image </th>
+                            <th>Part Quantity</th>
+                            <th>
+                              Part Price(
+                              {user?.UserInformatio?.currency?.split("_")[1]})
+                            </th>
+                            <th>Total Price</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {user?.PartsCatalougueCart?.map((ele, i) => {
+                            return (
+                              <tr key={i}>
+                                <th scope="row"> {i + 1}</th>
 
-                              <td>{ele?.product?.Part_Name}</td>
-                              <td>{ele?.product?.Part_Number}</td>
-                              <td>{ele?.product?.Part_Catalogue}</td>
-                              <td>
-                                <img
-                                  width={35}
-                                  height={35}
-                                  src={
-                                    ele?.product?.Part_Image &&
-                                    ele?.product?.Part_Image
-                                  }
-                                />{" "}
-                              </td>
+                                <td>{ele?.product?.Part_Name}</td>
+                                <td>{ele?.product?.Part_Number}</td>
+                                <td>{ele?.product?.Part_Catalogue}</td>
+                                <td>
+                                  <img
+                                    width={35}
+                                    height={35}
+                                    src={
+                                      ele?.product?.Part_Image &&
+                                      ele?.product?.Part_Image
+                                    }
+                                  />{" "}
+                                </td>
 
-                              <td>
-                                <span className="d-flex">
-                                  <Button
-                                    style={{ padding: "7px 8px" }}
-                                    className="minusbutton"
-                                    color="primary"
-                                    size="sm"
-                                    onClick={(e) =>
-                                      this.handleDecreaseCount(ele, i, e)
-                                    }
-                                  >
-                                    -
-                                  </Button>
-                                  <div className="inputheading">
-                                    <input
-                                      style={{ width: "40px" }}
-                                      type="number"
-                                      name="cart"
-                                      min="0"
-                                      value={this.state.Quantity[i]}
-                                      onChange={(e) => {
-                                        this.handleQuantityChange(e, i);
-                                      }}
-                                      onKeyDown={(e) => {
-                                        ["e", "E", "+", "-"].includes(e.key) &&
-                                          e.preventDefault();
-                                      }}
-                                      maxlength="4"
-                                      size="2"
-                                    />
-                                  </div>{" "}
-                                  <Button
-                                    onClick={(e) =>
-                                      this.handleIncreaseCount(ele, i, e)
-                                    }
-                                    style={{ padding: "7px 8px" }}
-                                    color="primary"
-                                    size="sm"
-                                  >
-                                    <strong>+</strong>
-                                  </Button>
-                                  {/* {ele?.quantity} */}
-                                </span>
-                              </td>
-                              {/* <td>{ele?.quantity}</td> */}
-                              <td>
-                                {(
-                                  user?.Currencyconvert *
-                                  ele?.product?.Part_Price
-                                ).toFixed(2)}
-                              </td>
-                              {/* Part price */}
-                              <td>
-                                {(
-                                  user?.Currencyconvert *
-                                  ele?.product?.Part_Price
-                                ).toFixed(2) * this.state.Quantity[i]}
-                              </td>
-                              {/* <td>
+                                <td>
+                                  <span className="d-flex">
+                                    <Button
+                                      style={{ padding: "7px 8px" }}
+                                      className="minusbutton"
+                                      color="primary"
+                                      size="sm"
+                                      onClick={(e) =>
+                                        this.handleDecreaseCount(ele, i, e)
+                                      }
+                                    >
+                                      -
+                                    </Button>
+                                    <div className="inputheading">
+                                      <input
+                                        style={{ width: "40px" }}
+                                        type="number"
+                                        name="cart"
+                                        min="0"
+                                        value={this.state.Quantity[i]}
+                                        onChange={(e) => {
+                                          this.handleQuantityChange(e, i);
+                                        }}
+                                        onKeyDown={(e) => {
+                                          ["e", "E", "+", "-"].includes(
+                                            e.key
+                                          ) && e.preventDefault();
+                                        }}
+                                        maxlength="4"
+                                        size="2"
+                                      />
+                                    </div>{" "}
+                                    <Button
+                                      onClick={(e) =>
+                                        this.handleIncreaseCount(ele, i, e)
+                                      }
+                                      style={{ padding: "7px 8px" }}
+                                      color="primary"
+                                      size="sm"
+                                    >
+                                      <strong>+</strong>
+                                    </Button>
+                                    {/* {ele?.quantity} */}
+                                  </span>
+                                </td>
+                                {/* <td>{ele?.quantity}</td> */}
+                                <td>
+                                  {(
+                                    user?.Currencyconvert *
+                                    ele?.product?.Part_Price
+                                  ).toFixed(2)}
+                                </td>
+                                {/* Part price */}
+                                <td>
+                                  {(
+                                    user?.Currencyconvert *
+                                    ele?.product?.Part_Price
+                                  ).toFixed(2) * this.state.Quantity[i]}
+                                </td>
+                                {/* <td>
                                 {ele?.product?.Part_Price *
                                   this.state.Quantity[i]}
                               </td> */}
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </Table>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </Table>
+                    </div>
                     <Row>
                       <Col>
                         <div className="mytotal mynavbaramont">
                           <div className="d-flex justify-content-end p-1">
                             <strong>
                               Total Amount : &nbsp;
+                              {user?.UserInformatio?.currency?.split("_")[1]}
                               {(
                                 user?.Currencyconvert * this.state.Total
                               ).toFixed(2)}
@@ -658,12 +666,14 @@ class NavbarUser extends React.PureComponent {
                           <div className="d-flex justify-content-end p-1">
                             <strong>
                               Tax Amount : &nbsp;
+                              {user?.UserInformatio?.currency?.split("_")[1]}
                               {(user?.Currencyconvert * taxAmount).toFixed(2)}
                             </strong>
                           </div>
                           <div className="d-flex justify-content-end p-1">
                             <strong>
                               Shipping fee : &nbsp;
+                              {user?.UserInformatio?.currency?.split("_")[1]}
                               {(user?.Currencyconvert * Shipping).toFixed(2)}
                             </strong>
                           </div>
@@ -672,6 +682,7 @@ class NavbarUser extends React.PureComponent {
                             <h5>
                               <b>
                                 Grand Total : &nbsp;
+                                {user?.UserInformatio?.currency?.split("_")[1]}
                                 {(user?.Currencyconvert * Grand).toFixed(2)}
                               </b>
                             </h5>

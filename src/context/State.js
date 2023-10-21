@@ -13,42 +13,30 @@ const State = (props) => {
   const [UserInformatio, setUserInformatio] = useState({});
   const [PartsCatloguelength, setPartsCatloguelength] = useState(0);
   const [Currencyconvert, setCurrencyconvert] = useState("");
-  const [PresentCurrency, setPresentCurrency] = useState("INR");
+  const [PresentCurrency, setPresentCurrency] = useState("USD_$");
   const [Userlanguage, setUserlanguage] = useState(navigator.language);
 
   let user = JSON.parse(localStorage.getItem("userData"));
 
   useEffect(() => {
-    debugger;
-    console.log(Userlanguage);
     let user = JSON.parse(localStorage.getItem("userData"));
-    console.log(user);
-    console.log(user?.locale);
     setUserlanguage(user?.locale);
     setUserInformatio(user);
-    CurrencyConvertor(user?.currency)
+    console.log(user?.currency?.split("_")[0]);
+    CurrencyConvertor(user?.currency?.split("_")[0])
       .then((res) => {
-        // console.log(res?.rates);
-        let fromRate = res?.rates[PresentCurrency];
-        let toRate = res?.rates[user?.currency];
+        let fromRate = res?.rates[PresentCurrency.split("_")[0]];
+        let toRate = res?.rates[user?.currency?.split("_")[0]];
         const value = toRate / fromRate;
-        // const value = ((toRate / fromRate) * 500).toFixed(2);
         setCurrencyconvert(value);
       })
       .catch((err) => {
         console.log(err);
       });
-
-    // CreateAccountView()
-    //   .then((res) => {
-    //     const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-    //     console.log(res);
-    //     setcreateUserXmlView(jsonData);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
-  }, [user?.currency, user?.locale]);
+  }, [user?.currency]);
+  useEffect(() => {
+    console.log(user?.currency);
+  }, [user.currency]);
   return (
     <UserContext.Provider
       value={{

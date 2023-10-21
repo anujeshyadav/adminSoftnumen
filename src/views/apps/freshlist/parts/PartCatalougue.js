@@ -75,7 +75,7 @@ function PartCatalougue() {
   }, []);
 
   useEffect(() => {
-    console.log(context?.Currencyconvert);
+    console.log(context?.UserInformatio?.currency);
     let userData = JSON.parse(localStorage.getItem("userData"));
     AddToCartGet(userData?._id)
       .then((res) => {
@@ -304,7 +304,10 @@ function PartCatalougue() {
                 <tr>
                   <th>#</th>
                   <th>Part Name</th>
-                  <th>Part Price</th>
+                  <th>
+                    Part Price({context?.UserInformatio?.currency.split("_")[1]}
+                    )
+                  </th>
                   <th>Part Number</th>
                   <th>Qty</th>
                   <th>Add to Cart </th>
@@ -359,11 +362,6 @@ function PartCatalougue() {
                             </div>{" "}
                             <Button
                               onClick={() => handleIncreaseCount(i)}
-                              // onClick={() => {
-                              //   const newQuantities = [...quantities];
-                              //   newQuantities[i] = e.target.value;
-                              //   setQuantities(newQuantities);
-                              // }}
                               style={{ padding: "7px 8px" }}
                               color="primary"
                               size="sm"

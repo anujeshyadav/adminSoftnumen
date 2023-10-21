@@ -280,14 +280,21 @@ class ProductType extends React.Component {
               let convertedTime = "NA";
               if (params?.data?.createdAt != undefined) {
                 convertedTime = moment(params?.data?.createdAt?.split(".")[0])
-                  .tz(UserInformation?.timeZone)
+                  .tz(UserInformation?.timeZone.split("-")[0])
                   .format(UserInformation?.dateTimeFormat);
               }
 
               return (
                 <>
                   <div className="actions cursor-pointer">
-                    <span>{convertedTime}</span>
+                    {convertedTime == "NA" ? (
+                      "NA"
+                    ) : (
+                      <span>
+                        {convertedTime} &nbsp;
+                        {UserInformation?.timeZone.split("-")[1]}
+                      </span>
+                    )}
                   </div>
                 </>
               );
@@ -302,14 +309,21 @@ class ProductType extends React.Component {
               let convertedTime = "NA";
               if (params?.data?.updatedAt != undefined) {
                 convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
-                  .tz(UserInformation?.timeZone)
+                  .tz(UserInformation?.timeZone.split("-")[0])
                   .format(UserInformation?.dateTimeFormat);
               }
 
               return (
                 <>
                   <div className="actions cursor-pointer">
-                    <span>{convertedTime}</span>
+                    {convertedTime == "NA" ? (
+                      "NA"
+                    ) : (
+                      <span>
+                        {convertedTime} &nbsp;
+                        {UserInformation?.timeZone.split("-")[1]}
+                      </span>
+                    )}
                   </div>
                 </>
               );
