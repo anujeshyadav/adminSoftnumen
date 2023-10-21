@@ -73,3 +73,11 @@ export const Delete_CartItem_PartsCat = "/cart/remove-cart-item";
 
 // currency converter api
 export const Currency_Convertor = "https://api.exchangerate-api.com/v4/latest/";
+
+// delivery Address
+export const GET_Delivery_Address = "/deliveryAddress/get-delivery-address/";
+export const Delete_Delivery_Address =
+  "/deliveryAddress/delete-delivery-address/";
+export const Save_Delivery_Address = "/deliveryAddress/save-delivery-address";
+
+// end Delivery Address

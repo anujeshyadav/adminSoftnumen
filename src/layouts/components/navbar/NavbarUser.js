@@ -35,8 +35,10 @@ import { MdDelete } from "react-icons/md";
 import {
   AddToCartGet,
   DeleteCartItemPartsCatelogue,
+  GetDeliveryAddress,
 } from "../../../ApiEndPoint/ApiCalling";
 import swal from "sweetalert";
+import { FaAngleLeft } from "react-icons/fa";
 
 const total = [];
 const handleNavigation = (e) => {
@@ -158,8 +160,11 @@ class NavbarUser extends React.PureComponent {
     // navbarSearch: false,
     langDropdown: false,
     userData: "",
+    AddressIndex: "0",
     modal: false,
+    switchScreen: false,
     myCart: [],
+    AddressList: [],
     SetTotal: [],
     TaxType: "",
     TaxPercentage: 5,
@@ -319,6 +324,22 @@ class NavbarUser extends React.PureComponent {
   handleQuantityChange = (e) => {
     console.log(e.target.value);
   };
+  HandleAddresIndex = (e, index) => {
+    this.setState({ AddressIndex: index });
+  };
+  FinalParts = () => {
+    let userData = JSON.parse(localStorage.getItem("userData"));
+    console.log(userData?._id);
+    this.setState({ switchScreen: true });
+    GetDeliveryAddress(userData?._id)
+      .then((res) => {
+        console.log(res?.Address);
+        this.setState({ AddressList: res?.Address });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   handleDecreaseCount = (ele, index, e) => {
     e.preventDefault();
@@ -459,76 +480,150 @@ class NavbarUser extends React.PureComponent {
                   </ModalHeader>
                   <ModalBody className="myproducttable">
                     <div className="p-1">
-                      <Row>
-                        <Col lg="2" md="2" sm="12" xs="12">
-                          <Label>Tax Percentage Type</Label>
-                          <select
-                            onChange={(e) =>
-                              this.setState({ TaxType: e.target.value })
-                            }
-                            name="TaxType"
-                            className="form-control"
-                            id="productSelect"
-                          >
-                            <option value="Individual">Individual</option>
-                            <option value="All">All </option>
-                          </select>
-                        </Col>
-                        {this.state.TaxType == "All" ? (
-                          <Col lg="2" md="2" sm="12" xs="12">
-                            <Label>Tax Percentage</Label>
-                            <input
-                              type="number"
-                              onChange={(e) =>
-                                this.setState({
-                                  TaxPercentage: e.target.value,
-                                })
+                      {this.state.switchScreen && this.state.switchScreen ? (
+                        <>
+                          <div className="">
+                            <Badge
+                              style={{ cursor: "pointer" }}
+                              className="mx-1"
+                              onClick={() =>
+                                this.setState({ switchScreen: false })
                               }
-                              name="Taxpercentage"
-                              className="form-control"
-                            />
-                            {/* <select id="productSelect">
+                              title="go back"
+                              color="primary"
+                            >
+                              <FaAngleLeft className="" />
+                            </Badge>
+                          </div>
+                          <Row>
+                            <Col>
+                              <div className="p-2">
+                                <h5 className="mx-1">Delivery Address</h5>
+                                <hr />
+                                {this.state.AddressList &&
+                                  this.state.AddressList?.map((ele, i) => (
+                                    <div key={i} className="mynewaddrss py-1">
+                                      <input
+                                        className="mt-1"
+                                        checked={
+                                          this.state.AddressIndex == i
+                                            ? true
+                                            : false
+                                        }
+                                        onClick={(e) => {
+                                          this.HandleAddresIndex(e, i);
+                                        }}
+                                        type="radio"
+                                        name="address"
+                                      />
+                                      <span className="mx-1">
+                                        {ele?.address}
+                                      </span>
+                                      <div className="mx-2">
+                                        {this.state.AddressIndex == i ? (
+                                          <Badge
+                                            style={{ cursor: "pointer" }}
+                                            color="primary"
+                                            className="mt-1"
+                                          >
+                                            Deliver to This Address
+                                          </Badge>
+                                        ) : null}
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            </Col>
+                            <Col>
+                              <div className="addmoreaddress p-2">
+                                <h5 className="mx-1">
+                                  <Badge
+                                    title="Add new Address"
+                                    style={{ cursor: "pointer" }}
+                                    className="mx-2"
+                                    color="primary"
+                                  >
+                                    <strong>+</strong>
+                                  </Badge>
+                                  Add New Address{" "}
+                                </h5>
+                                <hr />
+                              </div>
+                            </Col>
+                          </Row>
+                        </>
+                      ) : (
+                        <>
+                          <Row>
+                            <Col lg="2" md="2" sm="12" xs="12">
+                              <Label>Tax Percentage Type</Label>
+                              <select
+                                onChange={(e) =>
+                                  this.setState({ TaxType: e.target.value })
+                                }
+                                name="TaxType"
+                                className="form-control"
+                                id="productSelect"
+                              >
+                                <option value="Individual">Individual</option>
+                                <option value="All">All </option>
+                              </select>
+                            </Col>
+                            {this.state.TaxType == "All" ? (
+                              <Col lg="2" md="2" sm="12" xs="12">
+                                <Label>Tax Percentage</Label>
+                                <input
+                                  type="number"
+                                  onChange={(e) =>
+                                    this.setState({
+                                      TaxPercentage: e.target.value,
+                                    })
+                                  }
+                                  name="Taxpercentage"
+                                  className="form-control"
+                                />
+                                {/* <select id="productSelect">
                               <option value={5}>5%</option>
                               <option value={12}>12% </option>
                               <option value={18}>18%</option>
                             </select> */}
-                          </Col>
-                        ) : (
-                          <>
-                            <Col lg="2" md="2" sm="12" xs="12">
-                              <Label>Tax Percentage Individual</Label>
-                              <input
-                                name="Taxpercentage"
-                                className="form-control"
-                                id="productSelect"
-                                type="number"
-                                onChange={(e) =>
-                                  this.setState({
-                                    TaxPercentage: e.target.value,
-                                  })
-                                }
-                              />
-                              {/* <select
+                              </Col>
+                            ) : (
+                              <>
+                                <Col lg="2" md="2" sm="12" xs="12">
+                                  <Label>Tax Percentage Individual</Label>
+                                  <input
+                                    name="Taxpercentage"
+                                    className="form-control"
+                                    id="productSelect"
+                                    type="number"
+                                    onChange={(e) =>
+                                      this.setState({
+                                        TaxPercentage: e.target.value,
+                                      })
+                                    }
+                                  />
+                                  {/* <select
                               
                               >
                                 <option value={5}>5%</option>
                                 <option value={12}>12% </option>
                                 <option value={18}>18%</option>
                               </select> */}
-                            </Col>
-                          </>
-                        )}
-                        <Col lg="2" md="2" sm="12" xs="12">
-                          <Label>Shipping Fee</Label>
-                          <input
-                            type="number"
-                            onChange={(e) =>
-                              this.setState({ Shippingfee: e.target.value })
-                            }
-                            name="Shippingfee"
-                            className="form-control"
-                          />
-                          {/* <select
+                                </Col>
+                              </>
+                            )}
+                            <Col lg="2" md="2" sm="12" xs="12">
+                              <Label>Shipping Fee</Label>
+                              <input
+                                type="number"
+                                onChange={(e) =>
+                                  this.setState({ Shippingfee: e.target.value })
+                                }
+                                name="Shippingfee"
+                                className="form-control"
+                              />
+                              {/* <select
                             
                             id="productSelect"
                           >
@@ -536,166 +631,210 @@ class NavbarUser extends React.PureComponent {
                             <option value={12}>12% </option>
                             <option value={18}>18%</option>
                           </select> */}
-                        </Col>
-                      </Row>
-                    </div>
-                    <hr />
-                    <div className="tableheadingparts">
-                      <Table
-                        style={{ height: "221px", overflowY: "scroll" }}
-                        bordered
-                        hover
-                        striped
-                      >
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Part Name</th>
-                            <th>Part Number</th>
-                            <th>Type</th>
-                            <th>Image </th>
-                            <th>Part Quantity</th>
-                            <th>
-                              Part Price(
-                              {user?.UserInformatio?.currency?.split("_")[1]})
-                            </th>
-                            <th>Total Price</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {user?.PartsCatalougueCart?.map((ele, i) => {
-                            return (
-                              <tr key={i}>
-                                <th scope="row"> {i + 1}</th>
+                            </Col>
+                          </Row>
+                          <hr />
+                          <div className="tableheadingparts">
+                            <Table
+                              style={{ height: "221px", overflowY: "scroll" }}
+                              bordered
+                              hover
+                              striped
+                            >
+                              <thead>
+                                <tr>
+                                  <th>#</th>
+                                  <th>Part Name</th>
+                                  <th>Part Number</th>
+                                  <th>Type</th>
+                                  <th>Image </th>
+                                  <th>Part Quantity</th>
+                                  <th>
+                                    Part Price(
+                                    {user?.UserInformatio?.currency !==
+                                    undefined ? (
+                                      <>
+                                        {
+                                          user?.UserInformatio?.currency?.split(
+                                            "_"
+                                          )[1]
+                                        }
+                                      </>
+                                    ) : (
+                                      <>$</>
+                                    )}
+                                    )
+                                  </th>
+                                  <th>Total Price</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {user?.PartsCatalougueCart?.map((ele, i) => {
+                                  return (
+                                    <tr key={i}>
+                                      <th scope="row"> {i + 1}</th>
 
-                                <td>{ele?.product?.Part_Name}</td>
-                                <td>{ele?.product?.Part_Number}</td>
-                                <td>{ele?.product?.Part_Catalogue}</td>
-                                <td>
-                                  <img
-                                    width={35}
-                                    height={35}
-                                    src={
-                                      ele?.product?.Part_Image &&
-                                      ele?.product?.Part_Image
-                                    }
-                                  />{" "}
-                                </td>
+                                      <td>{ele?.product?.Part_Name}</td>
+                                      <td>{ele?.product?.Part_Number}</td>
+                                      <td>{ele?.product?.Part_Catalogue}</td>
+                                      <td>
+                                        <img
+                                          width={35}
+                                          height={35}
+                                          src={
+                                            ele?.product?.Part_Image &&
+                                            ele?.product?.Part_Image
+                                          }
+                                        />{" "}
+                                      </td>
 
-                                <td>
-                                  <span className="d-flex">
-                                    <Button
-                                      style={{ padding: "7px 8px" }}
-                                      className="minusbutton"
-                                      color="primary"
-                                      size="sm"
-                                      onClick={(e) =>
-                                        this.handleDecreaseCount(ele, i, e)
-                                      }
-                                    >
-                                      -
-                                    </Button>
-                                    <div className="inputheading">
-                                      <input
-                                        style={{ width: "40px" }}
-                                        type="number"
-                                        name="cart"
-                                        min="0"
-                                        value={this.state.Quantity[i]}
-                                        onChange={(e) => {
-                                          this.handleQuantityChange(e, i);
-                                        }}
-                                        onKeyDown={(e) => {
-                                          ["e", "E", "+", "-"].includes(
-                                            e.key
-                                          ) && e.preventDefault();
-                                        }}
-                                        maxlength="4"
-                                        size="2"
-                                      />
-                                    </div>{" "}
-                                    <Button
-                                      onClick={(e) =>
-                                        this.handleIncreaseCount(ele, i, e)
-                                      }
-                                      style={{ padding: "7px 8px" }}
-                                      color="primary"
-                                      size="sm"
-                                    >
-                                      <strong>+</strong>
-                                    </Button>
-                                    {/* {ele?.quantity} */}
-                                  </span>
-                                </td>
-                                {/* <td>{ele?.quantity}</td> */}
-                                <td>
-                                  {(
-                                    user?.Currencyconvert *
-                                    ele?.product?.Part_Price
-                                  ).toFixed(2)}
-                                </td>
-                                {/* Part price */}
-                                <td>
-                                  {(
-                                    user?.Currencyconvert *
-                                    ele?.product?.Part_Price
-                                  ).toFixed(2) * this.state.Quantity[i]}
-                                </td>
-                                {/* <td>
+                                      <td>
+                                        <span className="d-flex">
+                                          <Button
+                                            style={{ padding: "7px 8px" }}
+                                            className="minusbutton"
+                                            color="primary"
+                                            size="sm"
+                                            onClick={(e) =>
+                                              this.handleDecreaseCount(
+                                                ele,
+                                                i,
+                                                e
+                                              )
+                                            }
+                                          >
+                                            -
+                                          </Button>
+                                          <div className="inputheading">
+                                            <input
+                                              style={{ width: "40px" }}
+                                              type="number"
+                                              name="cart"
+                                              min="0"
+                                              value={this.state.Quantity[i]}
+                                              onChange={(e) => {
+                                                this.handleQuantityChange(e, i);
+                                              }}
+                                              onKeyDown={(e) => {
+                                                ["e", "E", "+", "-"].includes(
+                                                  e.key
+                                                ) && e.preventDefault();
+                                              }}
+                                              maxlength="4"
+                                              size="2"
+                                            />
+                                          </div>{" "}
+                                          <Button
+                                            onClick={(e) =>
+                                              this.handleIncreaseCount(
+                                                ele,
+                                                i,
+                                                e
+                                              )
+                                            }
+                                            style={{ padding: "7px 8px" }}
+                                            color="primary"
+                                            size="sm"
+                                          >
+                                            <strong>+</strong>
+                                          </Button>
+                                          {/* {ele?.quantity} */}
+                                        </span>
+                                      </td>
+                                      {/* <td>{ele?.quantity}</td> */}
+                                      <td>
+                                        {(
+                                          user?.Currencyconvert *
+                                          ele?.product?.Part_Price
+                                        ).toFixed(2)}
+                                      </td>
+                                      {/* Part price */}
+                                      <td>
+                                        {(
+                                          user?.Currencyconvert *
+                                          ele?.product?.Part_Price
+                                        ).toFixed(2) * this.state.Quantity[i]}
+                                      </td>
+                                      {/* <td>
                                 {ele?.product?.Part_Price *
                                   this.state.Quantity[i]}
                               </td> */}
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </Table>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </Table>
+                          </div>
+                          <Row>
+                            <Col>
+                              <div className="mytotal mynavbaramont">
+                                <div className="d-flex justify-content-end p-1">
+                                  <strong>
+                                    Total Amount : &nbsp;
+                                    {
+                                      user?.UserInformatio?.currency?.split(
+                                        "_"
+                                      )[1]
+                                    }
+                                    {(
+                                      user?.Currencyconvert * this.state.Total
+                                    ).toFixed(2)}
+                                  </strong>
+                                </div>
+                                <div className="d-flex justify-content-end p-1">
+                                  <strong>
+                                    Tax Amount : &nbsp;
+                                    {
+                                      user?.UserInformatio?.currency?.split(
+                                        "_"
+                                      )[1]
+                                    }
+                                    {(
+                                      user?.Currencyconvert * taxAmount
+                                    ).toFixed(2)}
+                                  </strong>
+                                </div>
+                                <div className="d-flex justify-content-end p-1">
+                                  <strong>
+                                    Shipping fee : &nbsp;
+                                    {
+                                      user?.UserInformatio?.currency?.split(
+                                        "_"
+                                      )[1]
+                                    }
+                                    {(user?.Currencyconvert * Shipping).toFixed(
+                                      2
+                                    )}
+                                  </strong>
+                                </div>
+                                <hr />
+                                <div className="d-flex justify-content-end p-1">
+                                  <h5>
+                                    <b>
+                                      Grand Total : &nbsp;
+                                      {
+                                        user?.UserInformatio?.currency?.split(
+                                          "_"
+                                        )[1]
+                                      }
+                                      {(user?.Currencyconvert * Grand).toFixed(
+                                        2
+                                      )}
+                                    </b>
+                                  </h5>
+                                </div>
+                              </div>
+                            </Col>
+                          </Row>
+                          <ModalFooter>
+                            <Button color="primary" onClick={this.FinalParts}>
+                              Submit
+                            </Button>{" "}
+                          </ModalFooter>
+                        </>
+                      )}
                     </div>
-                    <Row>
-                      <Col>
-                        <div className="mytotal mynavbaramont">
-                          <div className="d-flex justify-content-end p-1">
-                            <strong>
-                              Total Amount : &nbsp;
-                              {user?.UserInformatio?.currency?.split("_")[1]}
-                              {(
-                                user?.Currencyconvert * this.state.Total
-                              ).toFixed(2)}
-                            </strong>
-                          </div>
-                          <div className="d-flex justify-content-end p-1">
-                            <strong>
-                              Tax Amount : &nbsp;
-                              {user?.UserInformatio?.currency?.split("_")[1]}
-                              {(user?.Currencyconvert * taxAmount).toFixed(2)}
-                            </strong>
-                          </div>
-                          <div className="d-flex justify-content-end p-1">
-                            <strong>
-                              Shipping fee : &nbsp;
-                              {user?.UserInformatio?.currency?.split("_")[1]}
-                              {(user?.Currencyconvert * Shipping).toFixed(2)}
-                            </strong>
-                          </div>
-                          <hr />
-                          <div className="d-flex justify-content-end p-1">
-                            <h5>
-                              <b>
-                                Grand Total : &nbsp;
-                                {user?.UserInformatio?.currency?.split("_")[1]}
-                                {(user?.Currencyconvert * Grand).toFixed(2)}
-                              </b>
-                            </h5>
-                          </div>
-                        </div>
-                      </Col>
-                    </Row>
                   </ModalBody>
-                  <ModalFooter>
-                    <Button color="primary" onClick={this.SaveProducts}>
-                      Save
-                    </Button>{" "}
-                  </ModalFooter>
                 </Modal>
               </>
             );

@@ -482,11 +482,12 @@ class Login extends React.Component {
                                           <>
                                             {" "}
                                             <AiFillEyeInvisible
-                                              onClick={() =>
+                                              onClick={(e) => {
+                                                e.preventDefault();
                                                 this.setState({
                                                   type: "password",
-                                                })
-                                              }
+                                                });
+                                              }}
                                               size="25px"
                                               color="blue"
                                             />
@@ -494,9 +495,10 @@ class Login extends React.Component {
                                         ) : (
                                           <>
                                             <AiFillEye
-                                              onClick={() =>
-                                                this.setState({ type: "text" })
-                                              }
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                this.setState({ type: "text" });
+                                              }}
                                               size="25px"
                                               color="blue"
                                             />

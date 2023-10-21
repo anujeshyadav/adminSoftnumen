@@ -23,10 +23,18 @@ const State = (props) => {
     setUserlanguage(user?.locale);
     setUserInformatio(user);
     console.log(user?.currency?.split("_")[0]);
-    CurrencyConvertor(user?.currency?.split("_")[0])
+    let currency = user?.currency;
+    debugger;
+    if (currency == undefined) {
+      currency = "USD_$";
+    }
+    // else{
+
+    // }
+    CurrencyConvertor(currency?.split("_")[0])
       .then((res) => {
         let fromRate = res?.rates[PresentCurrency.split("_")[0]];
-        let toRate = res?.rates[user?.currency?.split("_")[0]];
+        let toRate = res?.rates[currency?.split("_")[0]];
         const value = toRate / fromRate;
         setCurrencyconvert(value);
       })
@@ -34,9 +42,7 @@ const State = (props) => {
         console.log(err);
       });
   }, [user?.currency]);
-  useEffect(() => {
-    console.log(user?.currency);
-  }, [user.currency]);
+
   return (
     <UserContext.Provider
       value={{

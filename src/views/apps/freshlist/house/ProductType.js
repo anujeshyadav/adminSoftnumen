@@ -278,10 +278,21 @@ class ProductType extends React.Component {
             sortable: true,
             cellRendererFramework: (params) => {
               let convertedTime = "NA";
-              if (params?.data?.createdAt != undefined) {
-                convertedTime = moment(params?.data?.createdAt?.split(".")[0])
-                  .tz(UserInformation?.timeZone.split("-")[0])
-                  .format(UserInformation?.dateTimeFormat);
+              if (params?.data?.createdAt == undefined) {
+                convertedTime = "NA";
+              }
+              if (params?.data?.createdAt) {
+                convertedTime = params?.data?.createdAt;
+              }
+              if (
+                UserInformation?.timeZone !== undefined &&
+                params?.data?.createdAt !== undefined
+              ) {
+                if (params?.data?.createdAt != undefined) {
+                  convertedTime = moment(params?.data?.createdAt?.split(".")[0])
+                    .tz(UserInformation?.timeZone.split("-")[0])
+                    .format(UserInformation?.dateTimeFormat);
+                }
               }
 
               return (
@@ -292,7 +303,8 @@ class ProductType extends React.Component {
                     ) : (
                       <span>
                         {convertedTime} &nbsp;
-                        {UserInformation?.timeZone.split("-")[1]}
+                        {UserInformation?.timeZone &&
+                          UserInformation?.timeZone.split("-")[1]}
                       </span>
                     )}
                   </div>
@@ -307,10 +319,21 @@ class ProductType extends React.Component {
             sortable: true,
             cellRendererFramework: (params) => {
               let convertedTime = "NA";
-              if (params?.data?.updatedAt != undefined) {
-                convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
-                  .tz(UserInformation?.timeZone.split("-")[0])
-                  .format(UserInformation?.dateTimeFormat);
+              if (params?.data?.updatedAt == undefined) {
+                convertedTime = "NA";
+              }
+              if (params?.data?.updatedAt) {
+                convertedTime = params?.data?.updatedAt;
+              }
+              if (
+                UserInformation?.timeZone !== undefined &&
+                params?.data?.updatedAt !== undefined
+              ) {
+                if (params?.data?.updatedAt != undefined) {
+                  convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
+                    .tz(UserInformation?.timeZone.split("-")[0])
+                    .format(UserInformation?.dateTimeFormat);
+                }
               }
 
               return (
@@ -321,7 +344,8 @@ class ProductType extends React.Component {
                     ) : (
                       <span>
                         {convertedTime} &nbsp;
-                        {UserInformation?.timeZone.split("-")[1]}
+                        {UserInformation?.timeZone &&
+                          UserInformation?.timeZone.split("-")[1]}
                       </span>
                     )}
                   </div>

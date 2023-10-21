@@ -75,10 +75,10 @@ function PartCatalougue() {
   }, []);
 
   useEffect(() => {
-    console.log(context?.UserInformatio?.currency);
     let userData = JSON.parse(localStorage.getItem("userData"));
     AddToCartGet(userData?._id)
       .then((res) => {
+        console.log(res?.cart);
         setSelectedCart(res?.cart);
         const initialQuantities = ListData?.map((product) => {
           const cartItem = res?.cart?.find(
@@ -86,11 +86,16 @@ function PartCatalougue() {
           );
           return cartItem ? cartItem?.quantity : 0;
         });
+        console.log(initialQuantities);
 
         setQuantities(initialQuantities);
       })
       .catch((err) => {
         console.log(err.response);
+        if (err?.response.data?.message) {
+          const initialQuantities = new Array(ListData?.length).fill(0);
+          setQuantities(initialQuantities);
+        }
       });
   }, [ListData]);
 
@@ -306,7 +311,12 @@ function PartCatalougue() {
                   <th>#</th>
                   <th>Part Name</th>
                   <th>
-                    Part Price({context?.UserInformatio?.currency.split("_")[1]}
+                    Part Price(
+                    {context?.UserInformatio?.currency !== undefined ? (
+                      <>{context?.UserInformatio?.currency.split("_")[1]}</>
+                    ) : (
+                      <>$</>
+                    )}
                     )
                   </th>
                   <th>Part Number</th>
