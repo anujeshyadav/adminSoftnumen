@@ -14,15 +14,18 @@ const State = (props) => {
   const [PartsCatloguelength, setPartsCatloguelength] = useState(0);
   const [Currencyconvert, setCurrencyconvert] = useState("");
   const [PresentCurrency, setPresentCurrency] = useState("INR");
+  const [Userlanguage, setUserlanguage] = useState(navigator.language);
 
   let user = JSON.parse(localStorage.getItem("userData"));
 
   useEffect(() => {
-    const locale = navigator.language || "en";
-    console.log(locale);
+    debugger;
+    console.log(Userlanguage);
     let user = JSON.parse(localStorage.getItem("userData"));
-    setUserInformatio(user);
     console.log(user);
+    console.log(user?.locale);
+    setUserlanguage(user?.locale);
+    setUserInformatio(user);
     CurrencyConvertor(user?.currency)
       .then((res) => {
         // console.log(res?.rates);
@@ -45,11 +48,13 @@ const State = (props) => {
     //   .catch((err) => {
     //     console.log(err);
     //   });
-  }, [user?.currency]);
+  }, [user?.currency, user?.locale]);
   return (
     <UserContext.Provider
       value={{
         Currencyconvert,
+        Userlanguage,
+        setUserlanguage,
         setCurrencyconvert,
         setPresentCurrency,
         PresentCurrency,
