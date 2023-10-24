@@ -45,6 +45,7 @@ import {
   Servicing_View,
   WareHouseUpload_View,
   Customer_Upload_View,
+  SearchPolicy,
   invoice_billing_View,
   Dealers_View,
   Delete_Delivery_Address,
@@ -400,12 +401,18 @@ export const PolicyViewData = async () => {
   let response = await axiosConfig.get(`${PolicyView}`).then((res) => res.data);
   return response;
 };
-// export const PolicySaveData = async formdata => {
-//   let response = await axiosConfig
-//     .post(`${Savepolicy}`, formdata)
-//     .then(res => res.data);
-//   return response;
-// };
+export const PolicySaveDataapis = async (formdata) => {
+  let response = await axiosConfig
+    .post(`${Savepolicy}`, formdata)
+    .then((res) => res.data);
+  return response;
+};
+export const PolicyGet = async (formdata) => {
+  let response = await axiosConfig
+    .get(`${SearchPolicy}`)
+    .then((res) => res.data);
+  return response;
+};
 
 // ADD TO CART PART CATALOUGUE
 

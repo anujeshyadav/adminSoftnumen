@@ -23,7 +23,7 @@ import swal from "sweetalert";
 import "../../../../../src/layouts/assets/scss/pages/users.scss";
 
 import {
-  // PolicySaveData,
+  PolicySaveDataapis,
   PolicyViewData,
 } from "../../../../ApiEndPoint/ApiCalling";
 import { BiEnvelope } from "react-icons/bi";
@@ -110,7 +110,7 @@ const CreatePolicy = () => {
       }
     }
   };
-  const handleyear = date => {
+  const handleyear = (date) => {
     setSelectedYear(date);
   };
   useEffect(() => {
@@ -119,17 +119,17 @@ const CreatePolicy = () => {
   }, [formData]);
   useEffect(() => {
     PolicyViewData()
-      .then(res => {
+      .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         setCreatePolicyView(JSON.parse(jsonData));
         let value = JSON.parse(jsonData)?.MyDropdown?.CheckBox?.input;
-        value?.map(ele => {
+        value?.map((ele) => {
           formData[ele?.name._text] = false;
         });
 
         setdropdownValue(JSON.parse(jsonData));
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }, []);
@@ -137,6 +137,11 @@ const CreatePolicy = () => {
   useEffect(() => {
     console.log(Comments);
   }, [Comments]);
+
+  useEffect(() => {
+    console.log(formData);
+    console.log(CreatePolicyView);
+  }, [formData, CreatePolicyView]);
 
   let handleComment = (i, e) => {
     let newFormValues = [...Comments];
@@ -152,7 +157,7 @@ const CreatePolicy = () => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = i => {
+  let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -164,24 +169,38 @@ const CreatePolicy = () => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = i => {
+  let removeFormFields = (i) => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
   };
-  const submitHandler = e => {
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    let formdata = new FormData();
+    let dropdown = CreatePolicyView?.Policy?.MyDropDown?.map((ele) => {
+      formdata.append(
+        `${ele?.dropdown?.name?._text}`,
+        formData[ele?.dropdown?.name?._text]
+      );
+    });
+    let inputs = CreatePolicyView?.Policy?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    for (var value of formdata.values()) {
+      console.log(value);
+    }
     // e.preventDefault();
-    // if (error) {
-    //   swal("Error occured while Entering Details");
-    // } else {
-    //   PolicySaveData(formData)
-    //     .then(res => {
-    //       console.log(res);
-    //     })
-    //     .catch(err => {
-    //       console.log(err);
-    //     });
-    // }
+
+    PolicySaveDataapis(formdata)
+      .then((res) => {
+        swal("Policy Added Successfully");
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -268,7 +287,7 @@ const CreatePolicy = () => {
                               <PhoneInput
                                 inputClass="myphoneinput"
                                 country={"us"}
-                                onKeyDown={e => {
+                                onKeyDown={(e) => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -279,7 +298,7 @@ const CreatePolicy = () => {
                                 countryCodeEditable={false}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={phone => {
+                                onChange={(phone) => {
                                   setFormData({
                                     ...formData,
                                     [ele?.name?._text]: phone,
@@ -311,14 +330,14 @@ const CreatePolicy = () => {
                                 inputClass="countryclass"
                                 className="countryclassnw"
                                 options={Country.getAllCountries()}
-                                getOptionLabel={options => {
+                                getOptionLabel={(options) => {
                                   return options["name"];
                                 }}
-                                getOptionValue={options => {
+                                getOptionValue={(options) => {
                                   return options["name"];
                                 }}
                                 value={Countries}
-                                onChange={country => {
+                                onChange={(country) => {
                                   setCountry(country);
                                   setFormData({
                                     ...formData,
@@ -349,14 +368,14 @@ const CreatePolicy = () => {
                                 options={State?.getStatesOfCountry(
                                   Countries?.isoCode
                                 )}
-                                getOptionLabel={options => {
+                                getOptionLabel={(options) => {
                                   return options["name"];
                                 }}
-                                getOptionValue={options => {
+                                getOptionValue={(options) => {
                                   return options["name"];
                                 }}
                                 value={States}
-                                onChange={State => {
+                                onChange={(State) => {
                                   setState(State);
                                   setFormData({
                                     ...formData,
@@ -388,14 +407,14 @@ const CreatePolicy = () => {
                                   States?.countryCode,
                                   States?.isoCode
                                 )}
-                                getOptionLabel={options => {
+                                getOptionLabel={(options) => {
                                   return options["name"];
                                 }}
-                                getOptionValue={options => {
+                                getOptionValue={(options) => {
                                   return options["name"];
                                 }}
                                 value={Cities}
-                                onChange={City => {
+                                onChange={(City) => {
                                   setCities(City);
                                   setFormData({
                                     ...formData,
@@ -424,7 +443,7 @@ const CreatePolicy = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={e => {
+                                onKeyDown={(e) => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -436,7 +455,7 @@ const CreatePolicy = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={e =>
+                                onChange={(e) =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -467,7 +486,7 @@ const CreatePolicy = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={e => {
+                                onKeyDown={(e) => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -479,7 +498,7 @@ const CreatePolicy = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={e =>
+                                onChange={(e) =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -516,7 +535,7 @@ const CreatePolicy = () => {
                         name="comment"
                         placeholder="Comment"
                         value={element.comment || ""}
-                        onChange={e => handleComment(index, e)}
+                        onChange={(e) => handleComment(index, e)}
                       />
                     </Col>
 
@@ -554,7 +573,7 @@ const CreatePolicy = () => {
                     <Input
                       type="file"
                       multiple
-                      onChange={e => handleFileChange(i, e)}
+                      onChange={(e) => handleFileChange(i, e)}
                     />
                   </Col>
                   <Col className="d-flex" lg="3" md="3" sm="12">
