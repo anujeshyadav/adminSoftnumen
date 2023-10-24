@@ -28,6 +28,7 @@ import swal from "sweetalert";
 import { Route } from "react-router-dom";
 import { BsEye, BsTrash } from "react-icons/bs";
 import {
+  PolicyGet,
   PolicySearchData,
   PolicyViewData,
 } from "../../../../ApiEndPoint/ApiCalling";
@@ -53,22 +54,29 @@ class SearchPolicy extends React.Component {
   };
   async componentDidMount() {
     PolicyViewData()
-      .then(res => {
+      .then((res) => {
         var mydropdownArray = [];
         var adddropdown = [];
+        var inputs = [];
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData).Policy);
         // console.log(jsonData);
 
-        let dropdown = JSON.parse(jsonData).Policy?.DropdownModel?.dropdown;
+        let myinputs = JSON.parse(jsonData).Policy?.input;
+        var inputs = myinputs?.map((ele) => {
+          return {
+            headerName: ele?.label?._text,
+            field: ele?.name?._text,
+            filter: true,
+            sortable: true,
+          };
+        });
+        let dropdown = JSON.parse(jsonData).Policy?.MyDropDown;
         if (dropdown?.length) {
-          var mydropdownArray = dropdown?.map(ele => {
-            {
-              console.log(ele);
-            }
+          var mydropdownArray = dropdown?.map((ele) => {
             return {
-              headerName: ele?.label,
-              field: ele?.name,
+              headerName: ele?.dropdown?.label?._text,
+              field: ele?.dropdown?.name?._text,
               filter: true,
               sortable: true,
             };
@@ -76,8 +84,8 @@ class SearchPolicy extends React.Component {
         } else {
           var adddropdown = [
             {
-              headerName: dropdown?.label._text,
-              field: dropdown?.name._text,
+              headerName: ele?.dropdown?.label?._text,
+              field: ele?.dropdown?.name?._text,
               filter: true,
               sortable: true,
             },
@@ -86,7 +94,7 @@ class SearchPolicy extends React.Component {
 
         let myHeadings = [
           // ...checkboxinput,
-          // ...inputs,
+          ...inputs,
           ...adddropdown,
           // ...addRadio,
           ...mydropdownArray,
@@ -98,7 +106,7 @@ class SearchPolicy extends React.Component {
             field: "sortorder",
             field: "transactions",
             width: 190,
-            cellRendererFramework: params => {
+            cellRendererFramework: (params) => {
               return (
                 <div className="actions cursor-pointer">
                   <Route
@@ -144,20 +152,27 @@ class SearchPolicy extends React.Component {
           },
           ...myHeadings,
         ];
-        console.log(dropdown?.option);
+
         this.setState({ columnDefs: Product });
-        this.setState({ rowData: dropdown?.option });
+        PolicyGet()
+          .then((response) => {
+            console.log(response?.Policy);
+            this.setState({ rowData: response?.Policy });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
         // this.setState({ AllcolumnDefs: Product });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         // swal("Error", "something went wrong try again");
       });
     let pageparmission = JSON.parse(localStorage.getItem("userData"));
 
     let newparmisson = pageparmission?.role?.find(
-      value => value?.pageName === "Role List"
+      (value) => value?.pageName === "Role List"
     );
 
     this.setState({ Viewpermisson: newparmisson?.permission.includes("View") });
@@ -170,21 +185,6 @@ class SearchPolicy extends React.Component {
     this.setState({
       Deletepermisson: newparmisson?.permission.includes("Delete"),
     });
-
-    const formdata = new FormData();
-    formdata.append("user_id", pageparmission?.Userinfo?.id);
-    formdata.append("role", pageparmission?.Userinfo?.role);
-    await axiosConfig
-      .post("/getrolelist", formdata)
-      .then(response => {
-        // console.log(response.data?.data);
-        const propertyNames = Object.values(response.data?.data);
-        // console.log(propertyNames);
-        this.setState({ rowData: propertyNames });
-      })
-      .catch(error => {
-        // console.log(error);
-      });
   }
 
   runthisfunction(id) {
@@ -195,19 +195,19 @@ class SearchPolicy extends React.Component {
         cancel: "cancel",
         catch: { text: "Delete ", value: "delete" },
       },
-    }).then(value => {
+    }).then((value) => {
       switch (value) {
         case "delete":
           const formData = new FormData();
           formData.append("user_id", id);
           this.gridApi.updateRowData({ remove: selectedData });
-          axiosConfig.post(`/userdelete`, formData).then(response => {});
+          axiosConfig.post(`/userdelete`, formData).then((response) => {});
           break;
         default:
       }
     });
   }
-  onGridReady = params => {
+  onGridReady = (params) => {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
     this.setState({
@@ -216,11 +216,11 @@ class SearchPolicy extends React.Component {
       totalPages: this.gridApi.paginationGetTotalPages(),
     });
   };
-  updateSearchQuery = val => {
+  updateSearchQuery = (val) => {
     this.gridApi.setQuickFilter(val);
   };
 
-  filterSize = val => {
+  filterSize = (val) => {
     if (this.gridApi) {
       this.gridApi.paginationSetPageSize(Number(val));
       this.setState({
@@ -301,18 +301,18 @@ class SearchPolicy extends React.Component {
                   <div className="d-flex flex-wrap justify-content-between align-items-center">
                     <div className="mb-1">
                       <UncontrolledDropdown className="p-1 ag-dropdown">
-                        <DropdownToggle tag="div">
+                        <DropdownToggle>
                           {this.gridApi
                             ? this.state.currenPageSize
                             : "" * this.state.getPageSize -
                               (this.state.getPageSize - 1)}{" "}
                           -{" "}
-                          {this.state.rowData.length -
+                          {this.state.rowData?.length -
                             this.state.currenPageSize * this.state.getPageSize >
                           0
                             ? this.state.currenPageSize * this.state.getPageSize
-                            : this.state.rowData.length}{" "}
-                          of {this.state.rowData.length}
+                            : this.state.rowData?.length}{" "}
+                          of {this.state.rowData?.length}
                           <ChevronDown className="ml-50" size={15} />
                         </DropdownToggle>
                         <DropdownMenu right>
@@ -345,7 +345,7 @@ class SearchPolicy extends React.Component {
                     </div>
                   </div>
                   <ContextLayout.Consumer>
-                    {context => (
+                    {(context) => (
                       <AgGridReact
                         gridOptions={{}}
                         rowSelection="multiple"

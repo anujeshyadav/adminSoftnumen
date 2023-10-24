@@ -751,9 +751,11 @@ class NavbarUser extends React.PureComponent {
                                       {/* Part price */}
                                       <td>
                                         {(
-                                          user?.Currencyconvert *
-                                          ele?.product?.Part_Price
-                                        ).toFixed(2) * this.state.Quantity[i]}
+                                          (
+                                            user?.Currencyconvert *
+                                            ele?.product?.Part_Price
+                                          ).toFixed(2) * this.state.Quantity[i]
+                                        ).toFixed(2)}
                                       </td>
                                       {/* <td>
                                 {ele?.product?.Part_Price *
