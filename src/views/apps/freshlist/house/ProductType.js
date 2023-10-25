@@ -637,12 +637,18 @@ class ProductType extends React.Component {
   };
 
   HeadingRightShift = () => {
+    debugger;
+    // const updatedSelectedColumnDefs = [
+    //   ...new Set(this.state.SelectedcolumnDefs.concat(SelectedColums)),
+    // ];
     const updatedSelectedColumnDefs = [
-      ...new Set(this.state.SelectedcolumnDefs.concat(SelectedColums)),
-    ];
-
+      ...new Set([
+        ...this.state.SelectedcolumnDefs.map((item) => JSON.stringify(item)),
+        ...SelectedColums.map((item) => JSON.stringify(item)),
+      ]),
+    ].map((item) => JSON.parse(item));
     this.setState({
-      SelectedcolumnDefs: updatedSelectedColumnDefs, // Update the state with the combined array
+      SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)], // Update the state with the combined array
     });
     // this.setState({
     //   SelectedcolumnDefs: this.state.SelectedcolumnDefs,
