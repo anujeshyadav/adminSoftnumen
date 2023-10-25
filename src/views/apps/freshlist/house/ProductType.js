@@ -21,6 +21,7 @@ import "ag-grid-community/dist/styles/ag-grid.css";
 import EditAccount from "../../freshlist/accounts/EditAccount";
 import ViewAccount from "../../freshlist/accounts/ViewAccount";
 import jsPDF from "jspdf";
+import db from "../../../../context/indexdb";
 import "jspdf-autotable";
 import Logo from "../../../../assets/img/profile/pages/logomain.png";
 import Papa from "papaparse";
@@ -53,7 +54,7 @@ import {
 import * as XLSX from "xlsx";
 import UserContext from "../../../../context/Context";
 
-const SelectedCols = [];
+const SelectedColums = [];
 
 class ProductType extends React.Component {
   static contextType = UserContext;
@@ -66,6 +67,7 @@ class ProductType extends React.Component {
       Arrindex: "",
       rowData: [],
       setMySelectedarr: [],
+      SelectedCols: [],
       paginationPageSize: 5,
       currenPageSize: "",
       getPageSize: "",
@@ -100,8 +102,10 @@ class ProductType extends React.Component {
 
   async componentDidMount() {
     const UserInformation = this.context?.UserInformatio;
-    // console.log(UserInformation);
 
+    // db.myObjectStore.get(1).then((data) => {
+    //   console.log(data);
+    // });
     await CreateAccountView()
       .then((res) => {
         var mydropdownArray = [];
@@ -354,8 +358,18 @@ class ProductType extends React.Component {
             },
           },
         ];
-        this.setState({ columnDefs: Product });
+
         this.setState({ AllcolumnDefs: Product });
+        debugger;
+        let userHeading = JSON.parse(localStorage.getItem("UserSearchheading"));
+        if (userHeading) {
+          this.setState({ columnDefs: userHeading });
+          this.setState({ SelectedcolumnDefs: userHeading });
+        } else {
+          this.setState({ columnDefs: Product });
+          this.setState({ SelectedcolumnDefs: Product });
+        }
+        this.setState({ SelectedCols: Product });
       })
       .catch((err) => {
         console.log(err);
@@ -425,13 +439,13 @@ class ProductType extends React.Component {
   handleChangeHeader = (e, value, index) => {
     let check = e.target.checked;
     if (check) {
-      SelectedCols.push(value);
+      SelectedColums?.push(value);
     } else {
-      const delindex = SelectedCols.findIndex(
+      const delindex = SelectedColums?.findIndex(
         (ele) => ele?.headerName === value?.headerName
       );
 
-      SelectedCols?.splice(delindex, 1);
+      SelectedColums?.splice(delindex, 1);
     }
   };
   parseCsv(csvData) {
@@ -468,11 +482,7 @@ class ProductType extends React.Component {
       body: tableData,
       startY: 60,
     });
-    // doc.setDrawColor("UserList.pdf");
-    // doc.setFont("UserList.pdf");
 
-    // doc.addImage("UserList.pdf");
-    // doc.setLanguage("UserList.pdf");
     doc.save("UserList.pdf");
   }
 
@@ -486,40 +496,6 @@ class ProductType extends React.Component {
     } catch (error) {
       console.error("Error parsing CSV:", error);
     }
-    // debugger;
-    // const doc = new jsPDF("landscape", "mm", "a4", false);
-    // const contentWidth = doc.internal.pageSize.getWidth();
-    // const contentHeight = doc.internal.pageSize.getHeight();
-    // // const tableHeight = this.gridApi.getRowHeight();
-    // // console.log(tableHeight);
-    // const tableWidth = contentWidth;
-    // const tableX = 10;
-    // const tableY = 10;
-    // const data1 = this.gridApi.getDataAsCsv({
-    //   processCellCallback: this.processCell,
-    // });
-
-    // const lines = data1.split("\n");
-    // const header = lines[0].split(",");
-    // const data = [];
-
-    // for (let i = 1; i < lines.length; i++) {
-    //   const line = lines[i].split(",");
-    //   data.push(line);
-    // }
-
-    // doc.text("User_Account  ", 10, 10);
-
-    // const columns = header;
-    // const rows = data;
-
-    // doc.autoTable({
-    //   head: [columns],
-    //   body: rows,
-    //   startY: 20,
-    // });
-
-    // doc.save("userlist.pdf");
   };
   processCell = (params) => {
     // console.log(params);
@@ -637,10 +613,53 @@ class ProductType extends React.Component {
   };
   handleChangeView = (e) => {
     e.preventDefault();
+    // const transaction = db.transaction("myObjectStore", "readwrite");
+    // const store = transaction.objectStore("myObjectStore");
+
+    // this.state.SelectedcolumnDefs.forEach((item) => {
+    //   store
+    //     .add(item)
+    //     .then(() => {
+    //       console.log("Added:", item);
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error adding data:", error);
+    //     });
+    // });
+
     this.setState({ columnDefs: this.state.SelectedcolumnDefs });
+    this.setState({ rowData: this.state.rowData });
+    localStorage.setItem(
+      "UserSearchheading",
+      JSON.stringify(this.state.SelectedcolumnDefs)
+    );
     this.toggleModal();
   };
 
+  HeadingRightShift = () => {
+    const updatedSelectedColumnDefs = [
+      ...new Set(this.state.SelectedcolumnDefs.concat(SelectedColums)),
+    ];
+
+    this.setState({
+      SelectedcolumnDefs: updatedSelectedColumnDefs, // Update the state with the combined array
+    });
+    // this.setState({
+    //   SelectedcolumnDefs: this.state.SelectedcolumnDefs,
+    // });
+  };
+  handleLeftShift = () => {
+    let SelectedCols = this.state.SelectedcolumnDefs.slice();
+    let delindex = this.state.Arrindex; /* Your delete index here */
+
+    if (SelectedCols && delindex >= 0) {
+      const splicedElement = SelectedCols.splice(delindex, 1); // Remove the element
+
+      this.setState({
+        SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
+      });
+    }
+  };
   render() {
     const {
       rowData,
@@ -648,6 +667,7 @@ class ProductType extends React.Component {
       defaultColDef,
       SelectedcolumnDefs,
       isOpen,
+      SelectedCols,
       AllcolumnDefs,
     } = this.state;
     return (
@@ -897,7 +917,7 @@ class ProductType extends React.Component {
           <ModalBody className="modalbodyhead">
             <Row>
               <Col lg="4" md="4" sm="12" xl="4" xs="12">
-                <h4>Columns</h4>
+                <h4>Avilable Columns</h4>
                 <div className="mainshffling">
                   <div class="ex1">
                     {AllcolumnDefs &&
@@ -936,22 +956,14 @@ class ProductType extends React.Component {
                 <div className="mainarrowbtn">
                   <div style={{ cursor: "pointer" }}>
                     <FaArrowAltCircleRight
-                      onClick={() =>
-                        this.setState({
-                          SelectedcolumnDefs: SelectedCols,
-                        })
-                      }
+                      onClick={this.HeadingRightShift}
                       className="arrowassign"
                       size="30px"
                     />
                   </div>
                   <div style={{ cursor: "pointer" }} className="my-2">
                     <FaArrowAltCircleLeft
-                      onClick={() =>
-                        this.setState({
-                          SelectedcolumnDefs: SelectedCols,
-                        })
-                      }
+                      onClick={this.handleLeftShift}
                       className="arrowassign"
                       size="30px"
                     />
@@ -961,7 +973,7 @@ class ProductType extends React.Component {
               <Col lg="6" md="6" sm="12" xl="6" xs="12">
                 <Row>
                   <Col lg="8" md="8" sm="12" xs="12">
-                    <h4>Selected Columns</h4>
+                    <h4>Visible Columns</h4>
                     <div className="mainshffling">
                       <div class="ex1">
                         {SelectedcolumnDefs &&
@@ -986,17 +998,35 @@ class ProductType extends React.Component {
                                     >
                                       <IoMdRemoveCircleOutline
                                         onClick={() => {
+                                          const SelectedCols =
+                                            this.state.SelectedcolumnDefs.slice();
                                           const delindex =
                                             SelectedCols.findIndex(
                                               (element) =>
-                                                element?.headerName ===
+                                                element?.headerName ==
                                                 ele?.headerName
                                             );
 
-                                          SelectedCols?.splice(delindex, 1);
-                                          this.setState({
-                                            SelectedcolumnDefs: SelectedCols,
-                                          });
+                                          if (SelectedCols && delindex >= 0) {
+                                            const splicedElement =
+                                              SelectedCols.splice(delindex, 1); // Remove the element
+                                            // splicedElement contains the removed element, if needed
+
+                                            this.setState({
+                                              SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
+                                            });
+                                          }
+                                          // const delindex =
+                                          //   SelectedCols.findIndex(
+                                          //     (element) =>
+                                          //       element?.headerName ==
+                                          //       ele?.headerName
+                                          //   );
+
+                                          // SelectedCols?.splice(delindex, 1);
+                                          // this.setState({
+                                          //   SelectedcolumnDefs: SelectedCols,
+                                          // });
                                         }}
                                         style={{ cursor: "pointer" }}
                                         size="25px"

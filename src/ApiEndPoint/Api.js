@@ -65,6 +65,7 @@ export const Edit_Profile = "/create-account/edit-profile/";
 // Policy
 export const PolicyView = "/policy/get-xml";
 export const Savepolicy = "/policy/save-policy";
+export const Delete_Policy = "/policy/delete-policy/";
 export const SearchPolicy = "/policy/view-policies";
 // Add to Cart PartsCatelougue
 export const Add_To_Cart_PartsCatelougue = "/cart/add-to-cart";
