@@ -13,6 +13,7 @@ import {
   Row,
   Col,
   Label,
+  CustomInput,
 } from "reactstrap";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import PerfectScrollbar from "react-perfect-scrollbar";
@@ -166,7 +167,7 @@ class NavbarUser extends React.PureComponent {
     myCart: [],
     AddressList: [],
     SetTotal: [],
-    TaxType: "",
+    TaxType: "All",
     TaxPercentage: 5,
     Shippingfee: 5,
     Total: Number,
@@ -554,10 +555,13 @@ class NavbarUser extends React.PureComponent {
                         </>
                       ) : (
                         <>
+                          <h5>Cart ID : #055761</h5>
                           <Row>
                             <Col lg="2" md="2" sm="12" xs="12">
                               <Label>Tax Percentage Type</Label>
-                              <select
+                              <CustomInput
+                                type="select"
+                                value={this.state.TaxType}
                                 onChange={(e) =>
                                   this.setState({ TaxType: e.target.value })
                                 }
@@ -567,13 +571,14 @@ class NavbarUser extends React.PureComponent {
                               >
                                 <option value="Individual">Individual</option>
                                 <option value="All">All </option>
-                              </select>
+                              </CustomInput>
                             </Col>
                             {this.state.TaxType == "All" ? (
                               <Col lg="2" md="2" sm="12" xs="12">
                                 <Label>Tax Percentage</Label>
                                 <input
                                   type="number"
+                                  value={this.state.TaxPercentage}
                                   onChange={(e) =>
                                     this.setState({
                                       TaxPercentage: e.target.value,
@@ -593,6 +598,7 @@ class NavbarUser extends React.PureComponent {
                                 <Col lg="2" md="2" sm="12" xs="12">
                                   <Label>Tax Percentage Individual</Label>
                                   <input
+                                    value={this.state.TaxPercentage}
                                     name="Taxpercentage"
                                     className="form-control"
                                     id="productSelect"
@@ -616,6 +622,7 @@ class NavbarUser extends React.PureComponent {
                             <Col lg="2" md="2" sm="12" xs="12">
                               <Label>Shipping Fee</Label>
                               <input
+                                value={this.state.Shippingfee}
                                 type="number"
                                 onChange={(e) =>
                                   this.setState({ Shippingfee: e.target.value })
@@ -623,14 +630,23 @@ class NavbarUser extends React.PureComponent {
                                 name="Shippingfee"
                                 className="form-control"
                               />
-                              {/* <select
-                            
-                            id="productSelect"
-                          >
-                            <option value={10}>10%</option>
-                            <option value={12}>12% </option>
-                            <option value={18}>18%</option>
-                          </select> */}
+                            </Col>
+                            <Col lg="2" md="2" sm="12" xs="12">
+                              <Button
+                                className="mt-1"
+                                onClick={(e) => e.preventDefault()}
+                                color="primary"
+                              >
+                                Submit
+                              </Button>
+                              {/* <input
+                                type="number"
+                                onChange={(e) =>
+                                  this.setState({ Shippingfee: e.target.value })
+                                }
+                                name="Shippingfee"
+                                className="form-control"
+                              /> */}
                             </Col>
                           </Row>
                           <hr />
@@ -643,7 +659,7 @@ class NavbarUser extends React.PureComponent {
                             >
                               <thead>
                                 <tr>
-                                  <th>#</th>
+                                  <th># </th>
                                   <th>Part Name</th>
                                   <th>Part Number</th>
                                   <th>Type</th>
@@ -672,7 +688,18 @@ class NavbarUser extends React.PureComponent {
                                 {user?.PartsCatalougueCart?.map((ele, i) => {
                                   return (
                                     <tr key={i}>
-                                      <th scope="row"> {i + 1}</th>
+                                      <th scope="row">
+                                        {" "}
+                                        {i + 1} &nbsp;
+                                        <MdDelete
+                                          color="red"
+                                          size={20}
+                                          onClick={(e) => {
+                                            this.handleDeletePartsCate(e, ele);
+                                          }}
+                                          style={{ cursor: "pointer" }}
+                                        />
+                                      </th>
 
                                       <td>{ele?.product?.Part_Name}</td>
                                       <td>{ele?.product?.Part_Number}</td>

@@ -24,7 +24,7 @@ const State = (props) => {
     setUserInformatio(user);
     console.log(user?.currency?.split("_")[0]);
     let currency = user?.currency;
-    debugger;
+
     if (currency == undefined) {
       currency = "USD_$";
     }
