@@ -60,7 +60,13 @@ const CreatePolicy = () => {
     comment: "",
     time: new Date().toString(),
   };
+  const [product, setProduct] = useState([
+    { productName: "", model: "", variant: "" },
+  ]);
 
+  useEffect(() => {
+    console.log(product);
+  }, []);
   const createUserXmlView = useContext(UserContext);
 
   const handleInputChange = (e, type, i) => {
@@ -98,7 +104,6 @@ const CreatePolicy = () => {
             ...formData,
             [name]: value,
           });
-          // console.log(value);
           setError("");
         } else {
           setFormData({
@@ -110,7 +115,7 @@ const CreatePolicy = () => {
       }
     }
   };
-  const handleyear = (date) => {
+  const handleyear = date => {
     setSelectedYear(date);
   };
   useEffect(() => {
@@ -119,17 +124,17 @@ const CreatePolicy = () => {
   }, [formData]);
   useEffect(() => {
     PolicyViewData()
-      .then((res) => {
+      .then(res => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         setCreatePolicyView(JSON.parse(jsonData));
         let value = JSON.parse(jsonData)?.MyDropdown?.CheckBox?.input;
-        value?.map((ele) => {
+        value?.map(ele => {
           formData[ele?.name._text] = false;
         });
 
         setdropdownValue(JSON.parse(jsonData));
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   }, []);
@@ -148,7 +153,9 @@ const CreatePolicy = () => {
     newFormValues[i][e.target.name] = e.target.value;
     setComments(newFormValues);
   };
-
+  const SubmitComment = () => {
+    alert("allll");
+  };
   let addFormFields = () => {
     setComments([...Comments, newComment]);
   };
@@ -157,7 +164,7 @@ const CreatePolicy = () => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = (i) => {
+  let removeFileAttach = i => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -169,22 +176,22 @@ const CreatePolicy = () => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = (i) => {
+  let removeFormFields = i => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
   };
-  const submitHandler = (e) => {
+  const submitHandler = e => {
     e.preventDefault();
 
     let formdata = new FormData();
-    let dropdown = CreatePolicyView?.Policy?.MyDropDown?.map((ele) => {
+    let dropdown = CreatePolicyView?.Policy?.MyDropDown?.map(ele => {
       formdata.append(
         `${ele?.dropdown?.name?._text}`,
         formData[ele?.dropdown?.name?._text]
       );
     });
-    let inputs = CreatePolicyView?.Policy?.input?.map((ele) => {
+    let inputs = CreatePolicyView?.Policy?.input?.map(ele => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
@@ -194,22 +201,46 @@ const CreatePolicy = () => {
     // e.preventDefault();
 
     PolicySaveDataapis(formdata)
-      .then((res) => {
+      .then(res => {
         swal("Policy Added Successfully");
         console.log(res);
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   };
+  // product addmore
+  let handleProductChange = (i, e) => {
+    let newFormValues = [...product];
+    newFormValues[i][e.target.name] = e.target.value;
+    setProduct(newFormValues);
+  };
 
+  let addMoreProduct = () => {
+    setProduct([...product, { name: "", email: "" }]);
+  };
+
+  let removeMoreProduct = i => {
+    let newFormValues = [...product];
+    newFormValues.splice(i, 1);
+    setProduct(newFormValues);
+  };
+  //  let handleSubmit = event => {
+  //    event.preventDefault();
+  //    alert(JSON.stringify(product));
+  //  };
   return (
     <div>
       <div>
         <Card>
           <Row className="m-2">
-            <Col>
-              <h1 className="float-left">Create Policy</h1>
+            <Col className="">
+              <div>
+                <h1 className="">Create Policy </h1>
+              </div>
+              <div>
+                <span>Policy Id</span> <span>#</span>
+              </div>
             </Col>
           </Row>
 
@@ -220,18 +251,18 @@ const CreatePolicy = () => {
                   return (
                     <Col lg="6" md="6" key={i}>
                       <FormGroup>
-                        <Label>{drop.dropdown.label._text}</Label>
+                        <Label>{drop?.dropdown?.label?._text}</Label>
                         <CustomInput
                           required
                           type="select"
-                          name={drop.dropdown.name._text}
+                          name={drop?.dropdown?.name?._text}
                           value={
                             formData[drop?.dropdown?.dropdown?.name?._text]
                           }
                           onChange={handleInputChange}
                         >
                           <option value="">
-                            --Select {drop.dropdown.name._text}---
+                            --Select {drop?.dropdown.name._text}---
                           </option>
                           {drop.dropdown.option.map((option, index) => {
                             return (
@@ -251,6 +282,65 @@ const CreatePolicy = () => {
 
                 {CreatePolicyView &&
                   CreatePolicyView?.Policy?.input?.map((ele, i) => {
+                    if (ele.label._text == "Policy Duration") {
+                      return (
+                        <>
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>Policy Duration</Label>
+                              <Row>
+                                <div className="mainDiv ">
+                                  <div className="child">
+                                    <Input type="number" placeholder="Number" />
+                                  </div>
+
+                                  <div className="dropdownselect">
+                                    <CustomInput
+                                      // required
+                                      type="select"
+                                      // name={drop?.dropdown?.name?._text}
+                                      // value={
+                                      //   formData[
+                                      //     drop?.dropdown?.dropdown?.name?._text
+                                      //   ]
+                                      // }
+                                      // onChange={handleInputChange}
+                                    >
+                                      <option value="day">Day</option>
+                                      <option value="month">Month</option>
+                                      <option value="year">Year</option>
+                                    </CustomInput>
+                                  </div>
+                                </div>
+                                <div className="mainDiv ">
+                                  <div className="child">
+                                    <Input type="number" placeholder="Number" />
+                                  </div>
+
+                                  <div className="dropdownselect">
+                                    <CustomInput
+                                      // required
+                                      type="select"
+                                      // name={drop?.dropdown?.name?._text}
+                                      // value={
+                                      //   formData[
+                                      //     drop?.dropdown?.dropdown?.name?._text
+                                      //   ]
+                                      // }
+                                      // onChange={handleInputChange}
+                                    >
+                                      <option value="day">Day</option>
+                                      <option value="month">Month</option>
+                                      <option value="year">Year</option>
+                                    </CustomInput>
+                                  </div>
+                                </div>
+                              </Row>
+                            </FormGroup>
+                          </Col>
+                        </>
+                      );
+                    }
                     if (!!ele?.YearPicker) {
                       return (
                         <>
@@ -287,7 +377,7 @@ const CreatePolicy = () => {
                               <PhoneInput
                                 inputClass="myphoneinput"
                                 country={"us"}
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -298,7 +388,7 @@ const CreatePolicy = () => {
                                 countryCodeEditable={false}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(phone) => {
+                                onChange={phone => {
                                   setFormData({
                                     ...formData,
                                     [ele?.name?._text]: phone,
@@ -330,14 +420,14 @@ const CreatePolicy = () => {
                                 inputClass="countryclass"
                                 className="countryclassnw"
                                 options={Country.getAllCountries()}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={Countries}
-                                onChange={(country) => {
+                                onChange={country => {
                                   setCountry(country);
                                   setFormData({
                                     ...formData,
@@ -368,14 +458,14 @@ const CreatePolicy = () => {
                                 options={State?.getStatesOfCountry(
                                   Countries?.isoCode
                                 )}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={States}
-                                onChange={(State) => {
+                                onChange={State => {
                                   setState(State);
                                   setFormData({
                                     ...formData,
@@ -407,14 +497,14 @@ const CreatePolicy = () => {
                                   States?.countryCode,
                                   States?.isoCode
                                 )}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={Cities}
-                                onChange={(City) => {
+                                onChange={City => {
                                   setCities(City);
                                   setFormData({
                                     ...formData,
@@ -443,7 +533,7 @@ const CreatePolicy = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -455,7 +545,7 @@ const CreatePolicy = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -486,7 +576,7 @@ const CreatePolicy = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -498,7 +588,7 @@ const CreatePolicy = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -525,58 +615,16 @@ const CreatePolicy = () => {
                   })}
               </Row>
 
-              {Comments &&
-                Comments?.map((element, index) => (
-                  <Row key={index} className="my-2">
-                    <Col lg="6" md="6" sm="12">
-                      <Label>Comment</Label>
-                      <Input
-                        type="textarea"
-                        name="comment"
-                        placeholder="Comment"
-                        value={element.comment || ""}
-                        onChange={(e) => handleComment(index, e)}
-                      />
-                    </Col>
-
-                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
-                      <div>
-                        {index ? (
-                          <Button
-                            type="button"
-                            className="btn btn-danger"
-                            onClick={() => removeFormFields(index)}
-                          >
-                            -
-                          </Button>
-                        ) : null}
-                      </div>
-
-                      <div>
-                        <Button
-                          className="ml-1 "
-                          color="primary"
-                          type="button"
-                          onClick={() => addFormFields()}
-                        >
-                          +
-                        </Button>
-                      </div>
-                    </Col>
-                  </Row>
-                ))}
-
               {formValues.map((index, i) => (
                 <Row className="my-2">
-                  {console.log(index, i)}
                   <Col lg="6" md="6" sm="12" key={i}>
                     <Input
                       type="file"
                       multiple
-                      onChange={(e) => handleFileChange(i, e)}
+                      onChange={e => handleFileChange(i, e)}
                     />
                   </Col>
-                  <Col className="d-flex" lg="3" md="3" sm="12">
+                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
                     <div>
                       {i ? (
                         <Button
@@ -594,6 +642,70 @@ const CreatePolicy = () => {
                         color="primary"
                         type="button"
                         onClick={() => addFileInput()}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              ))}
+              {product.map((element, index) => (
+                <Row className="" key={index}>
+                  <Col className="" lg="3" md="3" sm="12">
+                    <FormGroup>
+                      <Label>Product Name</Label>
+                      <Input
+                        type="text"
+                        name="productName"
+                        placeholder="Product Name"
+                        value={element.productName || ""}
+                        onChange={e => handleProductChange(index, e)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col className="" lg="3" md="3" sm="12">
+                    <FormGroup>
+                      <Label>Model</Label>
+                      <Input
+                        type="text"
+                        name="model"
+                        placeholder="Model"
+                        value={element.model || ""}
+                        onChange={e => handleProductChange(index, e)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col className="" lg="3" md="3" sm="12">
+                    <FormGroup>
+                      <Label>Variant</Label>
+                      <Input
+                        type="text"
+                        name="variant"
+                        placeholder="Variant"
+                        value={element.variant || ""}
+                        onChange={e => handleProductChange(index, e)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                    <div>
+                      {index ? (
+                        <Button
+                          type="button"
+                          className="button remove "
+                          onClick={() => removeMoreProduct(index)}
+                        >
+                          Remove
+                        </Button>
+                      ) : null}
+                    </div>
+
+                    <div>
+                      <Button
+                        className="ml-1 "
+                        color="primary"
+                        type="button"
+                        onClick={() => addMoreProduct()}
                       >
                         +
                       </Button>
@@ -651,6 +763,58 @@ const CreatePolicy = () => {
                 </Button.Ripple>
               </Row>
             </Form>
+
+            {Comments &&
+              Comments?.map((element, index) => (
+                <>
+                  <Row key={index} className="my-2">
+                    <Col lg="6" md="6" sm="12">
+                      <Label>Comment</Label>
+                      <Input
+                        type="textarea"
+                        name="comment"
+                        placeholder="Comment"
+                        value={element.comment || ""}
+                        onChange={e => handleComment(index, e)}
+                      />
+                    </Col>
+
+                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                      <div>
+                        {index ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFormFields(index)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
+
+                      <div>
+                        <Button
+                          className="ml-1 "
+                          color="primary"
+                          type="button"
+                          onClick={() => addFormFields()}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
+              ))}
+            <Button
+              className="ml-1 "
+              color="primary"
+              onClick={e => {
+                SubmitComment(e);
+              }}
+            >
+              Submit Comment
+            </Button>
           </CardBody>
         </Card>
       </div>
