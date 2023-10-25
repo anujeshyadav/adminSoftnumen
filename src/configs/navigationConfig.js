@@ -46,11 +46,7 @@ const navigationConfig = [
     permissions: ["admin", "editor"],
     navLink: "/dashboard",
   },
-  // {
-  //   type: "groupHeader",
-  //   groupTitle: "Customers Managment",
-  //   title: "Customers",
-  // },
+
   {
     id: "Account",
     title: "Account",
@@ -65,14 +61,14 @@ const navigationConfig = [
         permissions: ["admin", "editor"],
         navLink: "/app/SoftNumen/account/CreateAccount",
       },
-      {
-        id: "CustomerRegistration",
-        title: "Customer Registration",
-        type: "item",
-        icon: <FaUserEdit size={8} />,
-        permissions: ["admin", "editor"],
-        navLink: "/app/SoftNumen/Customer/Customer_Registration",
-      },
+      // {
+      //   id: "CustomerRegistration",
+      //   title: "Customer Registration",
+      //   type: "item",
+      //   icon: <FaUserEdit size={8} />,
+      //   permissions: ["admin", "editor"],
+      //   navLink: "/app/SoftNumen/Customer/Customer_Registration",
+      // },
       {
         id: "Staffsearch",
         title: "Search",
@@ -100,11 +96,7 @@ const navigationConfig = [
       },
     ],
   },
-  // {
-  //   type: "groupHeader",
-  //   groupTitle: "System Managment",
-  //   title: "System Managment",
-  // },
+
   {
     id: "systemManagment",
     title: "System Managment",
@@ -174,11 +166,6 @@ const navigationConfig = [
     ],
   },
 
-  // {
-  //   type: "groupHeader",
-  //   groupTitle: "Quotation MANAGEMENT",
-  //   title: "Quotation",
-  // },
   {
     id: "Quotation",
     title: "Quotation",
@@ -219,11 +206,7 @@ const navigationConfig = [
       },
     ],
   },
-  // {
-  //   type: "groupHeader",
-  //   groupTitle: "Product Managment",
-  //   title: "Product Managment",
-  // },
+
   {
     id: "Product Managment",
     title: "Product Managment",
@@ -264,11 +247,6 @@ const navigationConfig = [
       },
     ],
   },
-  // {
-  //   type: "groupHeader",
-  //   groupTitle: "Parts Management",
-  //   title: "Parts",
-  // },
 
   {
     id: "Parts",
@@ -354,14 +332,9 @@ const navigationConfig = [
     ],
   },
 
-  // {
-  //   type: "groupHeader",
-  //   groupTitle: "Warranty Management",
-  //   title: "Warranty Management",
-  // },
   {
     id: "Warranty create",
-    title: "Warranty",
+    title: "Warranty Management",
     type: "collapse",
     icon: <FaShoppingCart size={15} />,
     children: [
@@ -494,34 +467,29 @@ const navigationConfig = [
   },
 
   // {
-  //   type: "groupHeader",
-  //   groupTitle: "Warranty Claims",
+  //   id: "Warranty Claims",
   //   title: "Warranty Claims",
+  //   type: "collapse",
+  //   icon: <FaShoppingCart size={15} />,
+  //   children: [
+  //     {
+  //       id: "OEM Warranty",
+  //       title: "OEM Warranty",
+  //       type: "item",
+  //       icon: <FaList size={15} />,
+  //       permissions: ["admin", "editor"],
+  //       navLink: "/app/softNumen/warranty/OEMWarranty",
+  //     },
+  //     {
+  //       id: "Supplier Warranty",
+  //       title: "Suppier Warranty",
+  //       type: "item",
+  //       icon: <FaList size={15} />,
+  //       permissions: ["admin", "editor"],
+  //       navLink: "/app/softNumen/warranty/SupplierWarranty",
+  //     },
+  //   ],
   // },
-  {
-    id: "Warranty Claims",
-    title: "Warranty Claims",
-    type: "collapse",
-    icon: <FaShoppingCart size={15} />,
-    children: [
-      {
-        id: "OEM Warranty",
-        title: "OEM Warranty",
-        type: "item",
-        icon: <FaList size={15} />,
-        permissions: ["admin", "editor"],
-        navLink: "/app/softNumen/warranty/OEMWarranty",
-      },
-      {
-        id: "Supplier Warranty",
-        title: "Suppier Warranty",
-        type: "item",
-        icon: <FaList size={15} />,
-        permissions: ["admin", "editor"],
-        navLink: "/app/softNumen/warranty/SupplierWarranty",
-      },
-    ],
-  },
 
   // {
   //   type: "groupHeader",

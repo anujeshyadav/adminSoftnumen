@@ -6,7 +6,7 @@ import {
 } from "../ApiEndPoint/ApiCalling";
 import xmlJs from "xml-js";
 
-const State = (props) => {
+const State = props => {
   const [crateUserXmlView, setcreateUserXmlView] = useState({});
   const [Mode, setMode] = useState("semi-dark");
   const [PartsCatalougueCart, setPartsCatalougueCart] = useState([]);
@@ -24,21 +24,17 @@ const State = (props) => {
     setUserInformatio(user);
     console.log(user?.currency?.split("_")[0]);
     let currency = user?.currency;
-    debugger;
     if (currency == undefined) {
       currency = "USD_$";
     }
-    // else{
-
-    // }
     CurrencyConvertor(currency?.split("_")[0])
-      .then((res) => {
+      .then(res => {
         let fromRate = res?.rates[PresentCurrency.split("_")[0]];
         let toRate = res?.rates[currency?.split("_")[0]];
         const value = toRate / fromRate;
         setCurrencyconvert(value);
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   }, [user?.currency]);

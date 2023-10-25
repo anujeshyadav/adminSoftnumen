@@ -75,8 +75,19 @@
 input.form-control.myphoneinput {
   width: 100%;
 }
-.tableheadingparts{
-
+.tableheadingparts {
   height: 263px;
   overflow-y: scroll;
+}
+
+// policy css
+.mainDiv {
+  display: flex;
+}
+.child {
+  width: 100px;
+  margin: 0px 10px;
+}
+.dropdownselect {
+  width: 156px;
 }
