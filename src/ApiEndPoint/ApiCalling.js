@@ -58,6 +58,7 @@ import {
   ProductUpload_View,
   PolicyView,
   Currency_Convertor,
+  Delete_Policy,
   Savepolicy,
   PolicySaveData,
 } from "./Api";
@@ -410,6 +411,12 @@ export const PolicySaveDataapis = async (formdata) => {
 export const PolicyGet = async (formdata) => {
   let response = await axiosConfig
     .get(`${SearchPolicy}`)
+    .then((res) => res.data);
+  return response;
+};
+export const DeletePolicy = async (id) => {
+  let response = await axiosConfig
+    .get(`${Delete_Policy}` + id)
     .then((res) => res.data);
   return response;
 };

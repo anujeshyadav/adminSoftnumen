@@ -28,6 +28,7 @@ import swal from "sweetalert";
 import { Route } from "react-router-dom";
 import { BsEye, BsTrash } from "react-icons/bs";
 import {
+  DeletePolicy,
   PolicyGet,
   PolicySearchData,
   PolicyViewData,
@@ -140,9 +141,9 @@ class SearchPolicy extends React.Component {
                         className="mr-50"
                         size="25px"
                         color="red"
-                        // onClick={() => {
-                        //   this.runthisfunction(params?.data?._id);
-                        // }}
+                        onClick={() => {
+                          this.runthisfunction(params?.data?._id);
+                        }}
                       />
                     )}
                   />
@@ -198,10 +199,15 @@ class SearchPolicy extends React.Component {
     }).then((value) => {
       switch (value) {
         case "delete":
-          const formData = new FormData();
-          formData.append("user_id", id);
-          this.gridApi.updateRowData({ remove: selectedData });
-          axiosConfig.post(`/userdelete`, formData).then((response) => {});
+          DeletePolicy(id)
+            .then((res) => {
+              this.gridApi.updateRowData({ remove: selectedData });
+              console.log(res);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+
           break;
         default:
       }
