@@ -63,7 +63,7 @@ const CreateWiki = () => {
     setComments(newFormValues);
   };
   const SubmitComment = () => {
-    alert("Comment Submit");
+    alert("Comment Submitt ");
   };
   let addFormFields = () => {
     setComments([...Comments, newComment]);
