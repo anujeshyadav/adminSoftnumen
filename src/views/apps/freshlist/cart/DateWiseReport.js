@@ -57,7 +57,7 @@ class DateWiseReport extends React.Component {
         field: "po_no",
         filter: true,
         width: 100,
-        cellRendererFramework: (params) => {
+        cellRendererFramework: params => {
           return (
             <div>
               <span>{params.data.po_no}</span>
@@ -70,7 +70,7 @@ class DateWiseReport extends React.Component {
         field: "order_status",
         filter: true,
         width: 120,
-        cellRendererFramework: (params) => {
+        cellRendererFramework: params => {
           return (
             <div>
               <Badge color="success">{params.data.order_status}</Badge>
@@ -83,7 +83,7 @@ class DateWiseReport extends React.Component {
         field: "display_code",
         filter: true,
         width: 180,
-        cellRendererFramework: (params) => {
+        cellRendererFramework: params => {
           return (
             <div>
               <span>{params.data.display_code}</span>
@@ -162,7 +162,7 @@ class DateWiseReport extends React.Component {
         field: "supplier_name",
         filter: true,
         width: 200,
-        cellRendererFramework: (params) => {
+        cellRendererFramework: params => {
           return (
             <div>
               <span>{params.data.supplier_name}</span>
@@ -175,7 +175,7 @@ class DateWiseReport extends React.Component {
         field: "total",
         filter: true,
         width: 130,
-        cellRendererFramework: (params) => {
+        cellRendererFramework: params => {
           return (
             <div>
               <Badge color="success">{params.data.total}</Badge>
@@ -227,7 +227,7 @@ class DateWiseReport extends React.Component {
         field: "created_date",
         filter: true,
         width: 200,
-        cellRendererFramework: (params) => {
+        cellRendererFramework: params => {
           return (
             <div>
               <span>{params.data.created_date}</span>
@@ -258,7 +258,7 @@ class DateWiseReport extends React.Component {
         field: "sortorder",
         field: "transactions",
         width: 150,
-        cellRendererFramework: (params) => {
+        cellRendererFramework: params => {
           return (
             <div className="actions cursor-pointer">
               <Route
@@ -289,7 +289,7 @@ class DateWiseReport extends React.Component {
     let pageparmission = JSON.parse(localStorage.getItem("userData"));
     // console.log(pageparmission.role);
     let newparmisson = pageparmission?.role?.find(
-      (value) => value?.pageName === "Date Wise"
+      value => value?.pageName === "Date Wise"
     );
     // console.log(newparmisson);
     this.setState({ Viewpermisson: newparmisson?.permission.includes("View") });
@@ -307,11 +307,11 @@ class DateWiseReport extends React.Component {
     data.append("role", pageparmission?.Userinfo?.role);
     axiosConfig
       .post("/getReportUserlist", data)
-      .then((response) => {
+      .then(response => {
         console.log(response?.data?.data?.users);
         this.setState({ Userlist: response?.data?.data?.users });
       })
-      .catch((err) => {
+      .catch(err => {
         // console.log(err);
       });
 
@@ -329,7 +329,7 @@ class DateWiseReport extends React.Component {
     //     // console.log(err);
     //   });
   }
-  onGridReady = (params) => {
+  onGridReady = params => {
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
     this.setState({
@@ -338,10 +338,10 @@ class DateWiseReport extends React.Component {
       totalPages: this.gridApi.paginationGetTotalPages(),
     });
   };
-  updateSearchQuery = (val) => {
+  updateSearchQuery = val => {
     this.gridApi.setQuickFilter(val);
   };
-  filterSize = (val) => {
+  filterSize = val => {
     if (this.gridApi) {
       this.gridApi.paginationSetPageSize(Number(val));
       this.setState({
@@ -350,7 +350,7 @@ class DateWiseReport extends React.Component {
       });
     }
   };
-  HandleDateWiseReport = (e) => {
+  HandleDateWiseReport = e => {
     e.preventDefault();
     let pageparmission = JSON.parse(localStorage.getItem("userData"));
 
@@ -362,7 +362,7 @@ class DateWiseReport extends React.Component {
     data.append("to_date", this.state.EndDate);
     axiosConfig
       .post("/reportApi", data)
-      .then((response) => {
+      .then(response => {
         let alllist = response?.data?.data;
         console.log(response.data?.message);
         if (response.data?.message === "Record Not Found.") {
@@ -373,7 +373,7 @@ class DateWiseReport extends React.Component {
           this.setState({ rowData: alllist });
         }
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err.response?.data.message);
         swal(`${err.response?.data.message}`);
         // if (err.response?.data.message) {
@@ -381,7 +381,6 @@ class DateWiseReport extends React.Component {
       });
   };
   onSelect(selectedList, selectedItem) {
-    debugger;
     // console.log(selectedList[0]?.id);
     selectItem1 = [selectedList];
     // if (selectedList.length) {
@@ -416,7 +415,7 @@ class DateWiseReport extends React.Component {
                 <label for="start">Start Date:</label>
 
                 <input
-                  onChange={(e) => {
+                  onChange={e => {
                     this.setState({ StartDate: e.target.value });
                   }}
                   className="form-control"
@@ -433,7 +432,7 @@ class DateWiseReport extends React.Component {
                 <label for="start">End Date:</label>
 
                 <input
-                  onChange={(e) => {
+                  onChange={e => {
                     this.setState({ EndDate: e.target.value });
                   }}
                   className="form-control"
@@ -458,7 +457,7 @@ class DateWiseReport extends React.Component {
                   displayValue="full_name" // Property name to display in the dropdown options
                 /> */}
                 <select
-                  onChange={(e) =>
+                  onChange={e =>
                     this.setState({ SelectedClient: e.target.value })
                   }
                   className="form-control"
@@ -477,7 +476,7 @@ class DateWiseReport extends React.Component {
               <Col lg="2" className="d-flex justify-content-end">
                 <Button
                   className="mt-2"
-                  onClick={(e) => this.HandleDateWiseReport(e)}
+                  onClick={e => this.HandleDateWiseReport(e)}
                   color="primary"
                 >
                   Submit
@@ -540,7 +539,7 @@ class DateWiseReport extends React.Component {
                           <div className="table-input mr-1">
                             <Input
                               placeholder="search..."
-                              onChange={(e) =>
+                              onChange={e =>
                                 this.updateSearchQuery(e.target.value)
                               }
                               value={this.state.value}
@@ -557,7 +556,7 @@ class DateWiseReport extends React.Component {
                         </div>
                       </div>
                       <ContextLayout.Consumer>
-                        {(context) => (
+                        {context => (
                           <AgGridReact
                             gridOptions={{}}
                             rowSelection="multiple"
