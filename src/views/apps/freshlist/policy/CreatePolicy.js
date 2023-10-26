@@ -9,16 +9,23 @@ import {
   Input,
   Label,
   Button,
-  FormGroup,
   CustomInput,
+  ModalHeader,
+  ModalBody,
+  Table,
+  InputGroup,
+  Modal,
+  ModalFooter,
+  FormGroup,
 } from "reactstrap";
+import AgGrid from "ag-grid-react";
 import { history } from "../../../../history";
 import YearPicker from "react-year-picker";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Country, State, City } from "country-state-city";
 import Select from "react-select";
-
+import { AiOutlineSearch } from "react-icons/ai";
 import swal from "sweetalert";
 import "../../../../../src/layouts/assets/scss/pages/users.scss";
 
@@ -31,7 +38,34 @@ import { FcPhoneAndroid } from "react-icons/fc";
 import { BsWhatsapp } from "react-icons/bs";
 import "../../../../assets/scss/pages/users.scss";
 import UserContext from "../../../../context/Context";
+const importData = [
+  "Product Registration",
+  "SpareParts",
+  "Orders",
+  "PartsCatalogue",
+  "Scrutiny / Inspections",
+  "Invoices / Billing",
+  "Support",
+  "Servicing",
+  "Warehouse",
+  "Distributors",
+  "Dealers",
+  "Suppliers",
+  "Service Centers",
+  "Customer Data",
+  "Campaigns",
+];
+const columns = [
+  { headerName: "Name", field: "name" },
+  { headerName: "Age", field: "age" },
+  { headerName: "Country", field: "country" },
+];
 
+const data = [
+  { name: "John", age: 30, country: "USA" },
+  { name: "Mary", age: 25, country: "UK" },
+  { name: "Peter", age: 40, country: "Canada" },
+];
 const CreatePolicy = () => {
   const [CreatePolicyView, setCreatePolicyView] = useState({});
   const [Countries, setCountry] = useState({});
@@ -51,7 +85,6 @@ const CreatePolicy = () => {
       time: new Date(),
     },
   ]);
-
   const [formValues, setFormValues] = useState([{ files: [] }]);
 
   const newComment = {
@@ -63,10 +96,17 @@ const CreatePolicy = () => {
   const [product, setProduct] = useState([
     { productName: "", model: "", variant: "" },
   ]);
-
-  useEffect(() => {
-    console.log(product);
-  }, []);
+  const [part, setPart] = useState([{ productName: "", color: "" }]);
+  const [modal, setModal] = useState(false);
+  const [columnDefs, setColumnDefs] = useState([
+    { field: "name" },
+    // Using dot notation to access nested property
+    { field: "medals.gold", headerName: "Gold" },
+    // Show default header name
+    { field: "person.age" },
+  ]);
+  const [allPart, setAllPart] = useState([]);
+  const toggle = () => setModal(!modal);
   const createUserXmlView = useContext(UserContext);
 
   const handleInputChange = (e, type, i) => {
@@ -123,9 +163,11 @@ const CreatePolicy = () => {
     const { UserName, Role } = JSON.parse(userData);
   }, [formData]);
   useEffect(() => {
+    setAllPart(importData);
     PolicyViewData()
       .then(res => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
+        console.log(JSON.parse(jsonData).Policy);
         setCreatePolicyView(JSON.parse(jsonData));
         let value = JSON.parse(jsonData)?.MyDropdown?.CheckBox?.input;
         value?.map(ele => {
@@ -140,7 +182,7 @@ const CreatePolicy = () => {
   }, []);
 
   useEffect(() => {
-    console.log(Comments);
+    // console.log(Comments);
   }, [Comments]);
 
   useEffect(() => {
@@ -154,7 +196,7 @@ const CreatePolicy = () => {
     setComments(newFormValues);
   };
   const SubmitComment = () => {
-    alert("allll");
+    alert("Comment Submit");
   };
   let addFormFields = () => {
     setComments([...Comments, newComment]);
@@ -217,7 +259,7 @@ const CreatePolicy = () => {
   };
 
   let addMoreProduct = () => {
-    setProduct([...product, { name: "", email: "" }]);
+    setProduct([...product, { productName: "", model: "", variant: "" }]);
   };
 
   let removeMoreProduct = i => {
@@ -229,6 +271,26 @@ const CreatePolicy = () => {
   //    event.preventDefault();
   //    alert(JSON.stringify(product));
   //  };
+  // part addmore
+  let handlePartChange = (i, e) => {
+    let newFormValues = [...part];
+    newFormValues[i][e.target.name] = e.target.value;
+    setPart(newFormValues);
+  };
+
+  let addMorePart = () => {
+    setPart([...part, { partName: "", color: "" }]);
+  };
+
+  let removeMorePart = i => {
+    let newFormValues = [...part];
+    newFormValues.splice(i, 1);
+    setPart(newFormValues);
+  };
+  const handleopentoggle = () => {
+    toggle();
+  };
+
   return (
     <div>
       <div>
@@ -341,7 +403,8 @@ const CreatePolicy = () => {
                         </>
                       );
                     }
-                    if (!!ele?.YearPicker) {
+                    {
+                      /* if (!!ele?.YearPicker) {
                       return (
                         <>
                           <Col key={i} lg="6" md="6" sm="12">
@@ -367,6 +430,7 @@ const CreatePolicy = () => {
                           </Col>
                         </>
                       );
+                    } */
                     }
                     if (!!ele?.phoneinput) {
                       return (
@@ -651,43 +715,73 @@ const CreatePolicy = () => {
               ))}
               {product.map((element, index) => (
                 <Row className="" key={index}>
-                  <Col className="" lg="3" md="3" sm="12">
+                  <Col className="" lg="2" md="2" sm="12">
+                    <Label>Product#</Label>
+                    <InputGroup className="maininput">
+                      <Input
+                        // value={Role}
+                        // onChange={e => handleInputChange(e)}
+                        className="form-control inputs"
+                        disabled
+                        type="text"
+                        name="productN"
+                        readOnly
+                        placeholder="Product"
+                        // value={element.productName || ""}
+                        // onChange={e => handleProductChange(index, e)}
+                      />
+                      <Button
+                        onClick={handleopentoggle}
+                        color="primary"
+                        className="mybtn primary"
+                      >
+                        <AiOutlineSearch
+                          onClick={e => e.preventDefault()}
+                          fill="white"
+                        />
+                      </Button>
+                    </InputGroup>
+                  </Col>
+                  <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
                       <Label>Product Name</Label>
                       <Input
                         type="text"
                         name="productName"
+                        readOnly
                         placeholder="Product Name"
                         value={element.productName || ""}
                         onChange={e => handleProductChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
-                  <Col className="" lg="3" md="3" sm="12">
+                  <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
                       <Label>Model</Label>
                       <Input
                         type="text"
                         name="model"
+                        readOnly
                         placeholder="Model"
                         value={element.model || ""}
                         onChange={e => handleProductChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
-                  <Col className="" lg="3" md="3" sm="12">
+                  <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
                       <Label>Variant</Label>
                       <Input
                         type="text"
                         name="variant"
+                        readOnly
                         placeholder="Variant"
                         value={element.variant || ""}
                         onChange={e => handleProductChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
-                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                  <Col className="d-flex mt-2" lg="2" md="2" sm="12">
                     <div>
                       {index ? (
                         <Button
@@ -713,9 +807,125 @@ const CreatePolicy = () => {
                   </Col>
                 </Row>
               ))}
+              {part.map((element, index) => (
+                <Row className="" key={index}>
+                  <Col className="" lg="3" md="3" sm="12">
+                    <FormGroup>
+                      <Label>Part#</Label>
+                      <Input
+                        type="text"
+                        name="partName"
+                        readOnly
+                        placeholder="Part Name"
+                        // value={element.partName || ""}
+                        // onChange={e => handlePartChange(index, e)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col className="" lg="3" md="3" sm="12">
+                    <FormGroup>
+                      <Label>Part Name</Label>
+                      <Input
+                        type="text"
+                        name="partName"
+                        readOnly
+                        placeholder="Part Name"
+                        value={element.partName || ""}
+                        onChange={e => handlePartChange(index, e)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col className="" lg="3" md="3" sm="12">
+                    <FormGroup>
+                      <Label>Color</Label>
+                      <Input
+                        type="text"
+                        name="model"
+                        placeholder="Color"
+                        readOnly
+                        value={element.color || ""}
+                        onChange={e => handleProductChange(index, e)}
+                      />
+                    </FormGroup>
+                  </Col>
+
+                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                    <div>
+                      {index ? (
+                        <Button
+                          type="button"
+                          className="button remove "
+                          onClick={() => removeMorePart(index)}
+                        >
+                          Remove
+                        </Button>
+                      ) : null}
+                    </div>
+
+                    <div>
+                      <Button
+                        className="ml-1 "
+                        color="primary"
+                        type="button"
+                        onClick={() => addMorePart()}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              ))}
 
               <hr />
               <Row className="mt-2 ">
+                <div className="container my-2">
+                  <Label className="py-1">Notification</Label>
+                  <div>
+                    {CreatePolicyView &&
+                      CreatePolicyView?.Policy?.CheckBox?.input?.map(
+                        (ele, i) => {
+                          return (
+                            <>
+                              <span key={i} className="mx-2">
+                                <Input
+                                  style={{ marginRight: "3px" }}
+                                  type={ele?.type?._attributes?.type}
+                                  name={ele?.name?._text}
+                                  onChange={e =>
+                                    handleInputChange(e, "checkbox")
+                                  }
+                                />{" "}
+                                <span
+                                  className="mt-1 mx-1"
+                                  style={{ marginRight: "40px" }}
+                                >
+                                  {ele?.label?._text == "Whatsapp" ? (
+                                    <BsWhatsapp
+                                      className="mx-1"
+                                      color="#59CE72"
+                                      size={25}
+                                    />
+                                  ) : (
+                                    <>
+                                      {ele.label?._text == "SMS" ? (
+                                        <>
+                                          <FcPhoneAndroid size={30} />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <BiEnvelope className="" size={30} />
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+                                </span>
+                              </span>
+                            </>
+                          );
+                        }
+                      )}
+                  </div>
+                </div>
                 <Col lg="6" md="6" sm="6" className="mb-2">
                   <Label className="">
                     <h4>Status</h4>
@@ -817,6 +1027,54 @@ const CreatePolicy = () => {
             </Button>
           </CardBody>
         </Card>
+        <Modal
+          fullscreen="xl"
+          size="lg"
+          backdrop={false}
+          isOpen={modal}
+          toggle={toggle}
+          // {...args}
+        >
+          <ModalHeader toggle={toggle}>Product Look Up</ModalHeader>
+          <ModalBody className="table-body shedulemodalbody">
+            <div className="modalheaderaddrol p-1">
+              <h3 className="table-item">Product List</h3>
+              <AgGrid columnDefs={columns} rowData={data} />
+              {/* <Table
+                className="scheduletble_heading"
+                bordered
+                hover
+                responsive
+                size="sm"
+              >
+                <thead className="tableRowStyle">
+                  <tr className="tableRowStyle">
+                    <th>S.No.</th>
+                    <th>ProductName</th>
+                    <th>Modal</th>
+                    <th>Variant</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>abc</td>
+                    <td>ls123</td>
+                    <td>ch84</td>
+                  </tr>
+                </tbody>
+              </Table> */}
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={toggle}>
+              Submit
+            </Button>
+            <Button color="secondary" onClick={toggle}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     </div>
   );
