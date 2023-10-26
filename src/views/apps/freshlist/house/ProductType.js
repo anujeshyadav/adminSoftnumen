@@ -76,14 +76,15 @@ class ProductType extends React.Component {
       SelectedcolumnDefs: [],
       defaultColDef: {
         sortable: true,
-        // editable: true,
+        enablePivot: true,
+        enableValue: true,
         resizable: true,
         suppressMenu: true,
       },
     };
   }
 
-  toggleModal = () => {
+  LookupviewStart = () => {
     this.setState((prevState) => ({
       modal: !prevState.modal,
     }));
@@ -360,10 +361,11 @@ class ProductType extends React.Component {
         ];
 
         this.setState({ AllcolumnDefs: Product });
-        debugger;
+
         let userHeading = JSON.parse(localStorage.getItem("UserSearchheading"));
         if (userHeading) {
           this.setState({ columnDefs: userHeading });
+          this.gridApi.setColumnDefs(userHeading);
           this.setState({ SelectedcolumnDefs: userHeading });
         } else {
           this.setState({ columnDefs: Product });
@@ -413,8 +415,8 @@ class ProductType extends React.Component {
 
   onGridReady = (params) => {
     this.gridApi = params.api;
-    this.gridRef.current = params.api;
     this.gridColumnApi = params.columnApi;
+    this.gridRef.current = params.api;
 
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
@@ -611,42 +613,31 @@ class ProductType extends React.Component {
       },
     });
   };
-  handleChangeView = (e) => {
+
+  HandleSetVisibleField = (e) => {
     e.preventDefault();
-    // const transaction = db.transaction("myObjectStore", "readwrite");
-    // const store = transaction.objectStore("myObjectStore");
-
-    // this.state.SelectedcolumnDefs.forEach((item) => {
-    //   store
-    //     .add(item)
-    //     .then(() => {
-    //       console.log("Added:", item);
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error adding data:", error);
-    //     });
-    // });
-
+    debugger;
+    this.gridApi.setColumnDefs(this.state.SelectedcolumnDefs);
     this.setState({ columnDefs: this.state.SelectedcolumnDefs });
+    this.setState({ SelectedcolumnDefs: this.state.SelectedcolumnDefs });
     this.setState({ rowData: this.state.rowData });
     localStorage.setItem(
       "UserSearchheading",
       JSON.stringify(this.state.SelectedcolumnDefs)
     );
-    this.toggleModal();
+    this.LookupviewStart();
   };
 
   HeadingRightShift = () => {
     const updatedSelectedColumnDefs = [
-      ...new Set(this.state.SelectedcolumnDefs.concat(SelectedColums)),
-    ];
-
+      ...new Set([
+        ...this.state.SelectedcolumnDefs.map((item) => JSON.stringify(item)),
+        ...SelectedColums.map((item) => JSON.stringify(item)),
+      ]),
+    ].map((item) => JSON.parse(item));
     this.setState({
-      SelectedcolumnDefs: updatedSelectedColumnDefs, // Update the state with the combined array
+      SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)], // Update the state with the combined array
     });
-    // this.setState({
-    //   SelectedcolumnDefs: this.state.SelectedcolumnDefs,
-    // });
   };
   handleLeftShift = () => {
     let SelectedCols = this.state.SelectedcolumnDefs.slice();
@@ -727,10 +718,7 @@ class ProductType extends React.Component {
                               style={{ cursor: "pointer" }}
                               title="filter coloumn"
                               size="30px"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                this.toggleModal();
-                              }}
+                              onClick={this.LookupviewStart}
                               color="blue"
                               className="float-right"
                             />
@@ -868,20 +856,31 @@ class ProductType extends React.Component {
                               {(context) => (
                                 <AgGridReact
                                   id="myAgGrid"
-                                  gridOptions={{
-                                    domLayout: "autoHeight", // or other layout options
-                                  }}
-                                  // gridOptions={this.gridOptions}
+                                  // gridOptions={{
+                                  //   domLayout: "autoHeight",
+                                  //   // or other layout options
+                                  // }}
+                                  gridOptions={this.gridOptions}
                                   rowSelection="multiple"
                                   defaultColDef={defaultColDef}
                                   columnDefs={columnDefs}
                                   rowData={rowData}
-                                  onGridReady={(params) => {
-                                    this.gridApi = params.api;
-                                    this.gridColumnApi = params.columnApi;
-                                    this.gridRef.current = params.api;
-                                  }}
-                                  // onGridReady={this.onGridReady}
+                                  // onGridReady={(params) => {
+                                  //   this.gridApi = params.api;
+                                  //   this.gridColumnApi = params.columnApi;
+                                  //   this.gridRef.current = params.api;
+
+                                  //   this.setState({
+                                  //     currenPageSize:
+                                  //       this.gridApi.paginationGetCurrentPage() +
+                                  //       1,
+                                  //     getPageSize:
+                                  //       this.gridApi.paginationGetPageSize(),
+                                  //     totalPages:
+                                  //       this.gridApi.paginationGetTotalPages(),
+                                  //   });
+                                  // }}
+                                  onGridReady={this.onGridReady}
                                   colResizeDefault={"shift"}
                                   animateRows={true}
                                   floatingFilter={false}
@@ -909,11 +908,11 @@ class ProductType extends React.Component {
 
         <Modal
           isOpen={this.state.modal}
-          toggle={this.toggleModal}
+          toggle={this.LookupviewStart}
           className={this.props.className}
           style={{ maxWidth: "1050px" }}
         >
-          <ModalHeader toggle={this.toggleModal}>Change Fileds</ModalHeader>
+          <ModalHeader toggle={this.LookupviewStart}>Change Fileds</ModalHeader>
           <ModalBody className="modalbodyhead">
             <Row>
               <Col lg="4" md="4" sm="12" xl="4" xs="12">
@@ -1050,12 +1049,12 @@ class ProductType extends React.Component {
                         <BsFillArrowUpSquareFill
                           className="arrowassign mb-1"
                           size="30px"
-                          onClick={() => this.shiftElementUp()}
+                          onClick={this.shiftElementUp}
                         />
                       </div>
                       <div>
                         <BsFillArrowDownSquareFill
-                          onClick={() => this.shiftElementDown()}
+                          onClick={this.shiftElementDown}
                           className="arrowassign"
                           size="30px"
                         />
@@ -1068,10 +1067,7 @@ class ProductType extends React.Component {
             <Row>
               <Col>
                 <div className="d-flex justify-content-center">
-                  <Button
-                    onClick={(e) => this.handleChangeView(e)}
-                    color="primary"
-                  >
+                  <Button onClick={this.HandleSetVisibleField} color="primary">
                     Submit
                   </Button>
                 </div>
