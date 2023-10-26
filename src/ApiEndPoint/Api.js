@@ -47,6 +47,14 @@ export const SerViceCenter_View = "/service-centers/view-service-center";
 export const Part_CatalogueView = "/part-catalogue/view-parts"; //done
 //end Uploads list
 
+// warranty
+export const Warranty_View = "/warranty/get-xml"; //done
+
+// product wiki
+export const productwiki_View = "/product-wiki/createWiki"; //done
+// ticketTool
+export const ticketTool_View = "/ticket-tool/get-xml"; //done
+
 export const Spare_Parts = "/part-catalogue/get-spare-parts";
 export const Parts_Catalogue = "/part-catalogue/get-partscatalogue-parts";
 export const Order_Parts = "/part-catalogue/get-orders-parts";

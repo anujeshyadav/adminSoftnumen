@@ -22,9 +22,9 @@ import swal from "sweetalert";
 import "../../../../../../src/layouts/assets/scss/pages/users.scss";
 
 import {
-  CreateAccountSave,
-  CreateAccountView,
+  Warranty_ViewData,
   createWikiViewData,
+  Productwiki_ViewData,
 } from "../../../../../ApiEndPoint/ApiCalling";
 import { BiEnvelope } from "react-icons/bi";
 import { FcPhoneAndroid } from "react-icons/fc";
@@ -41,7 +41,55 @@ const CreateWiki = () => {
   const [permissions, setpermissions] = useState({});
 
   const createUserXmlView = useContext(UserContext);
+  const [Comments, setComments] = useState([
+    {
+      name: JSON.parse(localStorage.getItem("userData")).UserName,
+      userRole: JSON.parse(localStorage.getItem("userData")).Role,
+      comment: "",
+      time: new Date(),
+    },
+  ]);
+  const [formValues, setFormValues] = useState([{ files: [] }]);
 
+  const newComment = {
+    userName: JSON.parse(localStorage.getItem("userData")).UserName,
+    Role: JSON.parse(localStorage.getItem("userData")).Role,
+    comment: "",
+    time: new Date().toString(),
+  };
+  let handleComment = (i, e) => {
+    let newFormValues = [...Comments];
+    newFormValues[i][e.target.name] = e.target.value;
+    setComments(newFormValues);
+  };
+  const SubmitComment = () => {
+    alert("Comment Submitt ");
+  };
+  let addFormFields = () => {
+    setComments([...Comments, newComment]);
+  };
+
+  let addFileInput = () => {
+    setFormValues([...formValues, { files: [] }]);
+  };
+
+  let removeFileAttach = i => {
+    let newFormValues = [...formValues];
+    newFormValues.splice(i, 1);
+    setFormValues(newFormValues);
+  };
+
+  let handleFileChange = (i, e) => {
+    const newFormValues = [...formValues];
+    const selectedFiles = e.target.files;
+    newFormValues[i].files = selectedFiles;
+    setFormValues(newFormValues);
+  };
+  let removeFormFields = i => {
+    let newFormValues = [...Comments];
+    newFormValues.splice(i, 1);
+    setComments(newFormValues);
+  };
   const handleInputChange = (e, type, i) => {
     const { name, value, checked } = e.target;
     setindex(i);
@@ -88,46 +136,39 @@ const CreateWiki = () => {
       }
     }
   };
-  useEffect(() => {}, [formData]);
   useEffect(() => {
-    createWikiViewData()
-      .then((res) => {
+    // console.log(formData);
+  }, [formData]);
+  useEffect(() => {
+    Productwiki_ViewData()
+      .then(res => {
+        console.log(res);
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData));
-        let origionalpermission =
-          JSON.parse(jsonData)?.CreateAccount?.input[14].permissions?.role;
-        // const rolePermissions = origionalpermission?.find(
-        //   (role) => role._attributes?.name === "SUPERADMIN"
-        // );
-        // console.log(rolePermissions);
-        // setpermissions(rolePermissions);
-        // console.log(permissions);
-        // console.log(rolePermissions?.canCreateUser._text.includes("true"));
-        // console.log(rolePermissions?.canEditProfile._text.includes("true"));
-        // console.log(rolePermissions?.canCreateUser._text.includes("true"));
-
+        console.log(JSON.parse(jsonData).createWiki);
+        // let origionalpermission =
+        //   JSON.parse(jsonData)?.Warranty?.input[14].permissions?.role;
         setCreatAccountView(JSON.parse(jsonData));
         setdropdownValue(JSON.parse(jsonData));
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   }, []);
 
-  const submitHandler = (e) => {
+  const submitHandler = e => {
     e.preventDefault();
     if (error) {
       swal("Error occured while Entering Details");
     } else {
       CreateAccountSave(formData)
-        .then((res) => {
+        .then(res => {
           if (res.status) {
             setFormData({});
             window.location.reload();
             swal("Acccont Created Successfully");
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
     }
@@ -136,92 +177,91 @@ const CreateWiki = () => {
   return (
     <div>
       <div>
-        <Row>
-          <Col>
-            <Route
-              render={({ history }) => (
-                <Button
-                  className=" float-right"
-                  color="danger"
-                  onClick={
-                    () => history.goBack()
-                    // () => history.push("/app/freshlist/order/delivered")
-                    // history.push("/app/freshlist/order/addOrder")
-                  }
-                >
-                  Back
-                </Button>
-              )}
-            />
-          </Col>
-        </Row>
         <Card>
           <Row className="m-2">
-            <Col>
-              <h1 className="float-left">Create WIKI</h1>
+            <Col className="">
+              <div>
+                <h1 className="">Create Wiki</h1>
+              </div>
+              <div>
+                <span>Wiki Id</span> <span>#</span>
+              </div>
             </Col>
           </Row>
 
           <CardBody>
             <Form className="m-1" onSubmit={submitHandler}>
               <Row className="mb-2">
-                <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.CreateWiki?.MyDropdown?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.CreateWiki?.MyDropdown?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.CreateWiki?.MyDropdown?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">--Select Role--</option>
-                      {dropdownValue?.CreateWiki?.MyDropdown?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
+                {dropdownValue?.createWiki?.MyDropDown.map((drop, i) => {
+                  return (
+                    <Col lg="6" md="6" key={i}>
+                      <FormGroup>
+                        <Label>{drop?.dropdown?.label?._text}</Label>
+                        <CustomInput
+                          required
+                          type="select"
+                          name={drop?.dropdown?.name?._text}
+                          value={
+                            formData[drop?.dropdown?.dropdown?.name?._text]
+                          }
+                          onChange={handleInputChange}
+                        >
+                          <option value="">
+                            --Select {drop?.dropdown.name._text}---
                           </option>
-                        )
-                      )}
-                    </CustomInput>
+                          {drop.dropdown.option.map((option, index) => {
+                            return (
+                              <option
+                                key={index}
+                                value={option?._attributes?.value}
+                              >
+                                {option?._attributes?.value}
+                              </option>
+                            );
+                          })}
+                        </CustomInput>
+                      </FormGroup>
+                    </Col>
+                  );
+                })}
+
+                <Col lg="6" md="6" sm="12">
+                  <FormGroup>
+                    <Label>Partner Code#</Label>
+                    <Input
+                      type="number"
+                      name="PartnerCode"
+                      readOnly
+                      placeholder="Partner Code"
+                    ></Input>
                   </FormGroup>
                 </Col>
-
+                <Col lg="6" md="6" sm="12">
+                  <FormGroup>
+                    <Label>Partner Name</Label>
+                    <Input
+                      type="number"
+                      name="PartnerCode"
+                      readOnly
+                      placeholder="Partner Code"
+                    ></Input>
+                  </FormGroup>
+                </Col>
                 {CreatAccountView &&
-                  CreatAccountView?.CreateWiki?.input?.map((ele, i) => {
+                  CreatAccountView?.createWiki?.input?.map((ele, i) => {
                     let View = "";
                     let Edit = "";
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                        role => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
                       Edit = roles?.permissions?._text.includes("Edit");
-                      {
-                        /* console.log(View, Edit); */
-                      }
                     }
                     if (!!ele?.phoneinput) {
                       return (
                         <>
-                          {/* {Edit && Edit ? ( */}
                           <>
                             <Col key={i} lg="6" md="6" sm="12">
                               <FormGroup>
@@ -229,7 +269,7 @@ const CreateWiki = () => {
                                 <PhoneInput
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={(e) => {
+                                  onKeyDown={e => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -240,7 +280,7 @@ const CreateWiki = () => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={(phone) => {
+                                  onChange={phone => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -262,55 +302,6 @@ const CreateWiki = () => {
                               </FormGroup>
                             </Col>
                           </>
-                          {/* ) : (
-                            <>
-                              {View && View ? (
-                                <>
-                                  <Col key={i} lg="6" md="6" sm="12">
-                                    <FormGroup>
-                                      <Label>{ele?.label?._text}</Label>
-                                      <PhoneInput
-                                        disabled
-                                        inputClass="myphoneinput"
-                                        country={"us"}
-                                        onKeyDown={(e) => {
-                                          if (
-                                            ele?.type?._attributes?.type ==
-                                            "number"
-                                          ) {
-                                            ["e", "E", "+", "-"].includes(
-                                              e.key
-                                            ) && e.preventDefault();
-                                          }
-                                        }}
-                                        countryCodeEditable={false}
-                                        name={ele?.name?._text}
-                                        value={formData[ele?.name?._text]}
-                                        onChange={(phone) => {
-                                          setFormData({
-                                            ...formData,
-                                            [ele?.name?._text]: phone,
-                                          });
-                                        }}
-                                        // onChange={handleInputChange}
-                                      />
-                                      {index === i ? (
-                                        <>
-                                          {error && (
-                                            <span style={{ color: "red" }}>
-                                              {error}
-                                            </span>
-                                          )}
-                                        </>
-                                      ) : (
-                                        <></>
-                                      )}
-                                    </FormGroup>
-                                  </Col>
-                                </>
-                              ) : null}
-                            </>
-                          )} */}
                         </>
                       );
                     } else if (!!ele?.library) {
@@ -323,14 +314,14 @@ const CreateWiki = () => {
                                 inputClass="countryclass"
                                 className="countryclassnw"
                                 options={Country.getAllCountries()}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={formData.country}
-                                onChange={(country) => {
+                                onChange={country => {
                                   setFormData({
                                     ...formData,
                                     ["country"]: country,
@@ -360,14 +351,14 @@ const CreateWiki = () => {
                                 options={State?.getStatesOfCountry(
                                   formData?.country?.isoCode
                                 )}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={formData.State}
-                                onChange={(State) => {
+                                onChange={State => {
                                   setFormData({
                                     ...formData,
                                     ["State"]: State,
@@ -398,14 +389,14 @@ const CreateWiki = () => {
                                   formData?.State?.countryCode,
                                   formData?.State?.isoCode
                                 )}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={formData.City}
-                                onChange={(City) => {
+                                onChange={City => {
                                   setFormData({
                                     ...formData,
                                     ["City"]: City,
@@ -430,13 +421,12 @@ const CreateWiki = () => {
                     } else {
                       return (
                         <>
-                          {/* {Edit && Edit ? ( */}
                           <Col key={i} lg="6" md="6" sm="12">
                             <FormGroup>
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -448,7 +438,7 @@ const CreateWiki = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -469,55 +459,6 @@ const CreateWiki = () => {
                               )}
                             </FormGroup>
                           </Col>
-                          {/* ) : (
-                            <>
-                              {View && View ? (
-                                <>
-                                  <Col key={i} lg="6" md="6" sm="12">
-                                    <FormGroup>
-                                      <Label>{ele?.label?._text}</Label>
-
-                                      <Input
-                                        disabled
-                                        onKeyDown={(e) => {
-                                          if (
-                                            ele?.type?._attributes?.type ==
-                                            "number"
-                                          ) {
-                                            ["e", "E", "+", "-"].includes(
-                                              e.key
-                                            ) && e.preventDefault();
-                                          }
-                                        }}
-                                        type={ele?.type?._attributes?.type}
-                                        placeholder={ele?.placeholder?._text}
-                                        name={ele?.name?._text}
-                                        value={formData[ele?.name?._text]}
-                                        onChange={(e) =>
-                                          handleInputChange(
-                                            e,
-                                            ele?.type?._attributes?.type,
-                                            i
-                                          )
-                                        }
-                                      />
-                                      {index === i ? (
-                                        <>
-                                          {error && (
-                                            <span style={{ color: "red" }}>
-                                              {error}
-                                            </span>
-                                          )}
-                                        </>
-                                      ) : (
-                                        <></>
-                                      )}
-                                    </FormGroup>
-                                  </Col>
-                                </>
-                              ) : null}
-                            </>
-                          )} */}
                         </>
                       );
                     }
@@ -527,7 +468,7 @@ const CreateWiki = () => {
                   <Label className="py-1">Notification</Label>
                   <div>
                     {CreatAccountView &&
-                      CreatAccountView?.CreateWiki?.CheckBox?.input?.map(
+                      CreatAccountView?.createWiki?.CheckBox?.input?.map(
                         (ele, i) => {
                           return (
                             <>
@@ -536,7 +477,7 @@ const CreateWiki = () => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}
@@ -563,31 +504,8 @@ const CreateWiki = () => {
                                       )}
                                     </>
                                   )}
-                                  {/* <BsWhatsapp
-                              className="mx-1"
-                              color="#59CE72"
-                              size={25}
-                            /> */}
                                 </span>
                               </span>
-                              {/* <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
-                              <Input
-                                type={ele?.type?._attributes?.type}
-                                placeholder={ele?.placeholder?._text}
-                                name={ele?.name?._text}
-                                value={formData[ele?.name?._text]}
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    e,
-                                    ele?.type?._attributes?.type,
-                                    i
-                                  )
-                                }
-                              />
-                            </FormGroup>
-                          </Col> */}
                             </>
                           );
                         }
@@ -595,6 +513,40 @@ const CreateWiki = () => {
                   </div>
                 </div>
               </Row>
+              {formValues.map((index, i) => (
+                <Row className="my-2">
+                  <Col lg="6" md="6" sm="12" key={i}>
+                    <Input
+                      type="file"
+                      multiple
+                      onChange={e => handleFileChange(i, e)}
+                    />
+                  </Col>
+                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                    <div>
+                      {i ? (
+                        <Button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() => removeFileAttach(i)}
+                        >
+                          -
+                        </Button>
+                      ) : null}
+                    </div>
+                    <div>
+                      <Button
+                        className="ml-1"
+                        color="primary"
+                        type="button"
+                        onClick={() => addFileInput()}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              ))}
 
               <hr />
               <Row className="mt-2 ">
@@ -604,7 +556,7 @@ const CreateWiki = () => {
                   </Label>
                   <div className="form-label-group mx-1">
                     {CreatAccountView &&
-                      CreatAccountView?.CreateWiki?.Radiobutton?.input?.map(
+                      CreatAccountView?.Warranty?.Radiobutton?.input?.map(
                         (ele, i) => {
                           return (
                             <FormGroup key={i}>
@@ -645,6 +597,57 @@ const CreateWiki = () => {
                 </Button.Ripple>
               </Row>
             </Form>
+            {Comments &&
+              Comments?.map((element, index) => (
+                <>
+                  <Row key={index} className="my-2">
+                    <Col lg="6" md="6" sm="12">
+                      <Label>Comment</Label>
+                      <Input
+                        type="textarea"
+                        name="comment"
+                        placeholder="Comment"
+                        value={element.comment || ""}
+                        onChange={e => handleComment(index, e)}
+                      />
+                    </Col>
+
+                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                      <div>
+                        {index ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFormFields(index)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
+
+                      <div>
+                        <Button
+                          className="ml-1 "
+                          color="primary"
+                          type="button"
+                          onClick={() => addFormFields()}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
+              ))}
+            <Button
+              className="ml-1 "
+              color="primary"
+              onClick={e => {
+                SubmitComment(e);
+              }}
+            >
+              Submit Comment
+            </Button>
           </CardBody>
         </Card>
       </div>
