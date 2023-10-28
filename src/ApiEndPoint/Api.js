@@ -91,3 +91,10 @@ export const Delete_Delivery_Address =
 export const Save_Delivery_Address = "/deliveryAddress/save-delivery-address";
 
 // end Delivery Address
+
+// product WIKI
+export const CRAETE_PRODUCT_WIKI = "/product-wiki/save-product-wiki";
+export const VIEW_PRODUCT_WIKI = "/product-wiki/view-product-wiki";
+export const DELETE_PRODUCT_WIKI = "/product-wiki/delete-product-wiki/";
+export const UPDATE_PRODUCT_WIKI = "/product-wiki/update-product-wiki/";
+export const COMMENT_PRODUCT_WIKI = "/product-wiki/comment-add/";

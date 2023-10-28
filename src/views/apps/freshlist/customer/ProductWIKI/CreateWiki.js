@@ -31,6 +31,8 @@ import {
   createWikiViewData,
   Productwiki_ViewData,
   CreateAccountSave,
+  CreateProductWiki,
+  CommentProductWiki,
 } from "../../../../../ApiEndPoint/ApiCalling";
 import { BiEnvelope } from "react-icons/bi";
 import { FcPhoneAndroid } from "react-icons/fc";
@@ -51,14 +53,13 @@ const CreateWiki = (args) => {
   const createUserXmlView = useContext(UserContext);
   const [Comments, setComments] = useState([
     {
-      name: JSON.parse(localStorage.getItem("userData")).UserName,
-      userRole: JSON.parse(localStorage.getItem("userData")).Role,
+      userName: "",
+      Role: "",
       comment: "",
-      time: new Date(),
+      time: "",
     },
   ]);
   const [formValues, setFormValues] = useState([{ files: [] }]);
-
   const newComment = {
     userName: JSON.parse(localStorage.getItem("userData")).UserName,
     Role: JSON.parse(localStorage.getItem("userData")).Role,
@@ -66,12 +67,24 @@ const CreateWiki = (args) => {
     time: new Date().toString(),
   };
   let handleComment = (i, e) => {
+    let user = JSON.parse(localStorage.getItem("userData"));
     let newFormValues = [...Comments];
+    newFormValues[i]["userName"] = user?.UserName;
+    newFormValues[i]["Role"] = user?.Role;
+    newFormValues[i]["time"] = new Date().toString();
     newFormValues[i][e.target.name] = e.target.value;
     setComments(newFormValues);
   };
   const SubmitComment = () => {
-    alert("Comment Submitt ");
+    let user = JSON.parse(localStorage.getItem("userData"));
+    console.log(user?.accountId);
+    CommentProductWiki(user?.accountId, Comments)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   let addFormFields = () => {
     setComments([...Comments, newComment]);
@@ -149,8 +162,15 @@ const CreateWiki = (args) => {
     toggle();
   };
   useEffect(() => {
-    // console.log(formData);
-  }, [formData]);
+    console.log(formData);
+    console.log(formValues);
+    console.log(Comments);
+    // formValues?.map((ele) => {
+    //   debugger;
+    //   console.log(ele?.files);
+    // });
+  }, [formData, formValues, Comments]);
+
   useEffect(() => {
     Productwiki_ViewData()
       .then((res) => {
@@ -159,6 +179,9 @@ const CreateWiki = (args) => {
         console.log(JSON.parse(jsonData).createWiki);
         // let origionalpermission =
         //   JSON.parse(jsonData)?.Warranty?.input[14].permissions?.role;
+        // let alldata = JSON.parse(jsonData)?.createWiki?.map((ele) => {
+        //   console.log(ele);
+        // });
         setCreatAccountView(JSON.parse(jsonData));
         setdropdownValue(JSON.parse(jsonData));
       })
@@ -169,21 +192,26 @@ const CreateWiki = (args) => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    if (error) {
-      swal("Error occured while Entering Details");
-    } else {
-      CreateAccountSave(formData)
-        .then((res) => {
-          if (res.status) {
-            setFormData({});
-            window.location.reload();
-            swal("Acccont Created Successfully");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+    console.log(formData);
+    console.log(formValues);
+    console.log(Comments);
+    console.log(CreatAccountView);
+    debugger;
+    let formdata = new FormData();
+
+    formValues?.map((ele) => {
+      formdata.append("files", ele.files);
+    });
+
+    let data = { ...formData, Comments: Comments && Comments, formdata };
+    CreateProductWiki(data)
+      .then((res) => {
+        console.log(res);
+        swal("Wiki Created Successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -192,8 +220,8 @@ const CreateWiki = (args) => {
         <Card>
           <Row className="m-2">
             <Col className="">
-              <div>
-                <h1 className="">Create Wiki</h1>
+              <div className="d-flex">
+                <h1 className="justify-content-start">Create Wiki</h1>
               </div>
               <div>
                 <span>Wiki Id</span> <span>#</span>
@@ -213,9 +241,7 @@ const CreateWiki = (args) => {
                           required
                           type="select"
                           name={drop?.dropdown?.name?._text}
-                          value={
-                            formData[drop?.dropdown?.dropdown?.name?._text]
-                          }
+                          value={formData[drop?.dropdown?.name?._text]}
                           onChange={handleInputChange}
                         >
                           <option value="">
@@ -434,45 +460,48 @@ const CreateWiki = (args) => {
                 </div>
               </Row>
               {formValues.map((index, i) => (
-                <Row className="my-2">
-                  <Col lg="6" md="6" sm="12" key={i}>
-                    <Input
-                      type="file"
-                      multiple
-                      onChange={(e) => handleFileChange(i, e)}
-                    />
-                  </Col>
-                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
-                    <div>
-                      {i ? (
+                <>
+                  <Label className="mt-1">Upload files</Label>
+                  <Row className="my-1">
+                    <Col lg="6" md="6" sm="12" key={i}>
+                      <Input
+                        type="file"
+                        multiple
+                        onChange={(e) => handleFileChange(i, e)}
+                      />
+                    </Col>
+                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                      <div>
+                        {i ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFileAttach(i)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
+                      <div>
                         <Button
+                          className="ml-1"
+                          color="primary"
                           type="button"
-                          className="btn btn-danger"
-                          onClick={() => removeFileAttach(i)}
+                          onClick={() => addFileInput()}
                         >
-                          -
+                          +
                         </Button>
-                      ) : null}
-                    </div>
-                    <div>
-                      <Button
-                        className="ml-1"
-                        color="primary"
-                        type="button"
-                        onClick={() => addFileInput()}
-                      >
-                        +
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
               ))}
 
               <hr />
               <Row className="mt-2 ">
                 <Col lg="6" md="6" sm="6" className="mb-2">
                   <Label className="">
-                    <h4>Status</h4>
+                    <h4>Status :-</h4>
                   </Label>
                   <div className="form-label-group mx-1">
                     {CreatAccountView &&

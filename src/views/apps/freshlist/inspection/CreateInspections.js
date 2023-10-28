@@ -143,11 +143,11 @@ const CreateInspections = () => {
       .then((res) => {
         // console.log(res);
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData).Inspection);
+        console.log(JSON.parse(jsonData)?.Inspection);
         // let origionalpermission =
         //   JSON.parse(jsonData)?.Warranty?.input[14].permissions?.role;
-        setCreatAccountView(JSON.parse(jsonData));
-        setdropdownValue(JSON.parse(jsonData));
+        setCreatAccountView(JSON.parse(jsonData)?.Inspection);
+        setdropdownValue(JSON.parse(jsonData)?.Inspection);
       })
       .catch((err) => {
         console.log(err);
@@ -190,42 +190,47 @@ const CreateInspections = () => {
 
           <CardBody>
             <Form className="m-1" onSubmit={submitHandler}>
+              <h3 className="mb-2">
+                {dropdownValue &&
+                  dropdownValue?.InspectionDoneat?.heading?._text}
+              </h3>
               <Row className="mb-2">
-                {/* {dropdownValue?.Inspection?.MyDropDown?.map((drop, i) => {
-                  return (
-                    <Col lg="6" md="6" key={i}>
-                      <FormGroup>
-                        <Label>{drop?.dropdown?.label?._text}</Label>
-                        <CustomInput
-                          required
-                          type="select"
-                          name={drop?.dropdown?.name?._text}
-                          value={
-                            formData[drop?.dropdown?.dropdown?.name?._text]
-                          }
-                          onChange={handleInputChange}
-                        >
-                          <option value="">
-                            --Select {drop?.dropdown.name._text}---
-                          </option>
-                          {drop.dropdown.option.map((option, index) => {
-                            return (
-                              <option
-                                key={index}
-                                value={option?._attributes?.value}
+                {dropdownValue &&
+                  dropdownValue?.InspectionDoneat?.MyDropDown?.map(
+                    (drop, i) => {
+                      return (
+                        <>
+                          <Col lg="6" md="6" key={i}>
+                            <FormGroup>
+                              <Label>{drop?.dropdown?.label?._text}</Label>
+                              <CustomInput
+                                required
+                                type="select"
+                                name={drop?.dropdown?.name?._text}
+                                value={formData[drop?.dropdown?.name?._text]}
+                                onChange={handleInputChange}
                               >
-                                {option?._attributes?.value}
-                              </option>
-                            );
-                          })}
-                        </CustomInput>
-                      </FormGroup>
-                    </Col>
-                  );
-                })} */}
+                                <option value="">--Select---</option>
+                                {drop.dropdown.option?.map((option, index) => {
+                                  return (
+                                    <option
+                                      key={index}
+                                      value={option?._attributes?.value}
+                                    >
+                                      {option?._attributes?.value}
+                                    </option>
+                                  );
+                                })}
+                              </CustomInput>
+                            </FormGroup>
+                          </Col>
+                        </>
+                      );
+                    }
+                  )}
 
-                {CreatAccountView &&
-                  CreatAccountView?.Inspection?.input?.map((ele, i) => {
+                {dropdownValue &&
+                  dropdownValue?.InspectionDoneat?.input?.map((ele, i) => {
                     if (ele?.role) {
                       let roles = ele?.role?.find(
                         (role) => role._attributes?.name === "WARRANTY APPROVER"
@@ -235,33 +240,117 @@ const CreateInspections = () => {
                       Edit = roles?.permissions?._text.includes("Edit");
                     }
                     if (!!ele?.phoneinput) {
-                      return (
-                        <>
+                      if (!!ele?.Readonly) {
+                        return (
                           <>
-                            <Col key={i} lg="6" md="6" sm="12">
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    disabled
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    // disabled
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      }
+                    } else if (!!ele?.Readonly) {
+                      if (ele?.type._attributes?.type == "checkbox") {
+                        return (
+                          <>
+                            <Label className="mx-1">
+                              {ele?.heading?._text}
+                            </Label>
+                            <Col key={i} lg="12" md="12" sm="12">
                               <FormGroup>
-                                <Label>{ele?.label?._text}</Label>
-                                <PhoneInput
-                                  inputClass="myphoneinput"
-                                  country={"us"}
-                                  onKeyDown={(e) => {
-                                    if (
-                                      ele?.type?._attributes?.type == "number"
-                                    ) {
-                                      ["e", "E", "+", "-"].includes(e.key) &&
-                                        e.preventDefault();
-                                    }
-                                  }}
-                                  countryCodeEditable={false}
+                                <Input
+                                  disabled
+                                  className="mx-1"
+                                  type={ele?.type._attributes?.type}
                                   name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={(phone) => {
-                                    setFormData({
-                                      ...formData,
-                                      [ele?.name?._text]: phone,
-                                    });
-                                  }}
                                 />
+                                <span className="mx-3 py-1">
+                                  {ele?.value?._text}
+                                </span>
                                 {index === i ? (
                                   <>
                                     {error && (
@@ -276,120 +365,36 @@ const CreateInspections = () => {
                               </FormGroup>
                             </Col>
                           </>
-                        </>
-                      );
-                    } else if (!!ele?.library) {
-                      if (ele?.label._text?.includes("ountry")) {
-                        return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
-                              <Select
-                                inputClass="countryclass"
-                                className="countryclassnw"
-                                options={Country.getAllCountries()}
-                                getOptionLabel={(options) => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={(options) => {
-                                  return options["name"];
-                                }}
-                                value={formData.country}
-                                onChange={(country) => {
-                                  setFormData({
-                                    ...formData,
-                                    ["country"]: country,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
                         );
-                      } else if (ele?.label._text?.includes("tate")) {
+                      } else {
                         return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
+                          <>
+                            <Col key={i} lg="6" md="6" sm="12">
                               <Label>{ele?.label?._text}</Label>
-                              <Select
-                                options={State?.getStatesOfCountry(
-                                  formData?.country?.isoCode
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="form-control"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.name?._text]}
+                                />
+
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
                                 )}
-                                getOptionLabel={(options) => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={(options) => {
-                                  return options["name"];
-                                }}
-                                value={formData.State}
-                                onChange={(State) => {
-                                  setFormData({
-                                    ...formData,
-                                    ["State"]: State,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
-                        );
-                      } else if (ele?.label._text?.includes("ity")) {
-                        return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
-                              <Select
-                                options={City?.getCitiesOfState(
-                                  formData?.State?.countryCode,
-                                  formData?.State?.isoCode
-                                )}
-                                getOptionLabel={(options) => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={(options) => {
-                                  return options["name"];
-                                }}
-                                value={formData.City}
-                                onChange={(City) => {
-                                  setFormData({
-                                    ...formData,
-                                    ["City"]: City,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
+                              </FormGroup>
+                            </Col>
+                          </>
                         );
                       }
                     } else {
@@ -437,7 +442,751 @@ const CreateInspections = () => {
                       );
                     }
                   })}
+              </Row>
+              <h3 className="mb-2">
+                {dropdownValue &&
+                  dropdownValue?.InspectiondoneOn?.heading?._text}
+              </h3>
+              <Row>
+                {/* {dropdownValue &&
+                  dropdownValue?.InspectiondoneOn?.MyDropDown?.map(
+                    (drop, i) => {
+                      return (
+                        <Col lg="6" md="6" key={i}>
+                          <FormGroup>
+                            <Label>{drop?.dropdown?.label?._text}</Label>
+                            <CustomInput
+                              required
+                              type="select"
+                              name={drop?.dropdown?.name?._text}
+                              value={formData[drop?.dropdown?.name?._text]}
+                              onChange={handleInputChange}
+                            >
+                              <option value="">--Select---</option>
+                              {drop.dropdown.option?.map((option, index) => {
+                                return (
+                                  <option
+                                    key={index}
+                                    value={option?._attributes?.value}
+                                  >
+                                    {option?._attributes?.value}
+                                  </option>
+                                );
+                              })}
+                            </CustomInput>
+                          </FormGroup>
+                        </Col>
+                      );
+                    }
+                  )} */}
 
+                {dropdownValue &&
+                  dropdownValue?.InspectiondoneOn?.input?.map((ele, i) => {
+                    if (ele?.role) {
+                      let roles = ele?.role?.find(
+                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                      );
+
+                      View = roles?.permissions?._text.includes("View");
+                      Edit = roles?.permissions?._text.includes("Edit");
+                    }
+                    if (!!ele?.phoneinput) {
+                      if (!!ele?.Readonly) {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    disabled
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    // disabled
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      }
+                    } else if (!!ele?.Readonly) {
+                      if (ele?.type._attributes?.type == "checkbox") {
+                        return (
+                          <>
+                            <Label className="mx-1">
+                              {ele?.heading?._text}
+                            </Label>
+                            <Col key={i} lg="12" md="12" sm="12">
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="mx-1"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.name?._text]}
+                                />
+                                <span className="mx-3 py-1">
+                                  {ele?.value?._text}
+                                </span>
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <Col key={i} lg="6" md="6" sm="12">
+                              <Label>{ele?.label?._text}</Label>
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="form-control"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.name?._text]}
+                                />
+
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          </>
+                        );
+                      }
+                    } else {
+                      return (
+                        <>
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>{ele?.label?._text}</Label>
+
+                              <Input
+                                onKeyDown={(e) => {
+                                  if (
+                                    ele?.type?._attributes?.type == "number"
+                                  ) {
+                                    ["e", "E", "+", "-"].includes(e.key) &&
+                                      e.preventDefault();
+                                  }
+                                }}
+                                type={ele?.type?._attributes?.type}
+                                placeholder={ele?.placeholder?._text}
+                                name={ele?.name?._text}
+                                value={formData[ele?.name?._text]}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    e,
+                                    ele?.type?._attributes?.type,
+                                    i
+                                  )
+                                }
+                              />
+                              {index === i ? (
+                                <>
+                                  {error && (
+                                    <span style={{ color: "red" }}>
+                                      {error}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <></>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        </>
+                      );
+                    }
+                  })}
+              </Row>
+              <Row>
+                {dropdownValue &&
+                  dropdownValue?.inspectionDoneby?.MyDropDown?.map(
+                    (drop, i) => {
+                      return (
+                        <Col lg="6" md="6" key={i}>
+                          <FormGroup>
+                            <Label>{drop?.dropdown?.label?._text}</Label>
+                            <CustomInput
+                              required
+                              type="select"
+                              name={drop?.dropdown?.name?._text}
+                              value={formData[drop?.dropdown?.name?._text]}
+                              onChange={handleInputChange}
+                            >
+                              <option value="">--Select---</option>
+                              {drop.dropdown.option?.map((option, index) => {
+                                return (
+                                  <option
+                                    key={index}
+                                    value={option?._attributes?.value}
+                                  >
+                                    {option?._attributes?.value}
+                                  </option>
+                                );
+                              })}
+                            </CustomInput>
+                          </FormGroup>
+                        </Col>
+                      );
+                    }
+                  )}
+
+                {dropdownValue &&
+                  dropdownValue?.inspectionDoneby?.input?.map((ele, i) => {
+                    if (ele?.role) {
+                      let roles = ele?.role?.find(
+                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                      );
+
+                      View = roles?.permissions?._text.includes("View");
+                      Edit = roles?.permissions?._text.includes("Edit");
+                    }
+                    if (!!ele?.phoneinput) {
+                      if (!!ele?.Readonly) {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    disabled
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    // disabled
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      }
+                    } else if (!!ele?.Readonly) {
+                      if (ele?.type._attributes?.type == "checkbox") {
+                        return (
+                          <>
+                            <Label className="mx-1">
+                              {ele?.heading?._text}
+                            </Label>
+                            <Col key={i} lg="12" md="12" sm="12">
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="mx-1"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.name?._text]}
+                                />
+                                <span className="mx-3 py-1">
+                                  {ele?.value?._text}
+                                </span>
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <Col key={i} lg="6" md="6" sm="12">
+                              <Label>{ele?.label?._text}</Label>
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="form-control"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.name?._text]}
+                                />
+
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          </>
+                        );
+                      }
+                    } else {
+                      return (
+                        <>
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>{ele?.label?._text}</Label>
+
+                              <Input
+                                onKeyDown={(e) => {
+                                  if (
+                                    ele?.type?._attributes?.type == "number"
+                                  ) {
+                                    ["e", "E", "+", "-"].includes(e.key) &&
+                                      e.preventDefault();
+                                  }
+                                }}
+                                type={ele?.type?._attributes?.type}
+                                placeholder={ele?.placeholder?._text}
+                                name={ele?.name?._text}
+                                value={formData[ele?.name?._text]}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    e,
+                                    ele?.type?._attributes?.type,
+                                    i
+                                  )
+                                }
+                              />
+                              {index === i ? (
+                                <>
+                                  {error && (
+                                    <span style={{ color: "red" }}>
+                                      {error}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <></>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        </>
+                      );
+                    }
+                  })}
+              </Row>
+              <Row>
+                {dropdownValue &&
+                  dropdownValue?.soldby?.MyDropDown?.map((drop, i) => {
+                    return (
+                      <Col lg="6" md="6" key={i}>
+                        <FormGroup>
+                          <Label>{drop?.dropdown?.label?._text}</Label>
+                          <CustomInput
+                            required
+                            type="select"
+                            name={drop?.dropdown?.name?._text}
+                            value={formData[drop?.dropdown?.name?._text]}
+                            onChange={handleInputChange}
+                          >
+                            <option value="">--Select---</option>
+                            {drop.dropdown.option?.map((option, index) => {
+                              return (
+                                <option
+                                  key={index}
+                                  value={option?._attributes?.value}
+                                >
+                                  {option?._attributes?.value}
+                                </option>
+                              );
+                            })}
+                          </CustomInput>
+                        </FormGroup>
+                      </Col>
+                    );
+                  })}
+
+                {dropdownValue &&
+                  dropdownValue?.soldby?.input?.map((ele, i) => {
+                    if (ele?.role) {
+                      let roles = ele?.role?.find(
+                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                      );
+
+                      View = roles?.permissions?._text.includes("View");
+                      Edit = roles?.permissions?._text.includes("Edit");
+                    }
+                    if (!!ele?.phoneinput) {
+                      if (!!ele?.Readonly) {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    disabled
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    // disabled
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      }
+                    } else if (!!ele?.Readonly) {
+                      if (ele?.type._attributes?.type == "checkbox") {
+                        return (
+                          <>
+                            <Label className="mx-1">
+                              {ele?.heading?._text}
+                            </Label>
+                            <Col key={i} lg="12" md="12" sm="12">
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="mx-1"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.name?._text]}
+                                />
+                                <span className="mx-3 py-1">
+                                  {ele?.value?._text}
+                                </span>
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <Col key={i} lg="6" md="6" sm="12">
+                              <Label>{ele?.label?._text}</Label>
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="form-control"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.name?._text]}
+                                />
+
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          </>
+                        );
+                      }
+                    } else {
+                      return (
+                        <>
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>{ele?.label?._text}</Label>
+
+                              <Input
+                                onKeyDown={(e) => {
+                                  if (
+                                    ele?.type?._attributes?.type == "number"
+                                  ) {
+                                    ["e", "E", "+", "-"].includes(e.key) &&
+                                      e.preventDefault();
+                                  }
+                                }}
+                                type={ele?.type?._attributes?.type}
+                                placeholder={ele?.placeholder?._text}
+                                name={ele?.name?._text}
+                                value={formData[ele?.name?._text]}
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    e,
+                                    ele?.type?._attributes?.type,
+                                    i
+                                  )
+                                }
+                              />
+                              {index === i ? (
+                                <>
+                                  {error && (
+                                    <span style={{ color: "red" }}>
+                                      {error}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <></>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        </>
+                      );
+                    }
+                  })}
+              </Row>
+              <Row>
                 <div className="container">
                   <Label className="py-1">Notification</Label>
                   <div>
@@ -484,6 +1233,35 @@ const CreateInspections = () => {
                           );
                         }
                       )}
+                    {CreatAccountView &&
+                      CreatAccountView?.Radiobutton?.input?.map((ele, i) => {
+                        return (
+                          <FormGroup key={i}>
+                            <div className="mx-1">
+                              <Input
+                                className=""
+                                key={i}
+                                style={{ marginRight: "3px" }}
+                                required
+                                type={ele?.type?._attributes?.type}
+                                name={ele?.name?._text}
+                                value={`${
+                                  ele?.label?._text == "Active"
+                                    ? "Active"
+                                    : "Deactive"
+                                }`}
+                                onChange={handleInputChange}
+                              />{" "}
+                              <span
+                                className="mx-1 mt-1"
+                                style={{ marginRight: "20px" }}
+                              >
+                                {ele?.label?._text}
+                              </span>
+                            </div>
+                          </FormGroup>
+                        );
+                      })}
                   </div>
                 </div>
               </Row>
@@ -560,6 +1338,50 @@ const CreateInspections = () => {
                   </div>
                 </Col>
               </Row>
+              <div className="container">
+                <Label className="py-1">Notification</Label>
+                <div>
+                  {CreatAccountView &&
+                    CreatAccountView?.CheckBox?.input?.map((ele, i) => {
+                      return (
+                        <>
+                          <span key={i} className="mx-2">
+                            <Input
+                              style={{ marginRight: "3px" }}
+                              type={ele?.type?._attributes?.type}
+                              name={ele?.name?._text}
+                              onChange={(e) => handleInputChange(e, "checkbox")}
+                            />{" "}
+                            <span
+                              className="mt-1 mx-1"
+                              style={{ marginRight: "40px" }}
+                            >
+                              {ele?.label?._text == "Whatsapp" ? (
+                                <BsWhatsapp
+                                  className="mx-1"
+                                  color="#59CE72"
+                                  size={25}
+                                />
+                              ) : (
+                                <>
+                                  {ele.label?._text == "SMS" ? (
+                                    <>
+                                      <FcPhoneAndroid size={30} />
+                                    </>
+                                  ) : (
+                                    <>
+                                      <BiEnvelope className="" size={30} />
+                                    </>
+                                  )}
+                                </>
+                              )}
+                            </span>
+                          </span>
+                        </>
+                      );
+                    })}
+                </div>
+              </div>
 
               <Row>
                 <Button.Ripple
