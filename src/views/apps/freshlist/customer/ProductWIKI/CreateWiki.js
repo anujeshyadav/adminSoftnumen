@@ -77,7 +77,7 @@ const CreateWiki = (args) => {
   };
   const SubmitComment = () => {
     let user = JSON.parse(localStorage.getItem("userData"));
-    console.log(user?.accountId);
+    // console.log(user?.accountId);
     CommentProductWiki(user?.accountId, Comments)
       .then((res) => {
         console.log(res);
