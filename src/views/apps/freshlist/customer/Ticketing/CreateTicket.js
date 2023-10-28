@@ -724,42 +724,45 @@ const CreateTicket = (args) => {
                 </div>
               </Row>
               {formValues.map((index, i) => (
-                <Row className="my-2">
-                  <Col lg="6" md="6" sm="12" key={i}>
-                    <Input
-                      type="file"
-                      multiple
-                      onChange={(e) => handleFileChange(i, e)}
-                    />
-                  </Col>
-                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
-                    <div>
-                      {i ? (
+                <>
+                  <label className="mt-1">Upload files</label>
+                  <Row className="">
+                    <Col lg="6" md="6" sm="12" key={i}>
+                      <Input
+                        type="file"
+                        multiple
+                        onChange={(e) => handleFileChange(i, e)}
+                      />
+                    </Col>
+                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                      <div>
+                        {i ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFileAttach(i)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
+                      <div>
                         <Button
+                          className="ml-1"
+                          color="primary"
                           type="button"
-                          className="btn btn-danger"
-                          onClick={() => removeFileAttach(i)}
+                          onClick={() => addFileInput()}
                         >
-                          -
+                          +
                         </Button>
-                      ) : null}
-                    </div>
-                    <div>
-                      <Button
-                        className="ml-1"
-                        color="primary"
-                        type="button"
-                        onClick={() => addFileInput()}
-                      >
-                        +
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
               ))}
 
               <hr />
-              <Row className="mt-2 ">
+              {/* <Row className="mt-2 ">
                 <Col lg="6" md="6" sm="6" className="mb-2">
                   <Label className="">
                     <h4>Status</h4>
@@ -795,7 +798,7 @@ const CreateTicket = (args) => {
                       )}
                   </div>
                 </Col>
-              </Row>
+              </Row> */}
 
               <Row>
                 <Button.Ripple

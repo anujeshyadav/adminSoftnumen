@@ -34,6 +34,7 @@ import {
   Part_CatalogueView,
   AddSupplierView,
   createWikiView,
+  CRAETE_PRODUCT_WIKI,
   createQuoteView,
   createWarehouseView,
   Spare_PartsView,
@@ -63,6 +64,8 @@ import {
   Delete_Policy,
   Savepolicy,
   PolicySaveData,
+  VIEW_PRODUCT_WIKI,
+  COMMENT_PRODUCT_WIKI,
   productwiki_View,
   ticketTool_View,
 } from "./Api";
@@ -504,6 +507,26 @@ export const Productwiki_ViewData = async () => {
     .then((res) => res.data);
   return response;
 };
+
+export const CreateProductWiki = async (data) => {
+  let response = await axiosConfig
+    .post(`${CRAETE_PRODUCT_WIKI}`, data)
+    .then((res) => res.data);
+  return response;
+};
+export const ViewProductWiki = async () => {
+  let response = await axiosConfig
+    .get(`${VIEW_PRODUCT_WIKI}`)
+    .then((res) => res.data);
+  return response;
+};
+export const CommentProductWiki = async (id, data) => {
+  let response = await axiosConfig
+    .post(`${COMMENT_PRODUCT_WIKI}` + id, data)
+    .then((res) => res.data);
+  return response;
+};
+
 // TicketTool
 
 export const TicketTool_ViewData = async () => {

@@ -329,9 +329,6 @@ const CreateWarrenty = (args) => {
                         </>
                       );
                     } else if (!!ele?.Readonly) {
-                      {
-                        console.log(ele.label._text == "Product#");
-                      }
                       if (ele?.type._attributes?.type == "checkbox") {
                         return (
                           <>
@@ -378,7 +375,7 @@ const CreateWarrenty = (args) => {
                                   type={ele?.type._attributes?.type}
                                   name={ele?.name?._text}
                                   placeholder={ele?.name._text}
-                                  value={formData[ele?.value?._text]}
+                                  value={formData[ele?.name._text]}
                                 />
                                 <span className="mx-2">
                                   {ele?.value?._text}
