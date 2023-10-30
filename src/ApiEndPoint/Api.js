@@ -49,9 +49,14 @@ export const Part_CatalogueView = "/part-catalogue/view-parts"; //done
 
 // warranty
 export const Warranty_View = "/warranty/get-xml"; //done
+<<<<<<< HEAD
 // warranty
 export const CreaterOrder_View = "/orders/get-xml"; //done
 
+=======
+// Inspection
+export const Inspection_XMLView = "/inspection/get-xml"; //done
+>>>>>>> 4c3f1f726cccd5327b7c9d045ed947983ec1ab85
 // product wiki
 export const productwiki_View = "/product-wiki/createWiki"; //done
 // ticketTool
@@ -92,3 +97,10 @@ export const Delete_Delivery_Address =
 export const Save_Delivery_Address = "/deliveryAddress/save-delivery-address";
 
 // end Delivery Address
+
+// product WIKI
+export const CRAETE_PRODUCT_WIKI = "/product-wiki/save-product-wiki";
+export const VIEW_PRODUCT_WIKI = "/product-wiki/view-product-wiki";
+export const DELETE_PRODUCT_WIKI = "/product-wiki/delete-product-wiki/";
+export const UPDATE_PRODUCT_WIKI = "/product-wiki/update-product-wiki/";
+export const COMMENT_PRODUCT_WIKI = "/product-wiki/comment-add/";

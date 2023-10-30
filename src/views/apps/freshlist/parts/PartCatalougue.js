@@ -141,7 +141,7 @@ function PartCatalougue() {
           .then((res) => {
             console.log(res.data);
             setLoader(false);
-            toast.success("Added To Cart");
+            // toast.success("Added To Cart");
             let userData = JSON.parse(localStorage.getItem("userData")); //forgot to close
             AddToCartGet(userData?._id)
               .then((res) => {
@@ -205,7 +205,7 @@ function PartCatalougue() {
       </Row>
 
       <Row>
-        <ToastContainer />
+        {/* <ToastContainer /> */}
         {!Fullimage && (
           <>
             <Col className="mb-2" lg="3" md="3" sm="3" xs="12">

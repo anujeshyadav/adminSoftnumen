@@ -1,3 +1,4 @@
+//
 import React, { useEffect, useState, useContext } from "react";
 import xmlJs from "xml-js";
 import {
@@ -374,7 +375,7 @@ const CreateWarrenty = args => {
                                   type={ele?.type._attributes?.type}
                                   name={ele?.name?._text}
                                   placeholder={ele?.name._text}
-                                  value={formData[ele?.value?._text]}
+                                  value={formData[ele?.name._text]}
                                 />
                                 <span className="mx-2">
                                   {ele?.value?._text}

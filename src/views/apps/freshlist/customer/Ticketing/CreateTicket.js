@@ -11,6 +11,11 @@ import {
   Button,
   FormGroup,
   CustomInput,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  Table,
+  InputGroup,
 } from "reactstrap";
 import { history } from "../../../../../history";
 import PhoneInput from "react-phone-input-2";
@@ -31,8 +36,10 @@ import { FcPhoneAndroid } from "react-icons/fc";
 import { BsWhatsapp } from "react-icons/bs";
 import "../../../../../assets/scss/pages/users.scss";
 import UserContext from "../../../../../context/Context";
+import { CloudLightning } from "react-feather";
+import { AiOutlineSearch } from "react-icons/ai";
 
-const CreateTicket = () => {
+const CreateTicket = (args) => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
@@ -40,6 +47,10 @@ const CreateTicket = () => {
   const [error, setError] = useState("");
   const [permissions, setpermissions] = useState({});
 
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
+  const [modalone, setModalone] = useState(false);
+  const toggleone = () => setModalone(!modalone);
   const createUserXmlView = useContext(UserContext);
   const [Comments, setComments] = useState([
     {
@@ -57,6 +68,13 @@ const CreateTicket = () => {
     comment: "",
     time: new Date().toString(),
   };
+  const handleopentoggle = () => {
+    toggle();
+  };
+  const handleopentoggleone = () => {
+    toggleone();
+  };
+
   let handleComment = (i, e) => {
     let newFormValues = [...Comments];
     newFormValues[i][e.target.name] = e.target.value;
@@ -73,7 +91,7 @@ const CreateTicket = () => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = i => {
+  let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -85,7 +103,7 @@ const CreateTicket = () => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = i => {
+  let removeFormFields = (i) => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
@@ -141,34 +159,33 @@ const CreateTicket = () => {
   }, [formData]);
   useEffect(() => {
     TicketTool_ViewData()
-      .then(res => {
-        console.log(res);
+      .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData).createTicket);
+        console.log(JSON.parse(jsonData)?.createTicket);
         // let origionalpermission =
         //   JSON.parse(jsonData)?.Warranty?.input[14].permissions?.role;
         setCreatAccountView(JSON.parse(jsonData));
         setdropdownValue(JSON.parse(jsonData));
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }, []);
 
-  const submitHandler = e => {
+  const submitHandler = (e) => {
     e.preventDefault();
     if (error) {
       swal("Error occured while Entering Details");
     } else {
       CreateAccountSave(formData)
-        .then(res => {
+        .then((res) => {
           if (res.status) {
             setFormData({});
             window.location.reload();
             swal("Acccont Created Successfully");
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
     }
@@ -192,7 +209,7 @@ const CreateTicket = () => {
           <CardBody>
             <Form className="m-1" onSubmit={submitHandler}>
               <Row className="mb-2">
-                {dropdownValue?.createTicket?.MyDropDown.map((drop, i) => {
+                {dropdownValue?.createTicket?.MyDropDown?.map((drop, i) => {
                   return (
                     <Col lg="6" md="6" key={i}>
                       <FormGroup>
@@ -225,51 +242,183 @@ const CreateTicket = () => {
                   );
                 })}
 
-                <Col lg="6" md="6" sm="12">
-                  <FormGroup>
-                    <Label>Partner Code#</Label>
-                    <Input
-                      type="number"
-                      name="PartnerCode"
-                      readOnly
-                      placeholder="Partner Code"
-                    ></Input>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6" sm="12">
-                  <FormGroup>
-                    <Label>Partner Name</Label>
-                    <Input
-                      type="number"
-                      name="PartnerCode"
-                      readOnly
-                      placeholder="Partner Code"
-                    ></Input>
-                  </FormGroup>
-                </Col>
+                {/* dropdown product */}
+                <hr />
                 {CreatAccountView &&
-                  CreatAccountView?.CreateTicket?.input?.map((ele, i) => {
-                    let View = "";
-                    let Edit = "";
-                    if (ele?.role) {
-                      let roles = ele?.role?.find(
-                        role => role._attributes?.name === "WARRANTY APPROVER"
-                      );
-
-                      View = roles?.permissions?._text.includes("View");
-                      Edit = roles?.permissions?._text.includes("Edit");
-                    }
-                    if (!!ele?.phoneinput) {
+                  CreatAccountView?.createTicket?.Product?.MyDropDown?.map(
+                    (ele, i) => {
                       return (
                         <>
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>{ele?.dropdown?.label?._text}</Label>
+
+                              <CustomInput
+                                required
+                                type="select"
+                                name={ele?.dropdown?.name?._text}
+                                value={formData[ele?.dropdown?.name?._text]}
+                              >
+                                <option value="">--Select---</option>
+                                {ele?.dropdown?.option?.map((option, index) => {
+                                  return (
+                                    <option
+                                      key={index}
+                                      value={option?._attributes?.value}
+                                    >
+                                      {option?._attributes?.value}
+                                    </option>
+                                  );
+                                })}
+                              </CustomInput>
+                              {index === i ? (
+                                <>
+                                  {error && (
+                                    <span style={{ color: "red" }}>
+                                      {error}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <></>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        </>
+                      );
+                    }
+                  )}
+
+                {/* product inputs  */}
+                <Row>
+                  <Col>
+                    <hr />
+                  </Col>
+                </Row>
+                {CreatAccountView &&
+                  CreatAccountView?.createTicket?.Product?.input?.map(
+                    (ele, i) => {
+                      if (!!ele?.lookup) {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <InputGroup className="maininput">
+                                    <Input
+                                      className="form-control inputs"
+                                      type="text"
+                                      name={ele?.name?._text}
+                                      placeholder={ele?.name._text}
+                                      value={formData[ele?.name?._text]}
+                                      readOnly
+                                    />{" "}
+                                    <Button
+                                      onClick={handleopentoggle}
+                                      color="primary"
+                                      className="mybtn primary"
+                                    >
+                                      <AiOutlineSearch
+                                        onClick={(e) => e.preventDefault()}
+                                        fill="white"
+                                      />
+                                    </Button>
+                                  </InputGroup>
+
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      } else if (!!ele?.Readonly) {
+                        if (ele?.type._attributes?.type == "checkbox") {
+                          return (
+                            <>
+                              <Label className="mx-1">
+                                {ele?.heading?._text}
+                              </Label>
+                              <Col key={i} lg="12" md="12" sm="12">
+                                <FormGroup>
+                                  <Input
+                                    disabled
+                                    className="mx-1"
+                                    type={ele?.type._attributes?.type}
+                                    name={ele?.name?._text}
+                                    placeholder={ele?.name._text}
+                                    value={formData[ele?.value?._text]}
+                                  />
+                                  <span className="mx-3 py-1">
+                                    {ele?.value?._text}
+                                  </span>
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          );
+                        } else {
+                          return (
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <Label>{ele?.label?._text}</Label>
+                                <FormGroup>
+                                  <Input
+                                    disabled
+                                    className="form-control"
+                                    type={ele?.type._attributes?.type}
+                                    name={ele?.name?._text}
+                                    placeholder={ele?.name._text}
+                                    value={formData[ele?.value?._text]}
+                                  />
+                                  <span className="mx-2">
+                                    {ele?.value?._text}
+                                  </span>
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          );
+                        }
+                      } else {
+                        return (
                           <>
                             <Col key={i} lg="6" md="6" sm="12">
                               <FormGroup>
                                 <Label>{ele?.label?._text}</Label>
-                                <PhoneInput
-                                  inputClass="myphoneinput"
-                                  country={"us"}
-                                  onKeyDown={e => {
+
+                                <Input
+                                  onKeyDown={(e) => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -277,16 +426,17 @@ const CreateTicket = () => {
                                         e.preventDefault();
                                     }
                                   }}
-                                  countryCodeEditable={false}
+                                  type={ele?.type?._attributes?.type}
+                                  placeholder={ele?.placeholder?._text}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={phone => {
-                                    setFormData({
-                                      ...formData,
-                                      [ele?.name?._text]: phone,
-                                    });
-                                  }}
-                                  // onChange={handleInputChange}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      ele?.type?._attributes?.type,
+                                      i
+                                    )
+                                  }
                                 />
                                 {index === i ? (
                                   <>
@@ -302,150 +452,45 @@ const CreateTicket = () => {
                               </FormGroup>
                             </Col>
                           </>
-                        </>
-                      );
-                    } else if (!!ele?.library) {
-                      if (ele?.label._text?.includes("ountry")) {
-                        return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
-                              <Select
-                                inputClass="countryclass"
-                                className="countryclassnw"
-                                options={Country.getAllCountries()}
-                                getOptionLabel={options => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={options => {
-                                  return options["name"];
-                                }}
-                                value={formData.country}
-                                onChange={country => {
-                                  setFormData({
-                                    ...formData,
-                                    ["country"]: country,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
-                        );
-                      } else if (ele?.label._text?.includes("tate")) {
-                        return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
-                              <Select
-                                options={State?.getStatesOfCountry(
-                                  formData?.country?.isoCode
-                                )}
-                                getOptionLabel={options => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={options => {
-                                  return options["name"];
-                                }}
-                                value={formData.State}
-                                onChange={State => {
-                                  setFormData({
-                                    ...formData,
-                                    ["State"]: State,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
-                        );
-                      } else if (ele?.label._text?.includes("ity")) {
-                        return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
-                              <Select
-                                options={City?.getCitiesOfState(
-                                  formData?.State?.countryCode,
-                                  formData?.State?.isoCode
-                                )}
-                                getOptionLabel={options => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={options => {
-                                  return options["name"];
-                                }}
-                                value={formData.City}
-                                onChange={City => {
-                                  setFormData({
-                                    ...formData,
-                                    ["City"]: City,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
                         );
                       }
-                    } else {
+                    }
+                  )}
+
+                {/* dropdown part */}
+                <Row>
+                  <Col>
+                    <hr />
+                  </Col>
+                </Row>
+                {CreatAccountView &&
+                  CreatAccountView?.createTicket?.Parts?.MyDropDown?.map(
+                    (ele, i) => {
+                      console.log(ele);
                       return (
                         <>
                           <Col key={i} lg="6" md="6" sm="12">
                             <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
+                              <Label>{ele?.dropdown?.label?._text}</Label>
 
-                              <Input
-                                onKeyDown={e => {
-                                  if (
-                                    ele?.type?._attributes?.type == "number"
-                                  ) {
-                                    ["e", "E", "+", "-"].includes(e.key) &&
-                                      e.preventDefault();
-                                  }
-                                }}
-                                type={ele?.type?._attributes?.type}
-                                placeholder={ele?.placeholder?._text}
-                                name={ele?.name?._text}
-                                value={formData[ele?.name?._text]}
-                                onChange={e =>
-                                  handleInputChange(
-                                    e,
-                                    ele?.type?._attributes?.type,
-                                    i
-                                  )
-                                }
-                              />
+                              <CustomInput
+                                required
+                                type="select"
+                                name={ele?.dropdown?.name?._text}
+                                value={formData[ele?.dropdown?.name?._text]}
+                              >
+                                <option value="">--Select---</option>
+                                {ele?.dropdown?.option?.map((option, index) => {
+                                  return (
+                                    <option
+                                      key={index}
+                                      value={option?._attributes?.value}
+                                    >
+                                      {option?._attributes?.value}
+                                    </option>
+                                  );
+                                })}
+                              </CustomInput>
                               {index === i ? (
                                 <>
                                   {error && (
@@ -462,7 +507,172 @@ const CreateTicket = () => {
                         </>
                       );
                     }
-                  })}
+                  )}
+
+                {/* part inputs  */}
+                <hr />
+                <hr />
+                {CreatAccountView &&
+                  CreatAccountView?.createTicket?.Parts?.input?.map(
+                    (ele, i) => {
+                      if (!!ele?.lookup) {
+                        return (
+                          <>
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <InputGroup className="maininput">
+                                    <Input
+                                      className="form-control inputs"
+                                      type="text"
+                                      name={ele?.name?._text}
+                                      placeholder={ele?.name._text}
+                                      value={formData[ele?.name?._text]}
+                                      readOnly
+                                    />{" "}
+                                    <Button
+                                      onClick={handleopentoggleone}
+                                      color="primary"
+                                      className="mybtn primary"
+                                    >
+                                      <AiOutlineSearch
+                                        onClick={(e) => e.preventDefault()}
+                                        fill="white"
+                                      />
+                                    </Button>
+                                  </InputGroup>
+
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          </>
+                        );
+                      } else if (!!ele?.Readonly) {
+                        if (ele?.type?._attributes?.type == "checkbox") {
+                          return (
+                            <>
+                              <Label className="mx-1">
+                                {ele?.heading?._text}
+                              </Label>
+                              <Col key={i} lg="12" md="12" sm="12">
+                                <FormGroup>
+                                  <Input
+                                    disabled
+                                    className="mx-1"
+                                    type={ele?.type._attributes?.type}
+                                    name={ele?.name?._text}
+                                    placeholder={ele?.name._text}
+                                    value={formData[ele?.value?._text]}
+                                  />
+                                  <span className="mx-3 pt-1">
+                                    {ele?.value?._text}
+                                  </span>
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          );
+                        } else {
+                          return (
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <Label>{ele?.label?._text}</Label>
+                                <FormGroup>
+                                  <Input
+                                    disabled
+                                    className="form-control"
+                                    type={ele?.type._attributes?.type}
+                                    name={ele?.name?._text}
+                                    placeholder={ele?.name._text}
+                                    value={formData[ele?.value?._text]}
+                                  />
+                                  <span className="mx-2">
+                                    {ele?.value?._text}
+                                  </span>
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          );
+                        }
+                      } else {
+                        return (
+                          <>
+                            <Col key={i} lg="6" md="6" sm="12">
+                              <FormGroup>
+                                <Label>{ele?.label?._text}</Label>
+
+                                <Input
+                                  onKeyDown={(e) => {
+                                    if (
+                                      ele?.type?._attributes?.type == "number"
+                                    ) {
+                                      ["e", "E", "+", "-"].includes(e.key) &&
+                                        e.preventDefault();
+                                    }
+                                  }}
+                                  type={ele?.type?._attributes?.type}
+                                  placeholder={ele?.placeholder?._text}
+                                  name={ele?.name?._text}
+                                  value={formData[ele?.name?._text]}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      ele?.type?._attributes?.type,
+                                      i
+                                    )
+                                  }
+                                />
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          </>
+                        );
+                      }
+                    }
+                  )}
 
                 <div className="container">
                   <Label className="py-1">Notification</Label>
@@ -477,7 +687,7 @@ const CreateTicket = () => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={e =>
+                                  onChange={(e) =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}
@@ -514,42 +724,45 @@ const CreateTicket = () => {
                 </div>
               </Row>
               {formValues.map((index, i) => (
-                <Row className="my-2">
-                  <Col lg="6" md="6" sm="12" key={i}>
-                    <Input
-                      type="file"
-                      multiple
-                      onChange={e => handleFileChange(i, e)}
-                    />
-                  </Col>
-                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
-                    <div>
-                      {i ? (
+                <>
+                  <label className="mt-1">Upload files</label>
+                  <Row className="">
+                    <Col lg="6" md="6" sm="12" key={i}>
+                      <Input
+                        type="file"
+                        multiple
+                        onChange={(e) => handleFileChange(i, e)}
+                      />
+                    </Col>
+                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                      <div>
+                        {i ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFileAttach(i)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
+                      <div>
                         <Button
+                          className="ml-1"
+                          color="primary"
                           type="button"
-                          className="btn btn-danger"
-                          onClick={() => removeFileAttach(i)}
+                          onClick={() => addFileInput()}
                         >
-                          -
+                          +
                         </Button>
-                      ) : null}
-                    </div>
-                    <div>
-                      <Button
-                        className="ml-1"
-                        color="primary"
-                        type="button"
-                        onClick={() => addFileInput()}
-                      >
-                        +
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
               ))}
 
               <hr />
-              <Row className="mt-2 ">
+              {/* <Row className="mt-2 ">
                 <Col lg="6" md="6" sm="6" className="mb-2">
                   <Label className="">
                     <h4>Status</h4>
@@ -585,7 +798,7 @@ const CreateTicket = () => {
                       )}
                   </div>
                 </Col>
-              </Row>
+              </Row> */}
 
               <Row>
                 <Button.Ripple
@@ -608,7 +821,7 @@ const CreateTicket = () => {
                         name="comment"
                         placeholder="Comment"
                         value={element.comment || ""}
-                        onChange={e => handleComment(index, e)}
+                        onChange={(e) => handleComment(index, e)}
                       />
                     </Col>
 
@@ -642,7 +855,7 @@ const CreateTicket = () => {
             <Button
               className="ml-1 "
               color="primary"
-              onClick={e => {
+              onClick={(e) => {
                 SubmitComment(e);
               }}
             >
@@ -651,6 +864,70 @@ const CreateTicket = () => {
           </CardBody>
         </Card>
       </div>
+      <Modal
+        fullscreen="xl"
+        size="lg"
+        backdrop={false}
+        isOpen={modal}
+        toggle={toggle}
+        {...args}
+      >
+        <ModalHeader toggle={toggle}>Product List</ModalHeader>
+        <ModalBody>
+          <div className="modalheaderaddrol p-1">
+            <h3>Product List</h3>
+            <Table
+              className="tableofrole"
+              bordered
+              borderless
+              hover
+              responsive
+              size="sm"
+              striped
+            >
+              <thead>
+                <tr>
+                  <th>S.No.</th>
+                  <th>Product Name</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </Table>
+          </div>
+        </ModalBody>
+      </Modal>
+      <Modal
+        fullscreen="xl"
+        size="lg"
+        backdrop={false}
+        isOpen={modal}
+        toggle={toggle}
+        {...args}
+      >
+        <ModalHeader toggle={toggle}>Part List</ModalHeader>
+        <ModalBody>
+          <div className="modalheaderaddrol p-1">
+            <h3>Part List</h3>
+            <Table
+              className="tableofrole"
+              bordered
+              borderless
+              hover
+              responsive
+              size="sm"
+              striped
+            >
+              <thead>
+                <tr>
+                  <th>S.No.</th>
+                  <th>Part Name</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </Table>
+          </div>
+        </ModalBody>
+      </Modal>
     </div>
   );
 };

@@ -363,7 +363,7 @@ class ProductType extends React.Component {
         this.setState({ AllcolumnDefs: Product });
 
         let userHeading = JSON.parse(localStorage.getItem("UserSearchheading"));
-        if (userHeading) {
+        if (userHeading?.length) {
           this.setState({ columnDefs: userHeading });
           this.gridApi.setColumnDefs(userHeading);
           this.setState({ SelectedcolumnDefs: userHeading });
