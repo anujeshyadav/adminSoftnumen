@@ -195,7 +195,7 @@ const CreateWarrenty = args => {
                 <h1 className="">Create Order</h1>
               </div>
               <div>
-                <span>Order Id</span> <span>#</span>
+                <span className="orderId">Order Id</span> <span>#</span>
               </div>
             </Col>
           </Row>
