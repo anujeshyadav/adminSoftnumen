@@ -66,7 +66,7 @@ const data = [
   { name: "Mary", age: 25, country: "UK" },
   { name: "Peter", age: 40, country: "Canada" },
 ];
-const CreatePolicy = () => {
+const CreatePolicy = args => {
   const [CreatePolicyView, setCreatePolicyView] = useState({});
   const [Countries, setCountry] = useState({});
   const [States, setState] = useState({});
@@ -181,9 +181,7 @@ const CreatePolicy = () => {
       });
   }, []);
 
-  useEffect(() => {
-    // console.log(Comments);
-  }, [Comments]);
+  useEffect(() => {}, [Comments]);
 
   useEffect(() => {
     console.log(formData);

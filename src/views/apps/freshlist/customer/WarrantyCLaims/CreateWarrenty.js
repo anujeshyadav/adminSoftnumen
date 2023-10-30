@@ -31,7 +31,7 @@ import { BsWhatsapp } from "react-icons/bs";
 import "../../../../../assets/scss/pages/users.scss";
 import { AiOutlineSearch } from "react-icons/ai";
 
-const CreateWarrenty = (args) => {
+const CreateWarrenty = args => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
@@ -76,7 +76,7 @@ const CreateWarrenty = (args) => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = (i) => {
+  let removeFileAttach = i => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -88,7 +88,7 @@ const CreateWarrenty = (args) => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = (i) => {
+  let removeFormFields = i => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
@@ -141,7 +141,7 @@ const CreateWarrenty = (args) => {
   useEffect(() => {}, [formData]);
   useEffect(() => {
     Warranty_ViewData()
-      .then((res) => {
+      .then(res => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData).Warranty.CheckBox);
         //  dropdownValue.Warranty?.MyDropDown?.dropdown?.label?._text;
@@ -150,12 +150,12 @@ const CreateWarrenty = (args) => {
         setCreatAccountView(JSON.parse(jsonData));
         setdropdownValue(JSON.parse(jsonData));
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   }, []);
 
-  const submitHandler = (e) => {
+  const submitHandler = e => {
     e.preventDefault();
     // if (error) {
     //   swal("Error occured while Entering Details");
@@ -231,7 +231,7 @@ const CreateWarrenty = (args) => {
                     let Edit = "";
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                        role => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -259,7 +259,7 @@ const CreateWarrenty = (args) => {
                                     className="mybtn primary"
                                   >
                                     <AiOutlineSearch
-                                      onClick={(e) => e.preventDefault()}
+                                      onClick={e => e.preventDefault()}
                                       fill="white"
                                     />
                                   </Button>
@@ -293,7 +293,7 @@ const CreateWarrenty = (args) => {
                                 <PhoneInput
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={(e) => {
+                                  onKeyDown={e => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -304,7 +304,7 @@ const CreateWarrenty = (args) => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={(phone) => {
+                                  onChange={phone => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -407,7 +407,7 @@ const CreateWarrenty = (args) => {
                               placeholder={ele?.placeholder?._text}
                               name={ele?.name?._text}
                               value={formData[ele?.name?._text]}
-                              onChange={(e) =>
+                              onChange={e =>
                                 handleInputChange(
                                   e,
                                   ele?.type?._attributes?.type,
@@ -443,7 +443,7 @@ const CreateWarrenty = (args) => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}
@@ -485,7 +485,7 @@ const CreateWarrenty = (args) => {
                     <Input
                       type="file"
                       multiple
-                      onChange={(e) => handleFileChange(i, e)}
+                      onChange={e => handleFileChange(i, e)}
                     />
                   </Col>
                   <Col className="d-flex mt-2" lg="3" md="3" sm="12">
@@ -574,7 +574,7 @@ const CreateWarrenty = (args) => {
                         name="comment"
                         placeholder="Comment"
                         value={element.comment || ""}
-                        onChange={(e) => handleComment(index, e)}
+                        onChange={e => handleComment(index, e)}
                       />
                     </Col>
 
@@ -608,7 +608,7 @@ const CreateWarrenty = (args) => {
             <Button
               className="ml-1 "
               color="primary"
-              onClick={(e) => {
+              onClick={e => {
                 SubmitComment(e);
               }}
             >

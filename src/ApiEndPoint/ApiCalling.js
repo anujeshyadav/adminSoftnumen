@@ -68,9 +68,9 @@ import {
   COMMENT_PRODUCT_WIKI,
   productwiki_View,
   ticketTool_View,
+  CreaterOrder_View,
 } from "./Api";
 import axiosConfig from "../axiosConfig";
-
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -498,7 +498,18 @@ export const Inspection_ViewData = async () => {
     .then((res) => res.data);
   return response;
 };
+<<<<<<< HEAD
+// Inspection
+
+export const Inspection_ViewData = async () => {
+  let response = await axiosConfig
+    .get(`${Inspection_View}`)
+    .then(res => res.data);
+  return response;
+};
+=======
 //
+>>>>>>> 4c3f1f726cccd5327b7c9d045ed947983ec1ab85
 // Productwiki
 
 export const Productwiki_ViewData = async () => {
@@ -533,5 +544,13 @@ export const TicketTool_ViewData = async () => {
   let response = await axiosConfig
     .get(`${ticketTool_View}`)
     .then((res) => res.data);
+  return response;
+};
+// TicketTool
+
+export const CreateOrder_ViewData = async () => {
+  let response = await axiosConfig
+    .get(`${CreaterOrder_View}`)
+    .then(res => res.data);
   return response;
 };
