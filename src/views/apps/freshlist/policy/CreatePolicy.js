@@ -155,7 +155,7 @@ const CreatePolicy = () => {
       }
     }
   };
-  const handleyear = date => {
+  const handleyear = (date) => {
     setSelectedYear(date);
   };
   useEffect(() => {
@@ -165,18 +165,18 @@ const CreatePolicy = () => {
   useEffect(() => {
     setAllPart(importData);
     PolicyViewData()
-      .then(res => {
+      .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData).Policy);
         setCreatePolicyView(JSON.parse(jsonData));
         let value = JSON.parse(jsonData)?.MyDropdown?.CheckBox?.input;
-        value?.map(ele => {
+        value?.map((ele) => {
           formData[ele?.name._text] = false;
         });
 
         setdropdownValue(JSON.parse(jsonData));
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }, []);
@@ -206,7 +206,7 @@ const CreatePolicy = () => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = i => {
+  let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -218,22 +218,22 @@ const CreatePolicy = () => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = i => {
+  let removeFormFields = (i) => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
   };
-  const submitHandler = e => {
+  const submitHandler = (e) => {
     e.preventDefault();
 
     let formdata = new FormData();
-    let dropdown = CreatePolicyView?.Policy?.MyDropDown?.map(ele => {
+    let dropdown = CreatePolicyView?.Policy?.MyDropDown?.map((ele) => {
       formdata.append(
         `${ele?.dropdown?.name?._text}`,
         formData[ele?.dropdown?.name?._text]
       );
     });
-    let inputs = CreatePolicyView?.Policy?.input?.map(ele => {
+    let inputs = CreatePolicyView?.Policy?.input?.map((ele) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
@@ -243,11 +243,11 @@ const CreatePolicy = () => {
     // e.preventDefault();
 
     PolicySaveDataapis(formdata)
-      .then(res => {
+      .then((res) => {
         swal("Policy Added Successfully");
         console.log(res);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   };
@@ -262,7 +262,7 @@ const CreatePolicy = () => {
     setProduct([...product, { productName: "", model: "", variant: "" }]);
   };
 
-  let removeMoreProduct = i => {
+  let removeMoreProduct = (i) => {
     let newFormValues = [...product];
     newFormValues.splice(i, 1);
     setProduct(newFormValues);
@@ -282,7 +282,7 @@ const CreatePolicy = () => {
     setPart([...part, { partName: "", color: "" }]);
   };
 
-  let removeMorePart = i => {
+  let removeMorePart = (i) => {
     let newFormValues = [...part];
     newFormValues.splice(i, 1);
     setPart(newFormValues);
@@ -441,7 +441,7 @@ const CreatePolicy = () => {
                               <PhoneInput
                                 inputClass="myphoneinput"
                                 country={"us"}
-                                onKeyDown={e => {
+                                onKeyDown={(e) => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -452,7 +452,7 @@ const CreatePolicy = () => {
                                 countryCodeEditable={false}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={phone => {
+                                onChange={(phone) => {
                                   setFormData({
                                     ...formData,
                                     [ele?.name?._text]: phone,
@@ -484,14 +484,14 @@ const CreatePolicy = () => {
                                 inputClass="countryclass"
                                 className="countryclassnw"
                                 options={Country.getAllCountries()}
-                                getOptionLabel={options => {
+                                getOptionLabel={(options) => {
                                   return options["name"];
                                 }}
-                                getOptionValue={options => {
+                                getOptionValue={(options) => {
                                   return options["name"];
                                 }}
                                 value={Countries}
-                                onChange={country => {
+                                onChange={(country) => {
                                   setCountry(country);
                                   setFormData({
                                     ...formData,
@@ -522,14 +522,14 @@ const CreatePolicy = () => {
                                 options={State?.getStatesOfCountry(
                                   Countries?.isoCode
                                 )}
-                                getOptionLabel={options => {
+                                getOptionLabel={(options) => {
                                   return options["name"];
                                 }}
-                                getOptionValue={options => {
+                                getOptionValue={(options) => {
                                   return options["name"];
                                 }}
                                 value={States}
-                                onChange={State => {
+                                onChange={(State) => {
                                   setState(State);
                                   setFormData({
                                     ...formData,
@@ -561,14 +561,14 @@ const CreatePolicy = () => {
                                   States?.countryCode,
                                   States?.isoCode
                                 )}
-                                getOptionLabel={options => {
+                                getOptionLabel={(options) => {
                                   return options["name"];
                                 }}
-                                getOptionValue={options => {
+                                getOptionValue={(options) => {
                                   return options["name"];
                                 }}
                                 value={Cities}
-                                onChange={City => {
+                                onChange={(City) => {
                                   setCities(City);
                                   setFormData({
                                     ...formData,
@@ -597,7 +597,7 @@ const CreatePolicy = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={e => {
+                                onKeyDown={(e) => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -609,7 +609,7 @@ const CreatePolicy = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={e =>
+                                onChange={(e) =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -640,7 +640,7 @@ const CreatePolicy = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={e => {
+                                onKeyDown={(e) => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -652,7 +652,7 @@ const CreatePolicy = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={e =>
+                                onChange={(e) =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -685,7 +685,7 @@ const CreatePolicy = () => {
                     <Input
                       type="file"
                       multiple
-                      onChange={e => handleFileChange(i, e)}
+                      onChange={(e) => handleFileChange(i, e)}
                     />
                   </Col>
                   <Col className="d-flex mt-2" lg="3" md="3" sm="12">
@@ -736,7 +736,7 @@ const CreatePolicy = () => {
                         className="mybtn primary"
                       >
                         <AiOutlineSearch
-                          onClick={e => e.preventDefault()}
+                          onClick={(e) => e.preventDefault()}
                           fill="white"
                         />
                       </Button>
@@ -751,7 +751,7 @@ const CreatePolicy = () => {
                         readOnly
                         placeholder="Product Name"
                         value={element.productName || ""}
-                        onChange={e => handleProductChange(index, e)}
+                        onChange={(e) => handleProductChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
@@ -764,7 +764,7 @@ const CreatePolicy = () => {
                         readOnly
                         placeholder="Model"
                         value={element.model || ""}
-                        onChange={e => handleProductChange(index, e)}
+                        onChange={(e) => handleProductChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
@@ -777,7 +777,7 @@ const CreatePolicy = () => {
                         readOnly
                         placeholder="Variant"
                         value={element.variant || ""}
-                        onChange={e => handleProductChange(index, e)}
+                        onChange={(e) => handleProductChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
@@ -831,7 +831,7 @@ const CreatePolicy = () => {
                         readOnly
                         placeholder="Part Name"
                         value={element.partName || ""}
-                        onChange={e => handlePartChange(index, e)}
+                        onChange={(e) => handlePartChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
@@ -844,7 +844,7 @@ const CreatePolicy = () => {
                         placeholder="Color"
                         readOnly
                         value={element.color || ""}
-                        onChange={e => handleProductChange(index, e)}
+                        onChange={(e) => handleProductChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
@@ -891,7 +891,7 @@ const CreatePolicy = () => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={e =>
+                                  onChange={(e) =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}
@@ -985,7 +985,7 @@ const CreatePolicy = () => {
                         name="comment"
                         placeholder="Comment"
                         value={element.comment || ""}
-                        onChange={e => handleComment(index, e)}
+                        onChange={(e) => handleComment(index, e)}
                       />
                     </Col>
 
@@ -1019,7 +1019,7 @@ const CreatePolicy = () => {
             <Button
               className="ml-1 "
               color="primary"
-              onClick={e => {
+              onClick={(e) => {
                 SubmitComment(e);
               }}
             >
@@ -1039,8 +1039,8 @@ const CreatePolicy = () => {
           <ModalBody className="table-body shedulemodalbody">
             <div className="modalheaderaddrol p-1">
               <h3 className="table-item">Product List</h3>
-              <AgGrid columnDefs={columns} rowData={data} />
-              {/* <Table
+              {/* <AgGrid columnDefs={columns} rowData={data} /> */}
+              <Table
                 className="scheduletble_heading"
                 bordered
                 hover
@@ -1063,7 +1063,7 @@ const CreatePolicy = () => {
                     <td>ch84</td>
                   </tr>
                 </tbody>
-              </Table> */}
+              </Table>
             </div>
           </ModalBody>
           <ModalFooter>
