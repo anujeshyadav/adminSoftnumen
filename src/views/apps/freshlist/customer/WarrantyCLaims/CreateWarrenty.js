@@ -11,35 +11,34 @@ import {
   Button,
   FormGroup,
   CustomInput,
+  Table,
+  ModalBody,
+  ModalHeader,
+  Modal,
+  InputGroup,
 } from "reactstrap";
-import { history } from "../../../../../history";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Country, State, City } from "country-state-city";
 import Select from "react-select";
-import { Route } from "react-router-dom";
-import swal from "sweetalert";
 import "../../../../../../src/layouts/assets/scss/pages/users.scss";
 
-import {
-  CreateAccountSave,
-  Warranty_ViewData,
-} from "../../../../../ApiEndPoint/ApiCalling";
+import { Warranty_ViewData } from "../../../../../ApiEndPoint/ApiCalling";
 import { BiEnvelope } from "react-icons/bi";
 import { FcPhoneAndroid } from "react-icons/fc";
 import { BsWhatsapp } from "react-icons/bs";
 import "../../../../../assets/scss/pages/users.scss";
-import UserContext from "../../../../../context/Context";
+import { AiOutlineSearch } from "react-icons/ai";
 
-const CreateWarrenty = () => {
+const CreateWarrenty = args => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
   const [index, setindex] = useState("");
   const [error, setError] = useState("");
   const [permissions, setpermissions] = useState({});
-
-  const createUserXmlView = useContext(UserContext);
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
   const [Comments, setComments] = useState([
     {
       name: JSON.parse(localStorage.getItem("userData")).UserName,
@@ -55,6 +54,10 @@ const CreateWarrenty = () => {
     Role: JSON.parse(localStorage.getItem("userData")).Role,
     comment: "",
     time: new Date().toString(),
+  };
+
+  const handleopentoggle = () => {
+    toggle();
   };
   let handleComment = (i, e) => {
     let newFormValues = [...Comments];
@@ -123,7 +126,6 @@ const CreateWarrenty = () => {
             ...formData,
             [name]: value,
           });
-          // console.log(value);
           setError("");
         } else {
           setFormData({
@@ -135,9 +137,7 @@ const CreateWarrenty = () => {
       }
     }
   };
-  useEffect(() => {
-    // console.log(formData);
-  }, [formData]);
+  useEffect(() => {}, [formData]);
   useEffect(() => {
     Warranty_ViewData()
       .then(res => {
@@ -156,21 +156,21 @@ const CreateWarrenty = () => {
 
   const submitHandler = e => {
     e.preventDefault();
-    if (error) {
-      swal("Error occured while Entering Details");
-    } else {
-      CreateAccountSave(formData)
-        .then(res => {
-          if (res.status) {
-            setFormData({});
-            window.location.reload();
-            swal("Acccont Created Successfully");
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
+    // if (error) {
+    //   swal("Error occured while Entering Details");
+    // } else {
+    //   CreateAccountSave(formData)
+    //     .then(res => {
+    //       if (res.status) {
+    //         setFormData({});
+    //         window.location.reload();
+    //         swal("Acccont Created Successfully");
+    //       }
+    //     })
+    //     .catch(err => {
+    //       console.log(err);
+    //     });
+    // }
   };
 
   return (
@@ -223,71 +223,7 @@ const CreateWarrenty = () => {
                     </Col>
                   );
                 })}
-                {/* <Col lg="6" md="6">
-                  <FormGroup>
-                    <Label>
-                      {
-                        dropdownValue.Warranty?.MyDropDown?.dropdown?.label
-                          ?._text
-                      }
-                    </Label>
-                    <CustomInput
-                      required
-                      type="select"
-                      name={
-                        dropdownValue.Warranty?.MyDropdown?.dropdown?.name
-                          ?._text
-                      }
-                      value={
-                        formData[
-                          dropdownValue.Warranty?.MyDropdown?.dropdown?.name
-                            ?._text
-                        ]
-                      }
-                      onChange={handleInputChange}
-                    >
-                      <option value="">
-                        Select
-                        {
-                          dropdownValue.Warranty?.MyDropdown?.dropdown?.name
-                            ?._text
-                        }
-                      </option>
-                      {dropdownValue?.Warranty?.MyDropdown?.dropdown?.option.map(
-                        (option, index) => (
-                          <option
-                            key={index}
-                            value={option?._attributes?.value}
-                          >
-                            {option?._attributes?.value}
-                          </option>
-                        )
-                      )}
-                    </CustomInput>
-                  </FormGroup>
-                </Col> */}
-                <Col lg="6" md="6" sm="12">
-                  <FormGroup>
-                    <Label>Partner Code#</Label>
-                    <Input
-                      type="number"
-                      name="PartnerCode"
-                      readOnly
-                      placeholder="Partner Code"
-                    ></Input>
-                  </FormGroup>
-                </Col>
-                <Col lg="6" md="6" sm="12">
-                  <FormGroup>
-                    <Label>Partner Name</Label>
-                    <Input
-                      type="number"
-                      name="PartnerCode"
-                      readOnly
-                      placeholder="Partner Code"
-                    ></Input>
-                  </FormGroup>
-                </Col>
+
                 {CreatAccountView &&
                   CreatAccountView?.Warranty?.input?.map((ele, i) => {
                     let View = "";
@@ -300,6 +236,52 @@ const CreateWarrenty = () => {
                       View = roles?.permissions?._text.includes("View");
                       Edit = roles?.permissions?._text.includes("Edit");
                     }
+                    if (!!ele?.lookup) {
+                      return (
+                        <>
+                          <>
+                            <Col key={i} lg="6" md="6" sm="12">
+                              <FormGroup>
+                                <Label>{ele?.label?._text}</Label>
+                                <InputGroup className="maininput">
+                                  <Input
+                                    className="form-control inputs"
+                                    type="text"
+                                    name={ele?.name?._text}
+                                    placeholder={ele?.name._text}
+                                    value={formData[ele?.name?._text]}
+                                    readOnly
+                                  />
+                                  <Button
+                                    onClick={handleopentoggle}
+                                    color="primary"
+                                    className="mybtn primary"
+                                  >
+                                    <AiOutlineSearch
+                                      onClick={e => e.preventDefault()}
+                                      fill="white"
+                                    />
+                                  </Button>
+                                </InputGroup>
+
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          </>
+                        </>
+                      );
+                    }
+
                     if (!!ele?.phoneinput) {
                       return (
                         <>
@@ -345,160 +327,102 @@ const CreateWarrenty = () => {
                           </>
                         </>
                       );
-                    } else if (!!ele?.library) {
-                      if (ele?.label._text?.includes("ountry")) {
+                    } else if (!!ele?.Readonly) {
+                      if (ele?.type._attributes?.type == "checkbox") {
                         return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
-                              <Select
-                                inputClass="countryclass"
-                                className="countryclassnw"
-                                options={Country.getAllCountries()}
-                                getOptionLabel={options => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={options => {
-                                  return options["name"];
-                                }}
-                                value={formData.country}
-                                onChange={country => {
-                                  setFormData({
-                                    ...formData,
-                                    ["country"]: country,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
-                        );
-                      } else if (ele?.label._text?.includes("tate")) {
-                        return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
-                              <Select
-                                options={State?.getStatesOfCountry(
-                                  formData?.country?.isoCode
+                          <>
+                            <Label className="mx-1">
+                              {ele?.heading?._text}
+                            </Label>
+                            <Col key={i} lg="12" md="12" sm="12">
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="mx-1"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.value?._text]}
+                                />
+                                <span className="mx-3 py-1">
+                                  {ele?.value?._text}
+                                </span>
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
                                 )}
-                                getOptionLabel={options => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={options => {
-                                  return options["name"];
-                                }}
-                                value={formData.State}
-                                onChange={State => {
-                                  setFormData({
-                                    ...formData,
-                                    ["State"]: State,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
+                              </FormGroup>
+                            </Col>
+                          </>
                         );
-                      } else if (ele?.label._text?.includes("ity")) {
+                      } else {
                         return (
-                          <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
+                          <>
+                            <Col key={i} lg="6" md="6" sm="12">
                               <Label>{ele?.label?._text}</Label>
-                              <Select
-                                options={City?.getCitiesOfState(
-                                  formData?.State?.countryCode,
-                                  formData?.State?.isoCode
+                              <FormGroup>
+                                <Input
+                                  disabled
+                                  className="form-control"
+                                  type={ele?.type._attributes?.type}
+                                  name={ele?.name?._text}
+                                  placeholder={ele?.name._text}
+                                  value={formData[ele?.value?._text]}
+                                />
+                                <span className="mx-2">
+                                  {ele?.value?._text}
+                                </span>
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
                                 )}
-                                getOptionLabel={options => {
-                                  return options["name"];
-                                }}
-                                getOptionValue={options => {
-                                  return options["name"];
-                                }}
-                                value={formData.City}
-                                onChange={City => {
-                                  setFormData({
-                                    ...formData,
-                                    ["City"]: City,
-                                  });
-                                }}
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
-                          </Col>
+                              </FormGroup>
+                            </Col>
+                          </>
                         );
                       }
                     } else {
                       return (
                         <>
                           <Col key={i} lg="6" md="6" sm="12">
-                            <FormGroup>
-                              <Label>{ele?.label?._text}</Label>
+                            <Label>{ele?.label?._text}</Label>
 
-                              <Input
-                                onKeyDown={e => {
-                                  if (
-                                    ele?.type?._attributes?.type == "number"
-                                  ) {
-                                    ["e", "E", "+", "-"].includes(e.key) &&
-                                      e.preventDefault();
-                                  }
-                                }}
-                                type={ele?.type?._attributes?.type}
-                                placeholder={ele?.placeholder?._text}
-                                name={ele?.name?._text}
-                                value={formData[ele?.name?._text]}
-                                onChange={e =>
-                                  handleInputChange(
-                                    e,
-                                    ele?.type?._attributes?.type,
-                                    i
-                                  )
-                                }
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </FormGroup>
+                            <Input
+                              type={ele?.type?._attributes?.type}
+                              placeholder={ele?.placeholder?._text}
+                              name={ele?.name?._text}
+                              value={formData[ele?.name?._text]}
+                              onChange={e =>
+                                handleInputChange(
+                                  e,
+                                  ele?.type?._attributes?.type,
+                                  i
+                                )
+                              }
+                            />
+                            {index === i ? (
+                              <>
+                                {error && (
+                                  <span style={{ color: "red" }}>{error}</span>
+                                )}
+                              </>
+                            ) : (
+                              <></>
+                            )}
                           </Col>
                         </>
                       );
@@ -691,6 +615,38 @@ const CreateWarrenty = () => {
             </Button>
           </CardBody>
         </Card>
+        <Modal
+          fullscreen="xl"
+          size="lg"
+          backdrop={false}
+          isOpen={modal}
+          toggle={toggle}
+          {...args}
+        >
+          <ModalHeader toggle={toggle}>Product List</ModalHeader>
+          <ModalBody>
+            <div className="modalheaderaddrol p-1">
+              <h3>Product List</h3>
+              <Table
+                className="tableofrole"
+                bordered
+                borderless
+                hover
+                responsive
+                size="sm"
+                striped
+              >
+                <thead>
+                  <tr>
+                    <th>S.No.</th>
+                    <th>Product Name</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </Table>
+            </div>
+          </ModalBody>
+        </Modal>
       </div>
     </div>
   );

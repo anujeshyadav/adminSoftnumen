@@ -64,9 +64,9 @@ import {
   PolicySaveData,
   productwiki_View,
   ticketTool_View,
+  CreaterOrder_View,
 } from "./Api";
 import axiosConfig from "../axiosConfig";
-
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -469,6 +469,14 @@ export const Warranty_ViewData = async () => {
     .then(res => res.data);
   return response;
 };
+// Inspection
+
+export const Inspection_ViewData = async () => {
+  let response = await axiosConfig
+    .get(`${Inspection_View}`)
+    .then(res => res.data);
+  return response;
+};
 // Productwiki
 
 export const Productwiki_ViewData = async () => {
@@ -482,6 +490,14 @@ export const Productwiki_ViewData = async () => {
 export const TicketTool_ViewData = async () => {
   let response = await axiosConfig
     .get(`${ticketTool_View}`)
+    .then(res => res.data);
+  return response;
+};
+// TicketTool
+
+export const CreateOrder_ViewData = async () => {
+  let response = await axiosConfig
+    .get(`${CreaterOrder_View}`)
     .then(res => res.data);
   return response;
 };

@@ -66,7 +66,7 @@ const data = [
   { name: "Mary", age: 25, country: "UK" },
   { name: "Peter", age: 40, country: "Canada" },
 ];
-const CreatePolicy = () => {
+const CreatePolicy = args => {
   const [CreatePolicyView, setCreatePolicyView] = useState({});
   const [Countries, setCountry] = useState({});
   const [States, setState] = useState({});
@@ -181,9 +181,7 @@ const CreatePolicy = () => {
       });
   }, []);
 
-  useEffect(() => {
-    // console.log(Comments);
-  }, [Comments]);
+  useEffect(() => {}, [Comments]);
 
   useEffect(() => {
     console.log(formData);
@@ -1039,8 +1037,8 @@ const CreatePolicy = () => {
           <ModalBody className="table-body shedulemodalbody">
             <div className="modalheaderaddrol p-1">
               <h3 className="table-item">Product List</h3>
-              <AgGrid columnDefs={columns} rowData={data} />
-              {/* <Table
+              {/* <AgGrid columnDefs={columns} rowData={data} /> */}
+              <Table
                 className="scheduletble_heading"
                 bordered
                 hover
@@ -1063,7 +1061,7 @@ const CreatePolicy = () => {
                     <td>ch84</td>
                   </tr>
                 </tbody>
-              </Table> */}
+              </Table>
             </div>
           </ModalBody>
           <ModalFooter>
