@@ -514,7 +514,7 @@ export const CreateProductWiki = async (data) => {
     .then((res) => res.data);
   return response;
 };
-export const ViewProductWiki = async () => {
+export const ViewProductWikiList = async () => {
   let response = await axiosConfig
     .get(`${VIEW_PRODUCT_WIKI}`)
     .then((res) => res.data);

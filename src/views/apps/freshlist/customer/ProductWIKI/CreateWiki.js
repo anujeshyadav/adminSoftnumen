@@ -36,7 +36,7 @@ import {
 } from "../../../../../ApiEndPoint/ApiCalling";
 import { BiEnvelope } from "react-icons/bi";
 import { FcPhoneAndroid } from "react-icons/fc";
-import { BsWhatsapp } from "react-icons/bs";
+import { BsFillChatDotsFill, BsWhatsapp } from "react-icons/bs";
 import "../../../../../assets/scss/pages/users.scss";
 import UserContext from "../../../../../context/Context";
 import { AiOutlineSearch } from "react-icons/ai";
@@ -48,7 +48,9 @@ const CreateWiki = (args) => {
   const [index, setindex] = useState("");
   const [error, setError] = useState("");
   const [permissions, setpermissions] = useState({});
+  const [randomNumber, setRandomNumber] = useState("");
   const [modal, setModal] = useState(false);
+  const [Commentshow, setCommentshow] = useState(false);
   const toggle = () => setModal(!modal);
   const createUserXmlView = useContext(UserContext);
   const [Comments, setComments] = useState([
@@ -60,6 +62,7 @@ const CreateWiki = (args) => {
     },
   ]);
   const [formValues, setFormValues] = useState([{ files: [] }]);
+  const [formValue, setFormValue] = useState([{ files: [] }]);
   const newComment = {
     userName: JSON.parse(localStorage.getItem("userData")).UserName,
     Role: JSON.parse(localStorage.getItem("userData")).Role,
@@ -78,6 +81,7 @@ const CreateWiki = (args) => {
   const SubmitComment = () => {
     let user = JSON.parse(localStorage.getItem("userData"));
     // console.log(user?.accountId);
+    setCommentshow(true);
     CommentProductWiki(user?.accountId, Comments)
       .then((res) => {
         console.log(res);
@@ -93,18 +97,44 @@ const CreateWiki = (args) => {
   let addFileInput = () => {
     setFormValues([...formValues, { files: [] }]);
   };
+  let addFileInputs = () => {
+    setFormValue([...formValue, { files: [] }]);
+  };
 
   let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
   };
+  let removeFileAttachs = (i) => {
+    let newFormValues = [...formValue];
+    newFormValues.splice(i, 1);
+    setFormValue(newFormValues);
+  };
+  const generateRandomNumber = () => {
+    const min = 1000; // Smallest 5-digit number
+    const max = 9999; // Largest 5-digit number
+    const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+    setRandomNumber(randomNum);
+  };
 
   let handleFileChange = (i, e) => {
+    // const fileArray = Array.from(e.target.files);
+    // console.log(fileArray);
+    // const fileObjects = fileArray?.map((file) => {
+    //   console.log(file);
+    // });
+    // console.log(fileObjects);
     const newFormValues = [...formValues];
     const selectedFiles = e.target.files;
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
+  };
+  let handleFileChanges = (i, e) => {
+    const newFormValues = [...formValue];
+    const selectedFiles = e.target.files;
+    newFormValues[i].files = selectedFiles;
+    setFormValue(newFormValues);
   };
   let removeFormFields = (i) => {
     let newFormValues = [...Comments];
@@ -162,16 +192,13 @@ const CreateWiki = (args) => {
     toggle();
   };
   useEffect(() => {
-    console.log(formData);
-    console.log(formValues);
-    console.log(Comments);
-    // formValues?.map((ele) => {
-    //   debugger;
-    //   console.log(ele?.files);
-    // });
-  }, [formData, formValues, Comments]);
+    return () => {
+      console.log("User left the component");
+    };
+  }, [formData, formValues, Comments, formValue]);
 
   useEffect(() => {
+    generateRandomNumber();
     Productwiki_ViewData()
       .then((res) => {
         console.log(res);
@@ -182,35 +209,89 @@ const CreateWiki = (args) => {
         // let alldata = JSON.parse(jsonData)?.createWiki?.map((ele) => {
         //   console.log(ele);
         // });
+        let value = JSON.parse(jsonData)?.createWiki?.CheckBox?.input;
+        value?.map((ele) => {
+          formData[ele?.name._text] = false;
+        });
         setCreatAccountView(JSON.parse(jsonData));
         setdropdownValue(JSON.parse(jsonData));
       })
       .catch((err) => {
         console.log(err);
       });
+    return () => {
+      debugger;
+      // This code runs when the component is unmounted (user leaves).
+      console.log("User left the component");
+    };
   }, []);
 
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log(formData);
-    console.log(formValues);
-    console.log(Comments);
-    console.log(CreatAccountView);
-    debugger;
     let formdata = new FormData();
-
-    formValues?.map((ele) => {
-      formdata.append("files", ele.files);
+    CreatAccountView?.createWiki?.CheckBox?.input?.map((ele) => {
+      formdata.append(`${ele?.name._text}`, formData[ele?.name._text]);
     });
 
-    let data = { ...formData, Comments: Comments && Comments, formdata };
-    CreateProductWiki(data)
+    CreatAccountView?.createWiki?.MyDropDown?.map((ele) => {
+      formdata.append(
+        `${ele?.dropdown?.name?._text}`,
+        formData[ele?.dropdown?.name?._text]
+      );
+    });
+
+    CreatAccountView?.createWiki?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    formdata.append(`Status`, "Pending");
+    formdata.append("id", "wiki" + { randomNumber });
+    if (Comments.length > 0) {
+      formdata.append(`Comments`, JSON.stringify(Comments));
+    }
+
+    let user = JSON.parse(localStorage.getItem("userData"));
+    if (formValues.length) {
+      let myarr = [];
+      formValues?.map((ele, i) => {
+        let newdata = Array.from(ele?.files);
+        myarr.push(newdata);
+      });
+      let totalimg = myarr.flat();
+      totalimg?.map((ele, i) => {
+        formdata.append("files", ele);
+      });
+    }
+    if (formValue.length || formValues.length) {
+      formdata.append("Role", user?.Role);
+      formdata.append("time", new Date().toString());
+      formdata.append("userName", user?.UserName);
+    }
+    if (formValue.length) {
+      let myarr = [];
+      formValue?.map((ele, i) => {
+        let newdata = Array.from(ele?.files);
+        myarr.push(newdata);
+      });
+      let totalimg = myarr.flat();
+      totalimg?.map((ele, i) => {
+        formdata.append("files", ele);
+      });
+    }
+
+    for (const [key, value] of formdata.entries()) {
+      console.log(`Key: ${key}, Value: ${value}`);
+    }
+
+    // let data = { ...formData, Comments: Comments && Comments, formdata };
+    CreateProductWiki(formdata)
       .then((res) => {
         console.log(res);
         swal("Wiki Created Successfully");
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.response);
+        swal("Something Went Wrong");
       });
   };
 
@@ -220,11 +301,16 @@ const CreateWiki = (args) => {
         <Card>
           <Row className="m-2">
             <Col className="">
-              <div className="d-flex">
-                <h1 className="justify-content-start">Create Wiki</h1>
+              <div
+                style={{ justifyContent: "space-between" }}
+                className="d-flex myclasswikiheading"
+              >
+                <h1 className="justify-content-start">Create Wiki </h1>
+                <div className="mystatus">Status : (Draft) </div>
+                <div className="mystatus">Status : (Draft) </div>
               </div>
               <div>
-                <span>Wiki Id</span> <span>#</span>
+                <span>Wiki Id</span> <span># :wiki{randomNumber}</span>
               </div>
             </Col>
           </Row>
@@ -238,7 +324,7 @@ const CreateWiki = (args) => {
                       <FormGroup>
                         <Label>{drop?.dropdown?.label?._text}</Label>
                         <CustomInput
-                          required
+                          // required
                           type="select"
                           name={drop?.dropdown?.name?._text}
                           value={formData[drop?.dropdown?.name?._text]}
@@ -461,7 +547,7 @@ const CreateWiki = (args) => {
               </Row>
               {formValues.map((index, i) => (
                 <>
-                  <Label className="mt-1">Upload files</Label>
+                  <Label className="mt-1">Attachments :</Label>
                   <Row className="my-1">
                     <Col lg="6" md="6" sm="12" key={i}>
                       <Input
@@ -498,7 +584,7 @@ const CreateWiki = (args) => {
               ))}
 
               <hr />
-              <Row className="mt-2 ">
+              {/* <Row className="mt-2 ">
                 <Col lg="6" md="6" sm="6" className="mb-2">
                   <Label className="">
                     <h4>Status :-</h4>
@@ -534,7 +620,7 @@ const CreateWiki = (args) => {
                       )}
                   </div>
                 </Col>
-              </Row>
+              </Row> */}
 
               <Row>
                 <Button.Ripple
@@ -546,6 +632,35 @@ const CreateWiki = (args) => {
                 </Button.Ripple>
               </Row>
             </Form>
+            {Commentshow && Commentshow ? (
+              <>
+                {Comments.length &&
+                  Comments?.map((ele, i) => (
+                    <Row key={i}>
+                      <Col>
+                        <div
+                          style={{
+                            border: "1px solid black",
+                            padding: "2px 2px",
+                            borderRadius: "8px",
+                            marginBottom: "4px",
+                          }}
+                          className=""
+                        >
+                          <div className="py-1 mx-2">
+                            <strong>
+                              {" "}
+                              <BsFillChatDotsFill size={25} fill="#055761" />
+                            </strong>{" "}
+                            &nbsp;{ele?.comment} {ele?.userName} ({ele?.Role}){" "}
+                            {ele?.time}
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  ))}
+              </>
+            ) : null}
             {Comments &&
               Comments?.map((element, index) => (
                 <>
@@ -597,9 +712,49 @@ const CreateWiki = (args) => {
             >
               Submit Comment
             </Button>
+            <section>
+              {formValue?.map((index, i) => (
+                <>
+                  <Label className="mt-1">Upload :</Label>
+                  <Row className="my-1">
+                    <Col lg="6" md="6" sm="12" key={i}>
+                      <Input
+                        type="file"
+                        multiple
+                        onChange={(e) => handleFileChanges(i, e)}
+                      />
+                    </Col>
+                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                      <div>
+                        {i ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFileAttachs(i)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
+                      <div>
+                        <Button
+                          className="ml-1"
+                          color="primary"
+                          type="button"
+                          onClick={() => addFileInputs()}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
+              ))}
+            </section>
           </CardBody>
         </Card>
       </div>
+
       <Modal
         fullscreen="xl"
         size="lg"
