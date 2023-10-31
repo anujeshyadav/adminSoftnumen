@@ -49,14 +49,11 @@ export const Part_CatalogueView = "/part-catalogue/view-parts"; //done
 
 // warranty
 export const Warranty_View = "/warranty/get-xml"; //done
-<<<<<<< HEAD
 // warranty
 export const CreaterOrder_View = "/orders/get-xml"; //done
 
-=======
 // Inspection
 export const Inspection_XMLView = "/inspection/get-xml"; //done
->>>>>>> 4c3f1f726cccd5327b7c9d045ed947983ec1ab85
 // product wiki
 export const productwiki_View = "/product-wiki/createWiki"; //done
 // ticketTool
