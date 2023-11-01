@@ -44,6 +44,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 const CreateWiki = (args) => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
+  const [IsSubmitted, setIsSubmitted] = useState(null);
   const [dropdownValue, setdropdownValue] = useState({});
   const [index, setindex] = useState("");
   const [error, setError] = useState("");
@@ -51,6 +52,7 @@ const CreateWiki = (args) => {
   const [randomNumber, setRandomNumber] = useState("");
   const [modal, setModal] = useState(false);
   const [Commentshow, setCommentshow] = useState(false);
+  const [Status, setStatus] = useState("Pending");
   const toggle = () => setModal(!modal);
   const createUserXmlView = useContext(UserContext);
   const [Comments, setComments] = useState([
@@ -119,12 +121,6 @@ const CreateWiki = (args) => {
   };
 
   let handleFileChange = (i, e) => {
-    // const fileArray = Array.from(e.target.files);
-    // console.log(fileArray);
-    // const fileObjects = fileArray?.map((file) => {
-    //   console.log(file);
-    // });
-    // console.log(fileObjects);
     const newFormValues = [...formValues];
     const selectedFiles = e.target.files;
     newFormValues[i].files = selectedFiles;
@@ -192,23 +188,25 @@ const CreateWiki = (args) => {
     toggle();
   };
   useEffect(() => {
+    console.log(formData);
+    debugger;
     return () => {
-      console.log("User left the component");
+      window.onbeforeunload = function () {
+        console.log(CreatAccountView?.createWiki);
+        HandleSaveDraft();
+      };
     };
-  }, [formData, formValues, Comments, formValue]);
+  }, [CreatAccountView, formData, Comments, formValues, formValue]);
 
   useEffect(() => {
     generateRandomNumber();
     Productwiki_ViewData()
       .then((res) => {
+        debugger;
         console.log(res);
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData).createWiki);
-        // let origionalpermission =
-        //   JSON.parse(jsonData)?.Warranty?.input[14].permissions?.role;
-        // let alldata = JSON.parse(jsonData)?.createWiki?.map((ele) => {
-        //   console.log(ele);
-        // });
+
         let value = JSON.parse(jsonData)?.createWiki?.CheckBox?.input;
         value?.map((ele) => {
           formData[ele?.name._text] = false;
@@ -220,15 +218,18 @@ const CreateWiki = (args) => {
         console.log(err);
       });
     return () => {
-      debugger;
-      // This code runs when the component is unmounted (user leaves).
-      console.log("User left the component");
+      if (IsSubmitted == null) {
+        setIsSubmitted("Not");
+      }
     };
+
+    // This code runs when the component is unmounted (user leaves).
   }, []);
 
-  const submitHandler = (e) => {
-    e.preventDefault();
+  const HandleSaveDraft = () => {
+    debugger;
     let formdata = new FormData();
+    console.log(CreatAccountView?.createWiki);
     CreatAccountView?.createWiki?.CheckBox?.input?.map((ele) => {
       formdata.append(`${ele?.name._text}`, formData[ele?.name._text]);
     });
@@ -244,7 +245,7 @@ const CreateWiki = (args) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
-    formdata.append(`Status`, "Pending");
+    formdata.append(`Status`, "Draft");
     formdata.append("id", "wiki" + { randomNumber });
     if (Comments.length > 0) {
       formdata.append(`Comments`, JSON.stringify(Comments));
@@ -279,13 +280,82 @@ const CreateWiki = (args) => {
       });
     }
 
-    for (const [key, value] of formdata.entries()) {
-      console.log(`Key: ${key}, Value: ${value}`);
-    }
+    // for (const [key, value] of formdata.entries()) {
+    //   console.log(`Key: ${key}, Value: ${value}`);
+    // }
 
     // let data = { ...formData, Comments: Comments && Comments, formdata };
     CreateProductWiki(formdata)
       .then((res) => {
+        // console.log(res);
+        // swal("Wiki Created Successfully");
+      })
+      .catch((err) => {
+        console.log(err.response);
+        // swal("Something Went Wrong");
+      });
+  };
+  const submitHandler = (e) => {
+    e.preventDefault();
+    let formdata = new FormData();
+    CreatAccountView?.createWiki?.CheckBox?.input?.map((ele) => {
+      formdata.append(`${ele?.name._text}`, formData[ele?.name._text]);
+    });
+
+    CreatAccountView?.createWiki?.MyDropDown?.map((ele) => {
+      formdata.append(
+        `${ele?.dropdown?.name?._text}`,
+        formData[ele?.dropdown?.name?._text]
+      );
+    });
+
+    CreatAccountView?.createWiki?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    formdata.append(`Status`, Status);
+    formdata.append("id", "wiki" + { randomNumber });
+    if (Comments.length > 0) {
+      formdata.append(`Comments`, JSON.stringify(Comments));
+    }
+
+    let user = JSON.parse(localStorage.getItem("userData"));
+    if (formValues.length) {
+      let myarr = [];
+      formValues?.map((ele, i) => {
+        let newdata = Array.from(ele?.files);
+        myarr.push(newdata);
+      });
+      let totalimg = myarr.flat();
+      totalimg?.map((ele, i) => {
+        formdata.append("files", ele);
+      });
+    }
+    if (formValue.length || formValues.length) {
+      formdata.append("Role", user?.Role);
+      formdata.append("time", new Date().toString());
+      formdata.append("userName", user?.UserName);
+    }
+    if (formValue.length) {
+      let myarr = [];
+      formValue?.map((ele, i) => {
+        let newdata = Array.from(ele?.files);
+        myarr.push(newdata);
+      });
+      let totalimg = myarr.flat();
+      totalimg?.map((ele, i) => {
+        formdata.append("files", ele);
+      });
+    }
+
+    // for (const [key, value] of formdata.entries()) {
+    //   console.log(`Key: ${key}, Value: ${value}`);
+    // }
+
+    // let data = { ...formData, Comments: Comments && Comments, formdata };
+    CreateProductWiki(formdata)
+      .then((res) => {
+        setIsSubmitted("Yes");
         console.log(res);
         swal("Wiki Created Successfully");
       })
@@ -307,7 +377,32 @@ const CreateWiki = (args) => {
               >
                 <h1 className="justify-content-start">Create Wiki </h1>
                 <div className="mystatus">Status : (Draft) </div>
-                <div className="mystatus">Status : (Draft) </div>
+                <div className="mystatus">
+                  {" "}
+                  <div>
+                    <Label> Change Status</Label>
+                    <CustomInput
+                      required
+                      type="select"
+                      name="Status"
+                      value={formData["Status"]}
+                      onChange={handleInputChange}
+                    >
+                      <option value="">--Select Status---</option>
+                      <option value="Draft">Draft</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Query">Query</option>
+                      <option value="Accept">Accept</option>
+                      <option value="Hold">Hold</option>
+                      <option value="Work In Progress">Work In Progress</option>
+                      <option value="Approve">Approve</option>
+                      <option value="Reject">Reject</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </CustomInput>
+                  </div>{" "}
+                </div>
               </div>
               <div>
                 <span>Wiki Id</span> <span># :wiki{randomNumber}</span>
