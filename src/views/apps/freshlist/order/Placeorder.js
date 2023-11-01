@@ -26,7 +26,8 @@ import { FcPhoneAndroid } from "react-icons/fc";
 import { BsWhatsapp } from "react-icons/bs";
 import "../../../../assets/scss/pages/users.scss";
 import { AiOutlineSearch } from "react-icons/ai";
-
+import { FiSend } from "react-icons/fi";
+// import { FaPencilAlt } from "react-icons/fa";
 const CreateWarrenty = args => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
@@ -146,6 +147,7 @@ const CreateWarrenty = args => {
       }
     }
   };
+  // handleInputChange;
   useEffect(() => {}, [formData]);
   useEffect(() => {
     CreateOrder_ViewData()
@@ -185,6 +187,27 @@ const CreateWarrenty = args => {
   //   newFormValues[i].files = selectedFiles;
   //   setFormValues(newFormValues);
   // };
+  let addMorePart = () => {
+    setPart([...part, { partName: "", color: "" }]);
+  };
+  let removeMorePart = i => {
+    let newFormValues = [...part];
+    newFormValues.splice(i, 1);
+    setPart(newFormValues);
+  };
+  let addMoreProduct = () => {
+    setProduct([...product, { productName: "", model: "", variant: "" }]);
+  };
+  let removeMoreProduct = i => {
+    let newFormValues = [...product];
+    newFormValues.splice(i, 1);
+    setProduct(newFormValues);
+  };
+  let handlePartChange = (i, e) => {
+    let newFormValues = [...part];
+    newFormValues[i][e.target.name] = e.target.value;
+    setPart(newFormValues);
+  };
   return (
     <div>
       <div>
@@ -194,8 +217,37 @@ const CreateWarrenty = args => {
               <div>
                 <h1 className="">Create Order</h1>
               </div>
-              <div>
-                <span className="orderId">Order Id</span> <span>#</span>
+              <div className="d-flex justify-content-between">
+                <div>
+                  <span className="orderIdtext">Order Id</span>
+                  <span className="orderId">#ord001</span>
+                </div>
+                <div>
+                  <span className="orderId">Status:</span> <span>Draft</span>
+                </div>
+                <div>
+                  <Label>Options</Label>
+                  <CustomInput
+                    required
+                    type="select"
+                    name="status"
+                    value=""
+                    onChange={handleInputChange}
+                  >
+                    <option value="">--Select Status---</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Draft">Pending</option>
+                    <option value="Draft">Query</option>
+                    <option value="Draft">Accept</option>
+                    <option value="Draft">Hold</option>
+                    <option value="Draft">Work In Progress</option>
+                    <option value="Draft">Approve</option>
+                    <option value="Draft">Reject</option>
+                    <option value="Draft">Paid</option>
+                    <option value="Draft">Completed</option>
+                    <option value="Draft">Cancelled</option>
+                  </CustomInput>
+                </div>
               </div>
             </Col>
           </Row>
@@ -567,10 +619,11 @@ const CreateWarrenty = args => {
                       {index ? (
                         <Button
                           type="button"
+                          color="danger"
                           className="button remove "
                           onClick={() => removeMoreProduct(index)}
                         >
-                          Remove
+                          -
                         </Button>
                       ) : null}
                     </div>
@@ -635,10 +688,11 @@ const CreateWarrenty = args => {
                       {index ? (
                         <Button
                           type="button"
+                          color="danger"
                           className="button remove "
                           onClick={() => removeMorePart(index)}
                         >
-                          Remove
+                          -
                         </Button>
                       ) : null}
                     </div>
@@ -695,11 +749,7 @@ const CreateWarrenty = args => {
               </Row>
 
               <Row>
-                <Button.Ripple
-                  color="primary"
-                  type="submit"
-                  className="mr-1 mt-2 mx-2"
-                >
+                <Button.Ripple color="primary" type="submit" className="mt-2">
                   Submit
                 </Button.Ripple>
               </Row>
@@ -747,13 +797,14 @@ const CreateWarrenty = args => {
                 </>
               ))}
             <Button
-              className="ml-1 "
+              className=""
               color="primary"
               onClick={e => {
                 SubmitComment(e);
               }}
             >
-              Submit Comment
+              <span className="pr-1">Submit</span>
+              <FiSend fill="white" size={18} />
             </Button>
             <div className="attachment">
               <h2 className="attachSection">Attachment</h2>
