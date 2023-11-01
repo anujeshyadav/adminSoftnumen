@@ -49,6 +49,9 @@ export const Part_CatalogueView = "/part-catalogue/view-parts"; //done
 
 // warranty
 export const Warranty_View = "/warranty/get-xml"; //done
+// warranty
+export const CreaterOrder_View = "/orders/get-xml"; //done
+
 // Inspection
 export const Inspection_XMLView = "/inspection/get-xml"; //done
 // product wiki

@@ -290,7 +290,7 @@ const navigationConfig = [
         type: "item",
         icon: <FaCircle size={8} />,
         permissions: ["admin", "editor"],
-        navLink: "/app/softNumen/order/placeorder",
+        navLink: "/app/softnumen/order/createorder",
       },
       {
         id: "OrderSearch",
