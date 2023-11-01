@@ -66,6 +66,7 @@ import {
   PolicySaveData,
   VIEW_PRODUCT_WIKI,
   COMMENT_PRODUCT_WIKI,
+  DELETE_PRODUCT_WIKI,
   productwiki_View,
   ticketTool_View,
   CreaterOrder_View,
@@ -502,6 +503,13 @@ export const ViewProductWikiList = async () => {
   let response = await axiosConfig
     .get(`${VIEW_PRODUCT_WIKI}`)
     .then(res => res.data);
+  return response;
+};
+export const DeleteProductWiki = async (id) => {
+  console.log(id);
+  let response = await axiosConfig
+    .get(`${DELETE_PRODUCT_WIKI}` + id)
+    .then((res) => res.data);
   return response;
 };
 export const CommentProductWiki = async (id, data) => {
