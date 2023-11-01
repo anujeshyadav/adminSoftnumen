@@ -82,7 +82,7 @@ const CreateWiki = (args) => {
   };
   const SubmitComment = () => {
     let user = JSON.parse(localStorage.getItem("userData"));
-    // console.log(user?.accountId);
+
     setCommentshow(true);
     CommentProductWiki(user?.accountId, Comments)
       .then((res) => {
@@ -95,7 +95,6 @@ const CreateWiki = (args) => {
   let addFormFields = () => {
     setComments([...Comments, newComment]);
   };
-
   let addFileInput = () => {
     setFormValues([...formValues, { files: [] }]);
   };
@@ -189,7 +188,6 @@ const CreateWiki = (args) => {
   };
   useEffect(() => {
     console.log(formData);
-    debugger;
     return () => {
       window.onbeforeunload = function () {
         console.log(CreatAccountView?.createWiki);
@@ -202,7 +200,6 @@ const CreateWiki = (args) => {
     generateRandomNumber();
     Productwiki_ViewData()
       .then((res) => {
-        debugger;
         console.log(res);
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData).createWiki);
