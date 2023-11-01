@@ -45,6 +45,7 @@ import {
   CreateAccountList,
   CreateAccountView,
   DeleteAccount,
+  DeleteProductWiki,
   Productwiki_ViewData,
   ViewProductWikiList,
 } from "../../../../../ApiEndPoint/ApiCalling";
@@ -409,7 +410,7 @@ class WikiList extends React.Component {
     }).then((value) => {
       switch (value) {
         case "delete":
-          DeleteAccount(id)
+          DeleteProductWiki(id)
             .then((res) => {
               let selectedData = this.gridApi.getSelectedRows();
               this.gridApi.updateRowData({ remove: selectedData });
