@@ -27,7 +27,7 @@ import { BsWhatsapp } from "react-icons/bs";
 import "../../../../assets/scss/pages/users.scss";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FiSend } from "react-icons/fi";
-// import { FaPencilAlt } from "react-icons/fa";
+import Payment from "./payment/Payment";
 const CreateWarrenty = args => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
@@ -46,9 +46,11 @@ const CreateWarrenty = args => {
   //   time: new Date().toString(),
   // };
   const [product, setProduct] = useState([
-    { productName: "", model: "", variant: "" },
+    { productName: "", productImg: "", variant: "" },
   ]);
-  const [part, setPart] = useState([{ productName: "", color: "" }]);
+  const [part, setPart] = useState([
+    { part: "", partName: "", partImage: "", color: "" },
+  ]);
 
   const [Comments, setComments] = useState([
     {
@@ -153,7 +155,7 @@ const CreateWarrenty = args => {
     CreateOrder_ViewData()
       .then(res => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData).createOrder);
+        // console.log(JSON.parse(jsonData).createOrder);
         setCreatAccountView(JSON.parse(jsonData));
         setdropdownValue(JSON.parse(jsonData));
       })
@@ -188,7 +190,7 @@ const CreateWarrenty = args => {
   //   setFormValues(newFormValues);
   // };
   let addMorePart = () => {
-    setPart([...part, { partName: "", color: "" }]);
+    setPart([...part, { partName: "", part: "", partImg: "", color: "" }]);
   };
   let removeMorePart = i => {
     let newFormValues = [...part];
@@ -235,7 +237,6 @@ const CreateWarrenty = args => {
                     onChange={handleInputChange}
                   >
                     <option value="">--Select Status---</option>
-                    <option value="Draft">Draft</option>
                     <option value="Draft">Pending</option>
                     <option value="Draft">Query</option>
                     <option value="Draft">Accept</option>
@@ -544,7 +545,6 @@ const CreateWarrenty = args => {
                   </div>
                 </div>
               </Row>
-
               <hr />
               {product.map((element, index) => (
                 <Row className="" key={index}>
@@ -590,12 +590,11 @@ const CreateWarrenty = args => {
                   </Col>
                   <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
-                      <Label>Model</Label>
+                      <Label>Product Image</Label>
                       <Input
-                        type="text"
-                        name="model"
+                        type="file"
+                        name="pdimg"
                         readOnly
-                        placeholder="Model"
                         value={element.model || ""}
                         onChange={e => handleProductChange(index, e)}
                       />
@@ -603,12 +602,12 @@ const CreateWarrenty = args => {
                   </Col>
                   <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
-                      <Label>Variant</Label>
+                      <Label>Quantity</Label>
                       <Input
-                        type="text"
-                        name="variant"
+                        type="number"
+                        name="quantity"
                         readOnly
-                        placeholder="Variant"
+                        placeholder="Quantity"
                         value={element.variant || ""}
                         onChange={e => handleProductChange(index, e)}
                       />
@@ -641,22 +640,37 @@ const CreateWarrenty = args => {
                   </Col>
                 </Row>
               ))}
+
               {part.map((element, index) => (
                 <Row className="" key={index}>
-                  <Col className="" lg="3" md="3" sm="12">
-                    <FormGroup>
-                      <Label>Part#</Label>
+                  <Col className="" lg="2" md="2" sm="12">
+                    <Label>Part#</Label>
+                    <InputGroup className="maininput">
                       <Input
+                        // value={Role}
+                        // onChange={e => handleInputChange(e)}
+                        className="form-control inputs"
+                        disabled
                         type="text"
-                        name="partName"
+                        name="part"
                         readOnly
-                        placeholder="Part Name"
-                        // value={element.partName || ""}
-                        // onChange={e => handlePartChange(index, e)}
+                        placeholder="Part"
+                        // value={element.productName || ""}
+                        // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
+                      <Button
+                        onClick={handleopentoggle}
+                        color="primary"
+                        className="mybtn primary"
+                      >
+                        <AiOutlineSearch
+                          onClick={e => e.preventDefault()}
+                          fill="white"
+                        />
+                      </Button>
+                    </InputGroup>
                   </Col>
-                  <Col className="" lg="3" md="3" sm="12">
+                  <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
                       <Label>Part Name</Label>
                       <Input
@@ -669,13 +683,26 @@ const CreateWarrenty = args => {
                       />
                     </FormGroup>
                   </Col>
-                  <Col className="" lg="3" md="3" sm="12">
+                  <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
-                      <Label>Color</Label>
+                      <Label>Part Image</Label>
                       <Input
-                        type="text"
-                        name="model"
-                        placeholder="Color"
+                        type="file"
+                        name="partImg"
+                        readOnly
+                        // placeholder="Part Name"
+                        // value={element.partName || ""}
+                        onChange={e => handlePartChange(index, e)}
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col className="" lg="2" md="2" sm="12">
+                    <FormGroup>
+                      <Label>Quantity</Label>
+                      <Input
+                        type="number"
+                        name="quantity"
+                        placeholder="Quantity"
                         readOnly
                         value={element.color || ""}
                         onChange={e => handleProductChange(index, e)}
@@ -683,7 +710,7 @@ const CreateWarrenty = args => {
                     </FormGroup>
                   </Col>
 
-                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                  <Col className="d-flex mt-2" lg="2" md="2" sm="12">
                     <div>
                       {index ? (
                         <Button
@@ -843,6 +870,10 @@ const CreateWarrenty = args => {
                 </Row>
               ))}
             </div>
+            <Payment
+              amount={200}
+              img="https://bl-i.thgim.com/public/incoming/fk5hrs/article67097604.ece/alternates/LANDSCAPE_1200/MacBookAir%2015inch_5.JPG"
+            />
           </CardBody>
         </Card>
         <Modal
