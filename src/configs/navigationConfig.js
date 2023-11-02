@@ -53,8 +53,8 @@ const navigationConfig = [
     icon: <FaUsers size={15} />,
     children: [
       {
-        id: "UserCreation",
-        title: "User Creation",
+        id: "AccountCreation",
+        title: "Account Creation",
         type: "item",
         icon: <FaCircle size={8} />,
         permissions: ["admin", "editor"],
@@ -62,30 +62,30 @@ const navigationConfig = [
       },
 
       {
-        id: "Staffsearch",
-        title: "Search",
+        id: "AccountSearch",
+        title: "Account Search",
         type: "item",
         icon: <FaList size={8} />,
         permissions: ["admin", "editor"],
         navLink: "/app/SoftNumen/userlist",
       },
 
-      {
-        id: "Assign Role",
-        title: "Assign Role",
-        type: "item",
-        icon: <FaCircle size={8} />,
-        permissions: ["admin", "editor"],
-        navLink: "/app/freshlist/account/addRoleNew",
-      },
-      {
-        id: "Role Search",
-        title: "Role List",
-        type: "item",
-        icon: <FaUsers size={8} />,
-        permissions: ["admin", "editor"],
-        navLink: "/app/Trupee/account/RoleList",
-      },
+      // {
+      //   id: "Assign Role",
+      //   title: "Assign Role",
+      //   type: "item",
+      //   icon: <FaCircle size={8} />,
+      //   permissions: ["admin", "editor"],
+      //   navLink: "/app/freshlist/account/addRoleNew",
+      // },
+      // {
+      //   id: "Role Search",
+      //   title: "Role List",
+      //   type: "item",
+      //   icon: <FaUsers size={8} />,
+      //   permissions: ["admin", "editor"],
+      //   navLink: "/app/Trupee/account/RoleList",
+      // },
     ],
   },
   {
@@ -95,8 +95,8 @@ const navigationConfig = [
     icon: <FaShoppingCart size={15} />,
     children: [
       {
-        id: "partOrder",
-        title: "Part Order",
+        id: "CreateOrder",
+        title: "Create Order",
         type: "item",
         icon: <FaCircle size={8} />,
         permissions: ["admin", "editor"],

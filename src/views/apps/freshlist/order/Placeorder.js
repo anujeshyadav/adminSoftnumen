@@ -46,7 +46,7 @@ const CreateWarrenty = args => {
   //   time: new Date().toString(),
   // };
   const [product, setProduct] = useState([
-    { productName: "", model: "", variant: "" },
+    { productName: "", productImg: "", variant: "" },
   ]);
   const [part, setPart] = useState([
     { part: "", partName: "", partImage: "", color: "" },
@@ -237,7 +237,6 @@ const CreateWarrenty = args => {
                     onChange={handleInputChange}
                   >
                     <option value="">--Select Status---</option>
-                    <option value="Draft">Draft</option>
                     <option value="Draft">Pending</option>
                     <option value="Draft">Query</option>
                     <option value="Draft">Accept</option>
@@ -591,12 +590,11 @@ const CreateWarrenty = args => {
                   </Col>
                   <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
-                      <Label>Model</Label>
+                      <Label>Product Image</Label>
                       <Input
-                        type="text"
-                        name="model"
+                        type="file"
+                        name="pdimg"
                         readOnly
-                        placeholder="Model"
                         value={element.model || ""}
                         onChange={e => handleProductChange(index, e)}
                       />
@@ -604,12 +602,12 @@ const CreateWarrenty = args => {
                   </Col>
                   <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
-                      <Label>Variant</Label>
+                      <Label>Quantity</Label>
                       <Input
-                        type="text"
-                        name="variant"
+                        type="number"
+                        name="quantity"
                         readOnly
-                        placeholder="Variant"
+                        placeholder="Quantity"
                         value={element.variant || ""}
                         onChange={e => handleProductChange(index, e)}
                       />
@@ -700,11 +698,11 @@ const CreateWarrenty = args => {
                   </Col>
                   <Col className="" lg="2" md="2" sm="12">
                     <FormGroup>
-                      <Label>Color</Label>
+                      <Label>Quantity</Label>
                       <Input
-                        type="text"
-                        name="model"
-                        placeholder="Color"
+                        type="number"
+                        name="quantity"
+                        placeholder="Quantity"
                         readOnly
                         value={element.color || ""}
                         onChange={e => handleProductChange(index, e)}
