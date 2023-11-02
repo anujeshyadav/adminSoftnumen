@@ -49,6 +49,8 @@ export const Part_CatalogueView = "/part-catalogue/view-parts"; //done
 
 // warranty
 export const Warranty_View = "/warranty/get-xml"; //done
+export const Warranty_Save = "/warranty/save-warranty"; //done
+export const WarrantyList_View = "/warranty/view-warranty";
 // warranty
 export const CreaterOrder_View = "/orders/get-xml"; //done
 
@@ -61,6 +63,7 @@ export const ticketTool_View = "/ticket-tool/get-xml"; //done
 
 export const Spare_Parts = "/part-catalogue/get-spare-parts";
 export const Parts_Catalogue = "/part-catalogue/get-partscatalogue-parts";
+export const GET_PARTS_CATELOGUE = "/part-catalogue/get-part-catalogue";
 export const Order_Parts = "/part-catalogue/get-orders-parts";
 export const AddSupplierView = "/create-supplier/createSupplier";
 export const createWikiView = "/product-wiki/createWiki";
