@@ -1,4 +1,3 @@
-//
 import React, { useEffect, useState, useContext } from "react";
 import xmlJs from "xml-js";
 import {
@@ -72,7 +71,7 @@ const CreateInspections = () => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = (i) => {
+  let removeFileAttach = i => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -84,7 +83,7 @@ const CreateInspections = () => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = (i) => {
+  let removeFormFields = i => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
@@ -140,7 +139,7 @@ const CreateInspections = () => {
   }, [formData]);
   useEffect(() => {
     Inspection_ViewData()
-      .then((res) => {
+      .then(res => {
         // console.log(res);
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData)?.Inspection);
@@ -149,25 +148,25 @@ const CreateInspections = () => {
         setCreatAccountView(JSON.parse(jsonData)?.Inspection);
         setdropdownValue(JSON.parse(jsonData)?.Inspection);
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   }, []);
 
-  const submitHandler = (e) => {
+  const submitHandler = e => {
     e.preventDefault();
     if (error) {
       swal("Error occured while Entering Details");
     } else {
       CreateAccountSave(formData)
-        .then((res) => {
+        .then(res => {
           if (res.status) {
             setFormData({});
             window.location.reload();
             swal("Acccont Created Successfully");
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
     }
@@ -233,7 +232,7 @@ const CreateInspections = () => {
                   dropdownValue?.InspectionDoneat?.input?.map((ele, i) => {
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                        role => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -251,7 +250,7 @@ const CreateInspections = () => {
                                     disabled
                                     inputClass="myphoneinput"
                                     country={"us"}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                       if (
                                         ele?.type?._attributes?.type == "number"
                                       ) {
@@ -262,7 +261,7 @@ const CreateInspections = () => {
                                     countryCodeEditable={false}
                                     name={ele?.name?._text}
                                     value={formData[ele?.name?._text]}
-                                    onChange={(phone) => {
+                                    onChange={phone => {
                                       setFormData({
                                         ...formData,
                                         [ele?.name?._text]: phone,
@@ -296,7 +295,7 @@ const CreateInspections = () => {
                                     // disabled
                                     inputClass="myphoneinput"
                                     country={"us"}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                       if (
                                         ele?.type?._attributes?.type == "number"
                                       ) {
@@ -307,7 +306,7 @@ const CreateInspections = () => {
                                     countryCodeEditable={false}
                                     name={ele?.name?._text}
                                     value={formData[ele?.name?._text]}
-                                    onChange={(phone) => {
+                                    onChange={phone => {
                                       setFormData({
                                         ...formData,
                                         [ele?.name?._text]: phone,
@@ -405,7 +404,7 @@ const CreateInspections = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -417,7 +416,7 @@ const CreateInspections = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -484,7 +483,7 @@ const CreateInspections = () => {
                   dropdownValue?.InspectiondoneOn?.input?.map((ele, i) => {
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                        role => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -502,7 +501,7 @@ const CreateInspections = () => {
                                     disabled
                                     inputClass="myphoneinput"
                                     country={"us"}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                       if (
                                         ele?.type?._attributes?.type == "number"
                                       ) {
@@ -513,7 +512,7 @@ const CreateInspections = () => {
                                     countryCodeEditable={false}
                                     name={ele?.name?._text}
                                     value={formData[ele?.name?._text]}
-                                    onChange={(phone) => {
+                                    onChange={phone => {
                                       setFormData({
                                         ...formData,
                                         [ele?.name?._text]: phone,
@@ -547,7 +546,7 @@ const CreateInspections = () => {
                                     // disabled
                                     inputClass="myphoneinput"
                                     country={"us"}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                       if (
                                         ele?.type?._attributes?.type == "number"
                                       ) {
@@ -558,7 +557,7 @@ const CreateInspections = () => {
                                     countryCodeEditable={false}
                                     name={ele?.name?._text}
                                     value={formData[ele?.name?._text]}
-                                    onChange={(phone) => {
+                                    onChange={phone => {
                                       setFormData({
                                         ...formData,
                                         [ele?.name?._text]: phone,
@@ -656,7 +655,7 @@ const CreateInspections = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -668,7 +667,7 @@ const CreateInspections = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -731,7 +730,7 @@ const CreateInspections = () => {
                   dropdownValue?.inspectionDoneby?.input?.map((ele, i) => {
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                        role => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -749,7 +748,7 @@ const CreateInspections = () => {
                                     disabled
                                     inputClass="myphoneinput"
                                     country={"us"}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                       if (
                                         ele?.type?._attributes?.type == "number"
                                       ) {
@@ -760,7 +759,7 @@ const CreateInspections = () => {
                                     countryCodeEditable={false}
                                     name={ele?.name?._text}
                                     value={formData[ele?.name?._text]}
-                                    onChange={(phone) => {
+                                    onChange={phone => {
                                       setFormData({
                                         ...formData,
                                         [ele?.name?._text]: phone,
@@ -794,7 +793,7 @@ const CreateInspections = () => {
                                     // disabled
                                     inputClass="myphoneinput"
                                     country={"us"}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                       if (
                                         ele?.type?._attributes?.type == "number"
                                       ) {
@@ -805,7 +804,7 @@ const CreateInspections = () => {
                                     countryCodeEditable={false}
                                     name={ele?.name?._text}
                                     value={formData[ele?.name?._text]}
-                                    onChange={(phone) => {
+                                    onChange={phone => {
                                       setFormData({
                                         ...formData,
                                         [ele?.name?._text]: phone,
@@ -903,7 +902,7 @@ const CreateInspections = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -915,7 +914,7 @@ const CreateInspections = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -976,7 +975,7 @@ const CreateInspections = () => {
                   dropdownValue?.soldby?.input?.map((ele, i) => {
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                        role => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -994,7 +993,7 @@ const CreateInspections = () => {
                                     disabled
                                     inputClass="myphoneinput"
                                     country={"us"}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                       if (
                                         ele?.type?._attributes?.type == "number"
                                       ) {
@@ -1005,7 +1004,7 @@ const CreateInspections = () => {
                                     countryCodeEditable={false}
                                     name={ele?.name?._text}
                                     value={formData[ele?.name?._text]}
-                                    onChange={(phone) => {
+                                    onChange={phone => {
                                       setFormData({
                                         ...formData,
                                         [ele?.name?._text]: phone,
@@ -1039,7 +1038,7 @@ const CreateInspections = () => {
                                     // disabled
                                     inputClass="myphoneinput"
                                     country={"us"}
-                                    onKeyDown={(e) => {
+                                    onKeyDown={e => {
                                       if (
                                         ele?.type?._attributes?.type == "number"
                                       ) {
@@ -1050,7 +1049,7 @@ const CreateInspections = () => {
                                     countryCodeEditable={false}
                                     name={ele?.name?._text}
                                     value={formData[ele?.name?._text]}
-                                    onChange={(phone) => {
+                                    onChange={phone => {
                                       setFormData({
                                         ...formData,
                                         [ele?.name?._text]: phone,
@@ -1148,7 +1147,7 @@ const CreateInspections = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -1160,7 +1159,7 @@ const CreateInspections = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -1200,7 +1199,7 @@ const CreateInspections = () => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}
@@ -1271,7 +1270,7 @@ const CreateInspections = () => {
                     <Input
                       type="file"
                       multiple
-                      onChange={(e) => handleFileChange(i, e)}
+                      onChange={e => handleFileChange(i, e)}
                     />
                   </Col>
                   <Col className="d-flex " lg="3" md="3" sm="12">
@@ -1350,7 +1349,7 @@ const CreateInspections = () => {
                               style={{ marginRight: "3px" }}
                               type={ele?.type?._attributes?.type}
                               name={ele?.name?._text}
-                              onChange={(e) => handleInputChange(e, "checkbox")}
+                              onChange={e => handleInputChange(e, "checkbox")}
                             />{" "}
                             <span
                               className="mt-1 mx-1"
@@ -1404,7 +1403,7 @@ const CreateInspections = () => {
                         name="comment"
                         placeholder="Comment"
                         value={element.comment || ""}
-                        onChange={(e) => handleComment(index, e)}
+                        onChange={e => handleComment(index, e)}
                       />
                     </Col>
 
@@ -1438,7 +1437,7 @@ const CreateInspections = () => {
             <Button
               className="ml-1 "
               color="primary"
-              onClick={(e) => {
+              onClick={e => {
                 SubmitComment(e);
               }}
             >

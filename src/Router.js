@@ -202,7 +202,9 @@ const AddGallery = lazy(() =>
 
 //order
 const OrderOne = lazy(() => import("./views/apps/freshlist/order/OrderOne"));
-const All = lazy(() => import("./views/apps/freshlist/order/All"));
+const OrderSearch = lazy(() =>
+  import("./views/apps/freshlist/order/OrderSearch")
+);
 
 const Selectedorder = lazy(() =>
   import("./views/apps/freshlist/order/Selectedorder")
@@ -472,8 +474,8 @@ const StockTransfer = lazy(() =>
 const SupplierWarranty = lazy(() =>
   import("./views/apps/freshlist/customer/WarrantyCLaims/SupplierWarranty")
 );
-const Placeorder = lazy(() =>
-  import("./views/apps/freshlist/order/Placeorder")
+const CreateOrder = lazy(() =>
+  import("./views/apps/freshlist/order/CreateOrder")
 );
 const InvoiceGenerator = lazy(() =>
   import("./views/apps/freshlist/subcategory/InvoiceGenerator")
@@ -1290,10 +1292,13 @@ class AppRouter extends React.Component {
           {/* order */}
           <AppRoute
             path="/app/softnumen/order/createorder"
-            component={Placeorder}
+            component={CreateOrder}
           />
           <AppRoute path="/app/softNumen/order/OrderOne" component={OrderOne} />
-          <AppRoute path="/app/softNumen/order/placeorder" component={All} />
+          <AppRoute
+            path="/app/softNumen/order/OrderSearch"
+            component={OrderSearch}
+          />
           <AppRoute
             path="/app/freshlist/order/Selectedorder"
             component={Selectedorder}

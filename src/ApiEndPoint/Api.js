@@ -12,6 +12,7 @@ export const SpartPart_Upload = "/spare-parts/save-spare-parts";
 export const Products_Upload =
   "/product-registration/save-product-registration";
 export const orders_Upload = "/orders/save-orders";
+export const orders_ID = "create-orders/view-create-order";
 export const Inspection_Upload = "/inspection/save-inspection";
 export const Invoice_Upload = "/invoice-billing/save-invoice-billing";
 export const Supports_Upload = "/support/save-support";
