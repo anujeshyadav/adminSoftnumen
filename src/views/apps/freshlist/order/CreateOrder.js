@@ -34,7 +34,7 @@ import {
 import "../../../../assets/scss/pages/users.scss";
 import Payment from "./payment/Payment";
 import ProductData from "../house/ProductType";
-const CreateWarrenty = args => {
+const CreateWarrenty = (args) => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
@@ -93,10 +93,10 @@ const CreateWarrenty = args => {
 
     setCommentshow(true);
     CommentProductWiki(user?.accountId, Comments)
-      .then(res => {
+      .then((res) => {
         console.log(res);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   };
@@ -108,7 +108,7 @@ const CreateWarrenty = args => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = i => {
+  let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -120,7 +120,7 @@ const CreateWarrenty = args => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = i => {
+  let removeFormFields = (i) => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
@@ -175,18 +175,19 @@ const CreateWarrenty = args => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
     CreateOrder_ID()
-      .then(res => {
+      .then((res) => {
+        debugger;
         const lastElement = res.Order[res.Order.length - 1].id;
         const prefix = lastElement.substring(0, 5);
         const number = parseInt(lastElement.match(/\d+$/)[0], 10) + 1;
         const concatenatedString = prefix + number;
         setOrderID(concatenatedString);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
     CreateOrder_ViewData()
-      .then(res => {
+      .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(
           JSON.parse(jsonData).createOrder.PartDetails.input[0].Readonly
@@ -198,7 +199,7 @@ const CreateWarrenty = args => {
         setdropdownValue(JSON.parse(jsonData));
         setPartDetails(JSON.parse(jsonData)?.createOrder.PartDetails);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }, []);
@@ -206,7 +207,7 @@ const CreateWarrenty = args => {
   let addMorePart = () => {
     setPart([...part, { partName: "", part: "", partImg: "", color: "" }]);
   };
-  let removeMorePart = i => {
+  let removeMorePart = (i) => {
     let newFormValues = [...part];
     newFormValues.splice(i, 1);
     setPart(newFormValues);
@@ -214,7 +215,7 @@ const CreateWarrenty = args => {
   let addMoreProduct = () => {
     setProduct([...product, { productName: "", model: "", variant: "" }]);
   };
-  let removeMoreProduct = i => {
+  let removeMoreProduct = (i) => {
     let newFormValues = [...product];
     newFormValues.splice(i, 1);
     setProduct(newFormValues);
@@ -228,7 +229,7 @@ const CreateWarrenty = args => {
 
   // };
 
-  const submitHandler = e => {
+  const submitHandler = (e) => {
     e.preventDefault();
     console.log("previous", OrderID);
     const prefixStr = OrderID.substring(0, 5);
@@ -458,7 +459,7 @@ const CreateWarrenty = args => {
                                     className="mybtn primary"
                                   >
                                     <AiOutlineSearch
-                                      onClick={e => e.preventDefault()}
+                                      onClick={(e) => e.preventDefault()}
                                       fill="white"
                                     />
                                   </Button>
@@ -492,7 +493,7 @@ const CreateWarrenty = args => {
                                 <PhoneInput
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={e => {
+                                  onKeyDown={(e) => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -503,7 +504,7 @@ const CreateWarrenty = args => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={phone => {
+                                  onChange={(phone) => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -608,7 +609,7 @@ const CreateWarrenty = args => {
                               placeholder={ele?.placeholder?._text}
                               name={ele?.name?._text}
                               value={formData[ele?.name?._text]}
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleInputChange(
                                   e,
                                   ele?.type?._attributes?.type,
@@ -844,7 +845,7 @@ const CreateWarrenty = args => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={e =>
+                                  onChange={(e) =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}
@@ -904,7 +905,7 @@ const CreateWarrenty = args => {
                         className="mybtn primary"
                       >
                         <AiOutlineSearch
-                          onClick={e => e.preventDefault()}
+                          onClick={(e) => e.preventDefault()}
                           fill="white"
                         />
                       </Button>
@@ -919,7 +920,7 @@ const CreateWarrenty = args => {
                         readOnly
                         placeholder="ProdName"
                         value={element.productName || ""}
-                        onChange={e => handleProductChange(index, e)}
+                        onChange={(e) => handleProductChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
@@ -1078,7 +1079,7 @@ const CreateWarrenty = args => {
                         className="mybtn primary"
                       >
                         <AiOutlineSearch
-                          onClick={e => e.preventDefault()}
+                          onClick={(e) => e.preventDefault()}
                           fill="white"
                         />
                       </Button>
@@ -1093,7 +1094,7 @@ const CreateWarrenty = args => {
                         readOnly
                         placeholder="PartName"
                         value={element.partName || ""}
-                        onChange={e => handlePartChange(index, e)}
+                        onChange={(e) => handlePartChange(index, e)}
                       />
                     </FormGroup>
                   </Col>
@@ -1312,7 +1313,7 @@ const CreateWarrenty = args => {
                         name="comment"
                         placeholder="Comment"
                         value={element.comment || ""}
-                        onChange={e => handleComment(index, e)}
+                        onChange={(e) => handleComment(index, e)}
                       />
                     </Col>
 
@@ -1346,7 +1347,7 @@ const CreateWarrenty = args => {
             <Button
               className=""
               color="primary"
-              onClick={e => {
+              onClick={(e) => {
                 SubmitComment(e);
               }}
             >
@@ -1361,7 +1362,7 @@ const CreateWarrenty = args => {
                     <Input
                       type="file"
                       multiple
-                      onChange={e => handleFileChange(i, e)}
+                      onChange={(e) => handleFileChange(i, e)}
                     />
                   </Col>
                   <Col className="d-flex mt-2" lg="3" md="3" sm="12">
