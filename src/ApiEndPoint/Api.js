@@ -52,6 +52,8 @@ export const Part_CatalogueView = "/part-catalogue/view-parts"; //done
 export const Warranty_View = "/warranty/get-xml"; //done
 export const Warranty_Save = "/warranty/save-warranty"; //done
 export const WarrantyList_View = "/warranty/view-warranty";
+export const Warranty_Delete = "/warranty/delete-warranty/";
+export const Warranty_Update = "/warranty/update-warranty/";
 // warranty
 export const CreaterOrder_View = "/orders/get-xml"; //done
 
