@@ -268,33 +268,18 @@ const CreateWarrenty = (args) => {
         formdata.append("files", ele);
       });
     }
-    // if (formValue.length || formValues.length) {
-    //   formdata.append("Role", user?.Role);
-    //   formdata.append("time", new Date().toString());
-    //   formdata.append("userName", user?.UserName);
-    // }
-    // if (formValue.length) {
-    //   let myarr = [];
-    //   formValue?.map((ele, i) => {
-    //     let newdata = Array.from(ele?.files);
-    //     myarr.push(newdata);
-    //   });
-    //   let totalimg = myarr.flat();
-    //   totalimg?.map((ele, i) => {
-    //     formdata.append("files", ele);
-    //   });
-    // }
-
-    for (const [key, value] of formdata.entries()) {
-      console.log(`Key: ${key}, Value: ${value}`);
+    if (formValues.length || formValues.length) {
+      formdata.append("Role", user?.Role);
+      formdata.append("time", new Date().toString());
+      formdata.append("userName", user?.UserName);
     }
 
     // let data = { ...formData, Comments: Comments && Comments, formdata };
     WarrantySave(formdata)
       .then((res) => {
-        setIsSubmitted("Yes");
+        // setIsSubmitted("Yes");
         console.log(res);
-        swal("Wiki Created Successfully");
+        swal("Warrenty Created Successfully");
       })
       .catch((err) => {
         console.log(err.response);
