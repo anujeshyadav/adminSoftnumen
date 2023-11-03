@@ -25,6 +25,7 @@ import Select from "react-select";
 import "../../../../../../src/layouts/assets/scss/pages/users.scss";
 import {
   GetPartsCatalogue,
+  WarrantyListView,
   WarrantySave,
   Warranty_ViewData,
 } from "../../../../../ApiEndPoint/ApiCalling";
@@ -83,7 +84,8 @@ const CreateWarrenty = (args) => {
     const min = 1000; // Smallest 5-digit number
     const max = 9999; // Largest 5-digit number
     const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-    setRandomNumber(randomNum);
+    let numb = "001";
+    setRandomNumber(numb);
   };
   let handleComment = (i, e) => {
     let user = JSON.parse(localStorage.getItem("userData"));
@@ -177,6 +179,7 @@ const CreateWarrenty = (args) => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
     generateRandomNumber();
+    // WarrantyListView().then((res)=>{}).catch((err)=>{})
     Warranty_ViewData()
       .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
@@ -249,8 +252,7 @@ const CreateWarrenty = (args) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
-    // formdata.append(`Status`, Status);
-    formdata.append("id", JSON.stringify("wrn" + { randomNumber }));
+    formdata.append("id", `wrn${randomNumber}`);
     if (Comments.length > 0) {
       formdata.append(`Comments`, JSON.stringify(Comments));
     }

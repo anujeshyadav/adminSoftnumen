@@ -43,6 +43,9 @@ import {
   CreateAccountList,
   CreateAccountView,
   DeleteAccount,
+  WarrantyDelete,
+  WarrantyListView,
+  Warranty_ViewData,
 } from "../../../../../ApiEndPoint/ApiCalling";
 import {
   BsCloudDownloadFill,
@@ -101,75 +104,128 @@ class SearchWarrenty extends React.Component {
 
   async componentDidMount() {
     const UserInformation = this.context?.UserInformatio;
-
-    await CreateAccountView()
+    let checkbox = [];
+    let CurrentStatus = [];
+    let Mydropdown = [];
+    let PartDetails = [];
+    let ProductDetails = [];
+    let warrentyType = [];
+    let Inputs = [];
+    await Warranty_ViewData()
       .then((res) => {
-        var mydropdownArray = [];
-        var adddropdown = [];
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData));
+        console.log(JSON.parse(jsonData).Warranty);
 
-        const inputs = JSON.parse(jsonData).CreateAccount?.input?.map((ele) => {
+        const Mycheckbox = JSON.parse(jsonData)?.Warranty?.CheckBox?.input?.map(
+          (ele) => {
+            return {
+              headerName: ele?.label._text,
+              field: ele?.name._text,
+              filter: true,
+              sortable: true,
+            };
+          }
+        );
+        let ChangeStatus =
+          JSON.parse(jsonData)?.Warranty?.CurrentStatus?.MyDropDown?.dropdown;
+        const adddropdown = [
+          {
+            headerName: ChangeStatus?.label._text,
+            field: ChangeStatus?.name._text,
+            filter: true,
+            sortable: true,
+          },
+        ];
+
+        let mydropdown = JSON.parse(jsonData)?.Warranty?.MyDropDown?.dropdown;
+        const dropdown = [
+          {
+            headerName: mydropdown?.label._text,
+            field: mydropdown?.name._text,
+            filter: true,
+            sortable: true,
+          },
+        ];
+
+        // partdetail
+        let partdetail = JSON.parse(jsonData)?.Warranty?.PartDetails;
+        const partDropdown = partdetail?.MyDropDown?.map((ele) => {
           return {
-            headerName: ele?.label._text,
-            field: ele?.name._text,
+            headerName: ele?.dropdown?.label?._text,
+            field: ele?.dropdown?.name?._text,
             filter: true,
             sortable: true,
           };
         });
-        let Radioinput =
-          JSON.parse(jsonData).CreateAccount?.Radiobutton?.input[0]?.name
-            ?._text;
-        const addRadio = [
-          {
-            headerName: Radioinput,
-            field: Radioinput,
+        const partinput = partdetail?.input?.map((ele) => {
+          return {
+            headerName: ele?.label?._text,
+            field: ele?.name?._text,
             filter: true,
             sortable: true,
-            cellRendererFramework: (params) => {
-              // console.log(params?.data);
-              return params.data?.Status === "Active" ? (
-                <div className="badge badge-pill badge-success">
-                  {params.data.Status}
-                </div>
-              ) : params.data?.Status === "Deactive" ? (
-                <div className="badge badge-pill badge-warning">
-                  {params.data.Status}
-                </div>
-              ) : (
-                "NA"
-              );
-            },
-          },
-        ];
+          };
+        });
+        // product
+        let productdetail = JSON.parse(jsonData)?.Warranty?.ProductDetails;
+        const productDropdown = productdetail?.MyDropDown?.map((ele) => {
+          return {
+            headerName: ele?.dropdown?.label?._text,
+            field: ele?.dropdown?.name?._text,
+            filter: true,
+            sortable: true,
+          };
+        });
+        const productinput = productdetail?.input?.map((ele) => {
+          return {
+            headerName: ele?.label?._text,
+            field: ele?.name?._text,
+            filter: true,
+            sortable: true,
+          };
+        });
 
-        let dropdown = JSON.parse(jsonData).CreateAccount?.MyDropdown?.dropdown;
-        if (dropdown.length) {
-          var mydropdownArray = dropdown?.map((ele) => {
-            return {
-              headerName: ele?.label,
-              field: ele?.name,
-              filter: true,
-              sortable: true,
-            };
-          });
-        } else {
-          var adddropdown = [
-            {
-              headerName: dropdown?.label._text,
-              field: dropdown?.name._text,
-              filter: true,
-              sortable: true,
-            },
-          ];
-        }
+        // Warrenty
+        let WType = JSON.parse(jsonData)?.Warranty?.WType;
+        const warrentydropdown = WType?.MyDropDown?.map((ele) => {
+          return {
+            headerName: ele?.dropdown?.label?._text,
+            field: ele?.dropdown?.name?._text,
+            filter: true,
+            sortable: true,
+          };
+        });
+
+        const warrentyinput = WType?.input?.map((ele) => {
+          return {
+            headerName: ele?.label?._text,
+            field: ele?.name?._text,
+            filter: true,
+            sortable: true,
+          };
+        });
+
+        // inputs
+        let Allinput = JSON.parse(jsonData)?.Warranty?.input;
+        const lastinput = Allinput?.map((ele) => {
+          return {
+            headerName: ele?.label?._text,
+            field: ele?.name?._text,
+            filter: true,
+            sortable: true,
+          };
+        });
 
         let myHeadings = [
-          // ...checkboxinput,
-          ...inputs,
+          ...dropdown,
+          ...Mycheckbox,
           ...adddropdown,
-          ...addRadio,
-          ...mydropdownArray,
+          ...partDropdown,
+          ...partinput,
+          ...productDropdown,
+          ...productinput,
+          ...warrentydropdown,
+          ...warrentyinput,
+          ...lastinput,
         ];
         // console.log(myHeadings);
         let Product = [
@@ -228,7 +284,7 @@ class SearchWarrenty extends React.Component {
             filter: true,
             sortable: true,
             cellRendererFramework: (params) => {
-              console.log(params?.data?.whatsapp);
+              // console.log(params?.data?.whatsapp);
               return params.data?.whatsapp === true ? (
                 <div className="badge badge-pill badge-success">YES</div>
               ) : params.data?.whatsapp === false ? (
@@ -244,7 +300,7 @@ class SearchWarrenty extends React.Component {
             filter: true,
             sortable: true,
             cellRendererFramework: (params) => {
-              console.log(params?.data?.sms);
+              // console.log(params?.data?.sms);
               return params.data?.sms === true ? (
                 <div className="badge badge-pill badge-success">YES</div>
               ) : params.data?.sms === false ? (
@@ -260,7 +316,7 @@ class SearchWarrenty extends React.Component {
             filter: true,
             sortable: true,
             cellRendererFramework: (params) => {
-              console.log(params?.data?.gmail);
+              // console.log(params?.data?.gmail);
               return params.data?.gmail === true ? (
                 <div className="badge badge-pill badge-success">YES</div>
               ) : params.data?.gmail === false ? (
@@ -369,14 +425,16 @@ class SearchWarrenty extends React.Component {
           this.setState({ SelectedcolumnDefs: Product });
         }
         this.setState({ SelectedCols: Product });
+        // input
       })
       .catch((err) => {
         console.log(err);
-        swal("Error", "something went wrong try again");
       });
-    await CreateAccountList()
+
+    await WarrantyListView()
       .then((res) => {
-        let value = res?.CreateAccount;
+        let value = res?.Warranty;
+        console.log(value);
         this.setState({ rowData: value });
       })
       .catch((err) => {
@@ -396,8 +454,9 @@ class SearchWarrenty extends React.Component {
     }).then((value) => {
       switch (value) {
         case "delete":
-          DeleteAccount(id)
+          WarrantyDelete(id)
             .then((res) => {
+              console.log(res);
               let selectedData = this.gridApi.getSelectedRows();
               this.gridApi.updateRowData({ remove: selectedData });
             })
