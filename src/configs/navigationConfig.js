@@ -69,23 +69,6 @@ const navigationConfig = [
         permissions: ["admin", "editor"],
         navLink: "/app/SoftNumen/userlist",
       },
-
-      // {
-      //   id: "Assign Role",
-      //   title: "Assign Role",
-      //   type: "item",
-      //   icon: <FaCircle size={8} />,
-      //   permissions: ["admin", "editor"],
-      //   navLink: "/app/freshlist/account/addRoleNew",
-      // },
-      // {
-      //   id: "Role Search",
-      //   title: "Role List",
-      //   type: "item",
-      //   icon: <FaUsers size={8} />,
-      //   permissions: ["admin", "editor"],
-      //   navLink: "/app/Trupee/account/RoleList",
-      // },
     ],
   },
   {
@@ -108,7 +91,7 @@ const navigationConfig = [
         type: "item",
         icon: <FaCircle size={8} />,
         permissions: ["admin", "editor"],
-        navLink: "/app/softNumen/order/placeorder",
+        navLink: "/app/softNumen/order/OrderSearch",
       },
     ],
   },

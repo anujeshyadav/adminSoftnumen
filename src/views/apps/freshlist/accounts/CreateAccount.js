@@ -100,38 +100,38 @@ const CreateAccount = () => {
   }, [formData]);
   useEffect(() => {
     CreateAccountView()
-      .then((res) => {
+      .then(res => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData));
 
         setCreatAccountView(JSON.parse(jsonData));
         let value = JSON.parse(jsonData)?.CreateAccount?.CheckBox?.input;
-        value?.map((ele) => {
+        value?.map(ele => {
           formData[ele?.name._text] = false;
         });
 
         setdropdownValue(JSON.parse(jsonData));
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   }, []);
 
-  const submitHandler = (e) => {
+  const submitHandler = e => {
     e.preventDefault();
     console.log(formData);
     if (error) {
       swal("Error occured while Entering Details");
     } else {
       CreateAccountSave(formData)
-        .then((res) => {
+        .then(res => {
           setFormData({});
           if (res.status) {
             window.location.reload();
             swal("Acccont Created Successfully");
           }
         })
-        .catch((err) => {
+        .catch(err => {
           console.log(err);
         });
     }
@@ -143,7 +143,7 @@ const CreateAccount = () => {
         <Card>
           <Row className="m-2">
             <Col>
-              <h1 className="float-left">Create Account</h1>
+              <h1 className="float-left">Account Creation</h1>
             </Col>
           </Row>
 
@@ -210,7 +210,7 @@ const CreateAccount = () => {
                               <PhoneInput
                                 inputClass="myphoneinput"
                                 country={"us"}
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -221,7 +221,7 @@ const CreateAccount = () => {
                                 countryCodeEditable={false}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(phone) => {
+                                onChange={phone => {
                                   setFormData({
                                     ...formData,
                                     [ele?.name?._text]: phone,
@@ -254,14 +254,14 @@ const CreateAccount = () => {
                                 inputClass="countryclass"
                                 className="countryclassnw"
                                 options={Country.getAllCountries()}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={Countries}
-                                onChange={(country) => {
+                                onChange={country => {
                                   setCountry(country);
                                   setFormData({
                                     ...formData,
@@ -292,14 +292,14 @@ const CreateAccount = () => {
                                 options={State?.getStatesOfCountry(
                                   Countries?.isoCode
                                 )}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={States}
-                                onChange={(State) => {
+                                onChange={State => {
                                   setState(State);
                                   setFormData({
                                     ...formData,
@@ -331,14 +331,14 @@ const CreateAccount = () => {
                                   States?.countryCode,
                                   States?.isoCode
                                 )}
-                                getOptionLabel={(options) => {
+                                getOptionLabel={options => {
                                   return options["name"];
                                 }}
-                                getOptionValue={(options) => {
+                                getOptionValue={options => {
                                   return options["name"];
                                 }}
                                 value={Cities}
-                                onChange={(City) => {
+                                onChange={City => {
                                   setCities(City);
                                   setFormData({
                                     ...formData,
@@ -370,7 +370,7 @@ const CreateAccount = () => {
                                     <Label>{ele?.label?._text}</Label>
 
                                     <Input
-                                      onKeyDown={(e) => {
+                                      onKeyDown={e => {
                                         if (
                                           ele?.type?._attributes?.type ==
                                           "number"
@@ -395,7 +395,7 @@ const CreateAccount = () => {
                                         // formData[ele?.name?._text]
                                       }
                                       // value={formData[ele?.name?._text]}
-                                      onChange={(e) =>
+                                      onChange={e =>
                                         handleInputChange(
                                           e,
                                           ele?.type?._attributes?.type,
@@ -424,7 +424,7 @@ const CreateAccount = () => {
                                     <Label>{ele?.label?._text}</Label>
 
                                     <Input
-                                      onKeyDown={(e) => {
+                                      onKeyDown={e => {
                                         if (
                                           ele?.type?._attributes?.type ==
                                           "number"
@@ -438,7 +438,7 @@ const CreateAccount = () => {
                                       placeholder={ele?.placeholder?._text}
                                       name={ele?.name?._text}
                                       value={formData[ele?.name?._text]}
-                                      onChange={(e) =>
+                                      onChange={e =>
                                         handleInputChange(
                                           e,
                                           ele?.type?._attributes?.type,
@@ -472,7 +472,7 @@ const CreateAccount = () => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -484,7 +484,7 @@ const CreateAccount = () => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -523,7 +523,7 @@ const CreateAccount = () => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}

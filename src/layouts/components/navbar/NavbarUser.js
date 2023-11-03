@@ -42,15 +42,15 @@ import swal from "sweetalert";
 import { FaAngleLeft } from "react-icons/fa";
 
 const total = [];
-const handleNavigation = (e) => {
+const handleNavigation = e => {
   e.preventDefault();
   history.push("/#/pages/profile/userProfile");
 };
-const handleSelect = (e) => {
+const handleSelect = e => {
   e.preventDefault();
   history.push("/#/pages/profile/userProfile");
 };
-const UserDropdown = (props) => {
+const UserDropdown = props => {
   // const { logout, isAuthenticated } = useAuth0()
   return (
     <DropdownMenu right>
@@ -91,7 +91,7 @@ const UserDropdown = (props) => {
         render={({ history }) => (
           <DropdownItem
             tag="a"
-            onClick={(e) => {
+            onClick={e => {
               e.preventDefault();
               history.push("/pages/profile/userProfile");
             }}
@@ -106,7 +106,7 @@ const UserDropdown = (props) => {
           <DropdownItem
             tag="a"
             href="#"
-            onClick={(e) => {
+            onClick={e => {
               localStorage.clear();
               localStorage.removeItem("userData");
               history.push("/#/pages/login");
@@ -116,13 +116,13 @@ const UserDropdown = (props) => {
               data.append("role", pageparmission?.Userinfo?.role);
               axiosConfig
                 .post("/apiLogout", data)
-                .then((resp) => {
+                .then(resp => {
                   console.log(resp);
                   localStorage.clear();
                   localStorage.removeItem("userData");
                   history.push("/#/pages/login");
                 })
-                .catch((err) => {
+                .catch(err => {
                   console.log(err);
                   // swal("Somethig Went Wrong");
                 });
@@ -230,7 +230,7 @@ class NavbarUser extends React.PureComponent {
     suggestions: [],
   };
   toggleModal = () => {
-    this.setState((prevState) => ({
+    this.setState(prevState => ({
       modal: !prevState.modal,
     }));
   };
@@ -251,8 +251,6 @@ class NavbarUser extends React.PureComponent {
     });
     let data = JSON.parse(localStorage.getItem("userData")); //forgot to close
     this.setState({ userData: data });
-
-    console.log(user);
   }
 
   handleDeletePartsCate = (e, ele) => {
@@ -264,7 +262,7 @@ class NavbarUser extends React.PureComponent {
         cancel: "Cancel",
         catch: { text: "Delete ", value: "delete" },
       },
-    }).then((value) => {
+    }).then(value => {
       switch (value) {
         case "delete":
           let value = {
@@ -272,11 +270,10 @@ class NavbarUser extends React.PureComponent {
             productId: ele?.productId,
           };
           DeleteCartItemPartsCatelogue(value)
-            .then((res) => {
-              console.log(res);
+            .then(res => {
               this.handleShowCart();
             })
-            .catch((err) => {
+            .catch(err => {
               console.log(err);
             });
           break;
@@ -288,8 +285,8 @@ class NavbarUser extends React.PureComponent {
     let userData = JSON.parse(localStorage.getItem("userData")); //forgot to close
 
     await AddToCartGet(userData?._id)
-      .then((res) => {
-        console.log(res?.cart);
+      .then(res => {
+        // console.log(res?.cart);
         const user = this.context;
         user?.setPartsCatalougueCart(res?.cart);
         this.setState({ myCart: res?.cart });
@@ -302,10 +299,10 @@ class NavbarUser extends React.PureComponent {
         this.setState({ SetTotal: total });
 
         let findtotal = total?.reduce((a, b) => a + b, 0);
-        console.log(findtotal);
+        // console.log(findtotal);
         this.setState({ Total: findtotal });
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   };
@@ -315,14 +312,14 @@ class NavbarUser extends React.PureComponent {
   //   })
   // }
 
-  removeItem = (id) => {
+  removeItem = id => {
     let cart = this.state.shoppingCart;
-    let updatedCart = cart.filter((i) => i.id !== id);
+    let updatedCart = cart.filter(i => i.id !== id);
     this.setState({
       shoppingCart: updatedCart,
     });
   };
-  handleQuantityChange = (e) => {
+  handleQuantityChange = e => {
     console.log(e.target.value);
   };
   HandleAddresIndex = (e, index) => {
@@ -333,11 +330,11 @@ class NavbarUser extends React.PureComponent {
     console.log(userData?._id);
     this.setState({ switchScreen: true });
     GetDeliveryAddress(userData?._id)
-      .then((res) => {
+      .then(res => {
         console.log(res?.Address);
         this.setState({ AddressList: res?.Address });
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   };
@@ -349,7 +346,7 @@ class NavbarUser extends React.PureComponent {
     console.log(this.state.SetTotal);
     let findtotal = this.state.SetTotal?.reduce((a, b) => a + b, 0);
     this.setState({ Total: findtotal });
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const newQuantities = [...prevState.Quantity];
       if (newQuantities[index] > 0) {
         newQuantities[index] -= 1;
@@ -367,7 +364,7 @@ class NavbarUser extends React.PureComponent {
     let findtotal = this.state.SetTotal?.reduce((a, b) => a + b, 0);
     console.log(findtotal);
     this.setState({ Total: findtotal });
-    this.setState((prevState) => {
+    this.setState(prevState => {
       const newQuantities = [...prevState.Quantity];
       newQuantities[index] += 1;
       console.log(ele?.product?.Part_Price * newQuantities);
@@ -395,7 +392,7 @@ class NavbarUser extends React.PureComponent {
     ).toFixed(2);
 
     const { userData } = this.state;
-    const renderCartItems = this.state.shoppingCart?.map((item) => {
+    const renderCartItems = this.state.shoppingCart?.map(item => {
       return (
         <>
           <div className="cart-item" key={item.id}>
@@ -427,7 +424,7 @@ class NavbarUser extends React.PureComponent {
                   <Icon.X
                     className="danger"
                     size={15}
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       this.removeItem(item.id);
                     }}
@@ -443,7 +440,7 @@ class NavbarUser extends React.PureComponent {
     return (
       <ul className="nav navbar-nav navbar-nav-user float-right">
         <IntlContext.Consumer>
-          {(context) => {
+          {context => {
             let langArr = {
               // "en" : "English",
               // "de" : "German",
@@ -511,7 +508,7 @@ class NavbarUser extends React.PureComponent {
                                             ? true
                                             : false
                                         }
-                                        onClick={(e) => {
+                                        onClick={e => {
                                           this.HandleAddresIndex(e, i);
                                         }}
                                         type="radio"
@@ -562,7 +559,7 @@ class NavbarUser extends React.PureComponent {
                               <CustomInput
                                 type="select"
                                 value={this.state.TaxType}
-                                onChange={(e) =>
+                                onChange={e =>
                                   this.setState({ TaxType: e.target.value })
                                 }
                                 name="TaxType"
@@ -579,7 +576,7 @@ class NavbarUser extends React.PureComponent {
                                 <input
                                   type="number"
                                   value={this.state.TaxPercentage}
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     this.setState({
                                       TaxPercentage: e.target.value,
                                     })
@@ -603,7 +600,7 @@ class NavbarUser extends React.PureComponent {
                                     className="form-control"
                                     id="productSelect"
                                     type="number"
-                                    onChange={(e) =>
+                                    onChange={e =>
                                       this.setState({
                                         TaxPercentage: e.target.value,
                                       })
@@ -624,7 +621,7 @@ class NavbarUser extends React.PureComponent {
                               <input
                                 value={this.state.Shippingfee}
                                 type="number"
-                                onChange={(e) =>
+                                onChange={e =>
                                   this.setState({ Shippingfee: e.target.value })
                                 }
                                 name="Shippingfee"
@@ -634,7 +631,7 @@ class NavbarUser extends React.PureComponent {
                             <Col lg="2" md="2" sm="12" xs="12">
                               <Button
                                 className="mt-1"
-                                onClick={(e) => e.preventDefault()}
+                                onClick={e => e.preventDefault()}
                                 color="primary"
                               >
                                 Submit
@@ -694,7 +691,7 @@ class NavbarUser extends React.PureComponent {
                                         <MdDelete
                                           color="red"
                                           size={20}
-                                          onClick={(e) => {
+                                          onClick={e => {
                                             this.handleDeletePartsCate(e, ele);
                                           }}
                                           style={{ cursor: "pointer" }}
@@ -722,7 +719,7 @@ class NavbarUser extends React.PureComponent {
                                             className="minusbutton"
                                             color="primary"
                                             size="sm"
-                                            onClick={(e) =>
+                                            onClick={e =>
                                               this.handleDecreaseCount(
                                                 ele,
                                                 i,
@@ -739,10 +736,10 @@ class NavbarUser extends React.PureComponent {
                                               name="cart"
                                               min="0"
                                               value={this.state.Quantity[i]}
-                                              onChange={(e) => {
+                                              onChange={e => {
                                                 this.handleQuantityChange(e, i);
                                               }}
-                                              onKeyDown={(e) => {
+                                              onKeyDown={e => {
                                                 ["e", "E", "+", "-"].includes(
                                                   e.key
                                                 ) && e.preventDefault();
@@ -752,7 +749,7 @@ class NavbarUser extends React.PureComponent {
                                             />
                                           </div>{" "}
                                           <Button
-                                            onClick={(e) =>
+                                            onClick={e =>
                                               this.handleIncreaseCount(
                                                 ele,
                                                 i,
@@ -952,7 +949,7 @@ class NavbarUser extends React.PureComponent {
                             <MdDelete
                               color="red"
                               size={20}
-                              onClick={(e) => {
+                              onClick={e => {
                                 this.handleDeletePartsCate(e, ele);
                               }}
                               style={{ cursor: "pointer" }}
