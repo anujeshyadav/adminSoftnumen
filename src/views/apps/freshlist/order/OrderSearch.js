@@ -18,10 +18,9 @@ import ExcelReader from "../parts/ExcelReader";
 import { ContextLayout } from "../../../../utility/context/Layout";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
-import EditAccount from "../../freshlist/accounts/EditAccount";
-import ViewAccount from "../../freshlist/accounts/ViewAccount";
+import EditAccount from "../accounts/EditAccount";
+import ViewAccount from "../accounts/ViewAccount";
 import jsPDF from "jspdf";
-import db from "../../../../context/indexdb";
 import "jspdf-autotable";
 import Logo from "../../../../assets/img/profile/pages/logomain.png";
 import Papa from "papaparse";
@@ -39,12 +38,13 @@ import {
   FaArrowAltCircleRight,
   FaFilter,
 } from "react-icons/fa";
-import moment from "moment-timezone";
+import "moment-timezone";
 import swal from "sweetalert";
 import {
   CreateAccountList,
   CreateAccountView,
   DeleteAccount,
+  OrderPartsList,
 } from "../../../../ApiEndPoint/ApiCalling";
 import {
   BsCloudDownloadFill,
@@ -52,12 +52,10 @@ import {
   BsFillArrowUpSquareFill,
 } from "react-icons/bs";
 import * as XLSX from "xlsx";
-import UserContext from "../../../../context/Context";
 
-const SelectedColums = [];
+const SelectedCols = [];
 
-class PartList extends React.Component {
-  static contextType = UserContext;
+class OrderSearch extends React.Component {
   constructor(props) {
     super(props);
     this.gridRef = React.createRef();
@@ -67,8 +65,7 @@ class PartList extends React.Component {
       Arrindex: "",
       rowData: [],
       setMySelectedarr: [],
-      SelectedCols: [],
-      paginationPageSize: 5,
+      paginationPageSize: 20,
       currenPageSize: "",
       getPageSize: "",
       columnDefs: [],
@@ -76,15 +73,14 @@ class PartList extends React.Component {
       SelectedcolumnDefs: [],
       defaultColDef: {
         sortable: true,
-        enablePivot: true,
-        enableValue: true,
+        // editable: true,
         resizable: true,
         suppressMenu: true,
       },
     };
   }
 
-  LookupviewStart = () => {
+  toggleModal = () => {
     this.setState(prevState => ({
       modal: !prevState.modal,
     }));
@@ -102,81 +98,39 @@ class PartList extends React.Component {
   };
 
   async componentDidMount() {
-    const UserInformation = this.context?.UserInformatio;
+    let headings;
+    let maxKeys = 0;
+    let elementWithMaxKeys = null;
+    OrderPartsList()
+      .then(resp => {
+        console.log(resp?.FrontPartDetail);
 
-    // db.myObjectStore.get(1).then((data) => {
-    //   console.log(data);
-    // });
-    await CreateAccountView()
-      .then(res => {
-        var mydropdownArray = [];
-        var adddropdown = [];
-        const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData));
+        // Iterate through the array
+        for (const element of resp?.FrontPartDetail) {
+          const numKeys = Object.keys(element).length; // Get the number of keys in the current element
 
-        const inputs = JSON.parse(jsonData).CreateAccount?.input?.map(ele => {
+          // Check if the current element has more keys than the previous maximum
+          if (numKeys > maxKeys) {
+            maxKeys = numKeys; // Update the maximum number of keys
+            elementWithMaxKeys = element; // Update the element with maximum keys
+          }
+        }
+        // console.log(elementWithMaxKeys);
+        let findheading = Object.keys(elementWithMaxKeys);
+
+        headings = findheading?.map(ele => {
+          debugger;
+          if (ele == "_id") {
+          } else {
+          }
           return {
-            headerName: ele?.label._text,
-            field: ele?.name._text,
+            headerName: ele,
+            field: ele,
             filter: true,
             sortable: true,
           };
         });
-        let Radioinput =
-          JSON.parse(jsonData).CreateAccount?.Radiobutton?.input[0]?.name
-            ?._text;
-        const addRadio = [
-          {
-            headerName: Radioinput,
-            field: Radioinput,
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              // console.log(params?.data);
-              return params.data?.Status === "Active" ? (
-                <div className="badge badge-pill badge-success">
-                  {params.data.Status}
-                </div>
-              ) : params.data?.Status === "Deactive" ? (
-                <div className="badge badge-pill badge-warning">
-                  {params.data.Status}
-                </div>
-              ) : (
-                "NA"
-              );
-            },
-          },
-        ];
 
-        let dropdown = JSON.parse(jsonData).CreateAccount?.MyDropdown?.dropdown;
-        if (dropdown.length) {
-          var mydropdownArray = dropdown?.map(ele => {
-            return {
-              headerName: ele?.label,
-              field: ele?.name,
-              filter: true,
-              sortable: true,
-            };
-          });
-        } else {
-          var adddropdown = [
-            {
-              headerName: dropdown?.label._text,
-              field: dropdown?.name._text,
-              filter: true,
-              sortable: true,
-            },
-          ];
-        }
-
-        let myHeadings = [
-          // ...checkboxinput,
-          ...inputs,
-          ...adddropdown,
-          ...addRadio,
-          ...mydropdownArray,
-        ];
-        // console.log(myHeadings);
         let Product = [
           {
             headerName: "Actions",
@@ -227,156 +181,18 @@ class PartList extends React.Component {
               );
             },
           },
-          {
-            headerName: "Whatsapp",
-            field: "whatsapp",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              console.log(params?.data?.whatsapp);
-              return params.data?.whatsapp === true ? (
-                <div className="badge badge-pill badge-success">YES</div>
-              ) : params.data?.whatsapp === false ? (
-                <div className="badge badge-pill badge-warning">NO</div>
-              ) : (
-                "NA"
-              );
-            },
-          },
-          {
-            headerName: "SMS",
-            field: "sms",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              console.log(params?.data?.sms);
-              return params.data?.sms === true ? (
-                <div className="badge badge-pill badge-success">YES</div>
-              ) : params.data?.sms === false ? (
-                <div className="badge badge-pill badge-warning">No</div>
-              ) : (
-                "NA"
-              );
-            },
-          },
-          {
-            headerName: "Gmail",
-            field: "gmail",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              console.log(params?.data?.gmail);
-              return params.data?.gmail === true ? (
-                <div className="badge badge-pill badge-success">YES</div>
-              ) : params.data?.gmail === false ? (
-                <div className="badge badge-pill badge-warning">NO</div>
-              ) : (
-                "NA"
-              );
-            },
-          },
-          ...myHeadings,
-          {
-            headerName: "Created date",
-            field: "createdAt",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              let convertedTime = "NA";
-              if (params?.data?.createdAt == undefined) {
-                convertedTime = "NA";
-              }
-              if (params?.data?.createdAt) {
-                convertedTime = params?.data?.createdAt;
-              }
-              if (
-                UserInformation?.timeZone !== undefined &&
-                params?.data?.createdAt !== undefined
-              ) {
-                if (params?.data?.createdAt != undefined) {
-                  convertedTime = moment(params?.data?.createdAt?.split(".")[0])
-                    .tz(UserInformation?.timeZone.split("-")[0])
-                    .format(UserInformation?.dateTimeFormat);
-                }
-              }
-
-              return (
-                <>
-                  <div className="actions cursor-pointer">
-                    {convertedTime == "NA" ? (
-                      "NA"
-                    ) : (
-                      <span>
-                        {convertedTime} &nbsp;
-                        {UserInformation?.timeZone &&
-                          UserInformation?.timeZone.split("-")[1]}
-                      </span>
-                    )}
-                  </div>
-                </>
-              );
-            },
-          },
-          {
-            headerName: "Updated date",
-            field: "updatedAt",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              let convertedTime = "NA";
-              if (params?.data?.updatedAt == undefined) {
-                convertedTime = "NA";
-              }
-              if (params?.data?.updatedAt) {
-                convertedTime = params?.data?.updatedAt;
-              }
-              if (
-                UserInformation?.timeZone !== undefined &&
-                params?.data?.updatedAt !== undefined
-              ) {
-                if (params?.data?.updatedAt != undefined) {
-                  convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
-                    .tz(UserInformation?.timeZone.split("-")[0])
-                    .format(UserInformation?.dateTimeFormat);
-                }
-              }
-
-              return (
-                <>
-                  <div className="actions cursor-pointer">
-                    {convertedTime == "NA" ? (
-                      "NA"
-                    ) : (
-                      <span>
-                        {convertedTime} &nbsp;
-                        {UserInformation?.timeZone &&
-                          UserInformation?.timeZone.split("-")[1]}
-                      </span>
-                    )}
-                  </div>
-                </>
-              );
-            },
-          },
+          ...headings,
         ];
-
+        this.setState({ columnDefs: Product });
         this.setState({ AllcolumnDefs: Product });
-
-        let userHeading = JSON.parse(localStorage.getItem("UserSearchheading"));
-        if (userHeading?.length) {
-          this.setState({ columnDefs: userHeading });
-          this.gridApi.setColumnDefs(userHeading);
-          this.setState({ SelectedcolumnDefs: userHeading });
-        } else {
-          this.setState({ columnDefs: Product });
-          this.setState({ SelectedcolumnDefs: Product });
-        }
-        this.setState({ SelectedCols: Product });
+        this.setState({ rowData: resp?.FrontPartDetail });
       })
       .catch(err => {
         console.log(err);
-        swal("Error", "something went wrong try again");
       });
+
+    // Use the map function to iterate through the array
+
     await CreateAccountList()
       .then(res => {
         let value = res?.CreateAccount;
@@ -415,8 +231,8 @@ class PartList extends React.Component {
 
   onGridReady = params => {
     this.gridApi = params.api;
-    this.gridColumnApi = params.columnApi;
     this.gridRef.current = params.api;
+    this.gridColumnApi = params.columnApi;
 
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
@@ -441,13 +257,13 @@ class PartList extends React.Component {
   handleChangeHeader = (e, value, index) => {
     let check = e.target.checked;
     if (check) {
-      SelectedColums?.push(value);
+      SelectedCols.push(value);
     } else {
-      const delindex = SelectedColums?.findIndex(
+      const delindex = SelectedCols.findIndex(
         ele => ele?.headerName === value?.headerName
       );
 
-      SelectedColums?.splice(delindex, 1);
+      SelectedCols?.splice(delindex, 1);
     }
   };
   parseCsv(csvData) {
@@ -484,7 +300,11 @@ class PartList extends React.Component {
       body: tableData,
       startY: 60,
     });
+    // doc.setDrawColor("UserList.pdf");
+    // doc.setFont("UserList.pdf");
 
+    // doc.addImage("UserList.pdf");
+    // doc.setLanguage("UserList.pdf");
     doc.save("UserList.pdf");
   }
 
@@ -498,6 +318,40 @@ class PartList extends React.Component {
     } catch (error) {
       console.error("Error parsing CSV:", error);
     }
+    // debugger;
+    // const doc = new jsPDF("landscape", "mm", "a4", false);
+    // const contentWidth = doc.internal.pageSize.getWidth();
+    // const contentHeight = doc.internal.pageSize.getHeight();
+    // // const tableHeight = this.gridApi.getRowHeight();
+    // // console.log(tableHeight);
+    // const tableWidth = contentWidth;
+    // const tableX = 10;
+    // const tableY = 10;
+    // const data1 = this.gridApi.getDataAsCsv({
+    //   processCellCallback: this.processCell,
+    // });
+
+    // const lines = data1.split("\n");
+    // const header = lines[0].split(",");
+    // const data = [];
+
+    // for (let i = 1; i < lines.length; i++) {
+    //   const line = lines[i].split(",");
+    //   data.push(line);
+    // }
+
+    // doc.text("User_Account  ", 10, 10);
+
+    // const columns = header;
+    // const rows = data;
+
+    // doc.autoTable({
+    //   head: [columns],
+    //   body: rows,
+    //   startY: 20,
+    // });
+
+    // doc.save("userlist.pdf");
   };
   processCell = params => {
     // console.log(params);
@@ -613,44 +467,12 @@ class PartList extends React.Component {
       },
     });
   };
-
-  HandleSetVisibleField = e => {
+  handleChangeView = e => {
     e.preventDefault();
-    debugger;
-    this.gridApi.setColumnDefs(this.state.SelectedcolumnDefs);
     this.setState({ columnDefs: this.state.SelectedcolumnDefs });
-    this.setState({ SelectedcolumnDefs: this.state.SelectedcolumnDefs });
-    this.setState({ rowData: this.state.rowData });
-    localStorage.setItem(
-      "UserSearchheading",
-      JSON.stringify(this.state.SelectedcolumnDefs)
-    );
-    this.LookupviewStart();
+    this.toggleModal();
   };
 
-  HeadingRightShift = () => {
-    const updatedSelectedColumnDefs = [
-      ...new Set([
-        ...this.state.SelectedcolumnDefs.map(item => JSON.stringify(item)),
-        ...SelectedColums.map(item => JSON.stringify(item)),
-      ]),
-    ].map(item => JSON.parse(item));
-    this.setState({
-      SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)], // Update the state with the combined array
-    });
-  };
-  handleLeftShift = () => {
-    let SelectedCols = this.state.SelectedcolumnDefs.slice();
-    let delindex = this.state.Arrindex; /* Your delete index here */
-
-    if (SelectedCols && delindex >= 0) {
-      const splicedElement = SelectedCols.splice(delindex, 1); // Remove the element
-
-      this.setState({
-        SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
-      });
-    }
-  };
   render() {
     const {
       rowData,
@@ -658,7 +480,6 @@ class PartList extends React.Component {
       defaultColDef,
       SelectedcolumnDefs,
       isOpen,
-      SelectedCols,
       AllcolumnDefs,
     } = this.state;
     return (
@@ -710,7 +531,7 @@ class PartList extends React.Component {
                     <Card>
                       <Row className="m-2">
                         <Col>
-                          <h1 className="float-left">User List</h1>
+                          <h1 className="float-left"> Create Order</h1>
                         </Col>
                         <Col>
                           <span className="mx-1">
@@ -718,7 +539,10 @@ class PartList extends React.Component {
                               style={{ cursor: "pointer" }}
                               title="filter coloumn"
                               size="30px"
-                              onClick={this.LookupviewStart}
+                              onClick={e => {
+                                e.preventDefault();
+                                this.toggleModal();
+                              }}
                               color="blue"
                               className="float-right"
                             />
@@ -802,7 +626,7 @@ class PartList extends React.Component {
                                     0
                                       ? this.state.currenPageSize *
                                         this.state.getPageSize
-                                      : this.state.rowData.length}{" "}
+                                      : this.state.rowData.length}
                                     of {this.state.rowData.length}
                                     <ChevronDown className="ml-50" size={15} />
                                   </DropdownToggle>
@@ -811,7 +635,13 @@ class PartList extends React.Component {
                                       tag="div"
                                       onClick={() => this.filterSize(5)}
                                     >
-                                      5
+                                      05
+                                    </DropdownItem>
+                                    <DropdownItem
+                                      tag="div"
+                                      onClick={() => this.filterSize(10)}
+                                    >
+                                      10
                                     </DropdownItem>
                                     <DropdownItem
                                       tag="div"
@@ -840,10 +670,10 @@ class PartList extends React.Component {
                                   </DropdownMenu>
                                 </UncontrolledDropdown>
                               </div>
-                              <div className="d-flex flex-wrap justify-content-end mb-1">
+                              <div className="d-flex flex-wrap justify-content-between mb-1">
                                 <div className="table-input mr-1">
                                   <Input
-                                    placeholder="search Item here..."
+                                    placeholder="search..."
                                     onChange={e =>
                                       this.updateSearchQuery(e.target.value)
                                     }
@@ -856,31 +686,20 @@ class PartList extends React.Component {
                               {context => (
                                 <AgGridReact
                                   id="myAgGrid"
-                                  // gridOptions={{
-                                  //   domLayout: "autoHeight",
-                                  //   // or other layout options
-                                  // }}
-                                  gridOptions={this.gridOptions}
+                                  gridOptions={{
+                                    domLayout: "autoHeight", // or other layout options
+                                  }}
+                                  // gridOptions={this.gridOptions}
                                   rowSelection="multiple"
                                   defaultColDef={defaultColDef}
                                   columnDefs={columnDefs}
                                   rowData={rowData}
-                                  // onGridReady={(params) => {
-                                  //   this.gridApi = params.api;
-                                  //   this.gridColumnApi = params.columnApi;
-                                  //   this.gridRef.current = params.api;
-
-                                  //   this.setState({
-                                  //     currenPageSize:
-                                  //       this.gridApi.paginationGetCurrentPage() +
-                                  //       1,
-                                  //     getPageSize:
-                                  //       this.gridApi.paginationGetPageSize(),
-                                  //     totalPages:
-                                  //       this.gridApi.paginationGetTotalPages(),
-                                  //   });
-                                  // }}
-                                  onGridReady={this.onGridReady}
+                                  onGridReady={params => {
+                                    this.gridApi = params.api;
+                                    this.gridColumnApi = params.columnApi;
+                                    this.gridRef.current = params.api;
+                                  }}
+                                  // onGridReady={this.onGridReady}
                                   colResizeDefault={"shift"}
                                   animateRows={true}
                                   floatingFilter={false}
@@ -908,15 +727,15 @@ class PartList extends React.Component {
 
         <Modal
           isOpen={this.state.modal}
-          toggle={this.LookupviewStart}
+          toggle={this.toggleModal}
           className={this.props.className}
           style={{ maxWidth: "1050px" }}
         >
-          <ModalHeader toggle={this.LookupviewStart}>Change Fileds</ModalHeader>
+          <ModalHeader toggle={this.toggleModal}>Change Fileds</ModalHeader>
           <ModalBody className="modalbodyhead">
             <Row>
               <Col lg="4" md="4" sm="12" xl="4" xs="12">
-                <h4>Avilable Columns</h4>
+                <h4>Columns</h4>
                 <div className="mainshffling">
                   <div class="ex1">
                     {AllcolumnDefs &&
@@ -953,14 +772,22 @@ class PartList extends React.Component {
                 <div className="mainarrowbtn">
                   <div style={{ cursor: "pointer" }}>
                     <FaArrowAltCircleRight
-                      onClick={this.HeadingRightShift}
+                      onClick={() =>
+                        this.setState({
+                          SelectedcolumnDefs: SelectedCols,
+                        })
+                      }
                       className="arrowassign"
                       size="30px"
                     />
                   </div>
                   <div style={{ cursor: "pointer" }} className="my-2">
                     <FaArrowAltCircleLeft
-                      onClick={this.handleLeftShift}
+                      onClick={() =>
+                        this.setState({
+                          SelectedcolumnDefs: SelectedCols,
+                        })
+                      }
                       className="arrowassign"
                       size="30px"
                     />
@@ -970,7 +797,7 @@ class PartList extends React.Component {
               <Col lg="6" md="6" sm="12" xl="6" xs="12">
                 <Row>
                   <Col lg="8" md="8" sm="12" xs="12">
-                    <h4>Visible Columns</h4>
+                    <h4>Selected Columns</h4>
                     <div className="mainshffling">
                       <div class="ex1">
                         {SelectedcolumnDefs &&
@@ -995,35 +822,17 @@ class PartList extends React.Component {
                                     >
                                       <IoMdRemoveCircleOutline
                                         onClick={() => {
-                                          const SelectedCols =
-                                            this.state.SelectedcolumnDefs.slice();
                                           const delindex =
                                             SelectedCols.findIndex(
                                               element =>
-                                                element?.headerName ==
+                                                element?.headerName ===
                                                 ele?.headerName
                                             );
 
-                                          if (SelectedCols && delindex >= 0) {
-                                            const splicedElement =
-                                              SelectedCols.splice(delindex, 1); // Remove the element
-                                            // splicedElement contains the removed element, if needed
-
-                                            this.setState({
-                                              SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
-                                            });
-                                          }
-                                          // const delindex =
-                                          //   SelectedCols.findIndex(
-                                          //     (element) =>
-                                          //       element?.headerName ==
-                                          //       ele?.headerName
-                                          //   );
-
-                                          // SelectedCols?.splice(delindex, 1);
-                                          // this.setState({
-                                          //   SelectedcolumnDefs: SelectedCols,
-                                          // });
+                                          SelectedCols?.splice(delindex, 1);
+                                          this.setState({
+                                            SelectedcolumnDefs: SelectedCols,
+                                          });
                                         }}
                                         style={{ cursor: "pointer" }}
                                         size="25px"
@@ -1047,12 +856,12 @@ class PartList extends React.Component {
                         <BsFillArrowUpSquareFill
                           className="arrowassign mb-1"
                           size="30px"
-                          onClick={this.shiftElementUp}
+                          onClick={() => this.shiftElementUp()}
                         />
                       </div>
                       <div>
                         <BsFillArrowDownSquareFill
-                          onClick={this.shiftElementDown}
+                          onClick={() => this.shiftElementDown()}
                           className="arrowassign"
                           size="30px"
                         />
@@ -1065,7 +874,10 @@ class PartList extends React.Component {
             <Row>
               <Col>
                 <div className="d-flex justify-content-center">
-                  <Button onClick={this.HandleSetVisibleField} color="primary">
+                  <Button
+                    onClick={e => this.handleChangeView(e)}
+                    color="primary"
+                  >
                     Submit
                   </Button>
                 </div>
@@ -1077,4 +889,4 @@ class PartList extends React.Component {
     );
   }
 }
-export default PartList;
+export default OrderSearch;
