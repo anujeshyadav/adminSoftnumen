@@ -1,4 +1,3 @@
-//
 import React, { useEffect, useState, useContext } from "react";
 import xmlJs from "xml-js";
 import {
@@ -22,8 +21,8 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Country, State, City } from "country-state-city";
 import Select from "react-select";
-import "../../../../../../src/layouts/assets/scss/pages/users.scss";
 
+import "../../../../../../src/layouts/assets/scss/pages/users.scss";
 import {
   GetPartsCatalogue,
   WarrantySave,
@@ -300,7 +299,6 @@ const CreateWarrenty = (args) => {
                 <h1 className="justify-content-start">Create Warranty</h1>
                 <div className="mystatus">Status : (Draft) </div>
                 <div className="mystatus">
-                  {" "}
                   <div>
                     {!!StatusDropDown && !!StatusDropDown ? (
                       <>
@@ -336,7 +334,7 @@ const CreateWarrenty = (args) => {
                         </CustomInput>
                       </>
                     ) : null}
-                  </div>{" "}
+                  </div>
                 </div>
               </div>
               <div>

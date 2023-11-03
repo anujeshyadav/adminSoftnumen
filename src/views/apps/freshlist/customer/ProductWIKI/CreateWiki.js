@@ -27,10 +27,7 @@ import swal from "sweetalert";
 import "../../../../../../src/layouts/assets/scss/pages/users.scss";
 
 import {
-  Warranty_ViewData,
-  createWikiViewData,
   Productwiki_ViewData,
-  CreateAccountSave,
   CreateProductWiki,
   CommentProductWiki,
 } from "../../../../../ApiEndPoint/ApiCalling";
@@ -41,7 +38,7 @@ import "../../../../../assets/scss/pages/users.scss";
 import UserContext from "../../../../../context/Context";
 import { AiOutlineSearch } from "react-icons/ai";
 
-const CreateWiki = (args) => {
+const CreateWiki = args => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [IsSubmitted, setIsSubmitted] = useState(null);
@@ -85,10 +82,10 @@ const CreateWiki = (args) => {
 
     setCommentshow(true);
     CommentProductWiki(user?.accountId, Comments)
-      .then((res) => {
+      .then(res => {
         console.log(res);
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
   };
@@ -102,12 +99,12 @@ const CreateWiki = (args) => {
     setFormValue([...formValue, { files: [] }]);
   };
 
-  let removeFileAttach = (i) => {
+  let removeFileAttach = i => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
   };
-  let removeFileAttachs = (i) => {
+  let removeFileAttachs = i => {
     let newFormValues = [...formValue];
     newFormValues.splice(i, 1);
     setFormValue(newFormValues);
@@ -131,7 +128,7 @@ const CreateWiki = (args) => {
     newFormValues[i].files = selectedFiles;
     setFormValue(newFormValues);
   };
-  let removeFormFields = (i) => {
+  let removeFormFields = i => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
@@ -199,19 +196,19 @@ const CreateWiki = (args) => {
   useEffect(() => {
     generateRandomNumber();
     Productwiki_ViewData()
-      .then((res) => {
+      .then(res => {
         console.log(res);
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData).createWiki);
 
         let value = JSON.parse(jsonData)?.createWiki?.CheckBox?.input;
-        value?.map((ele) => {
+        value?.map(ele => {
           formData[ele?.name._text] = false;
         });
         setCreatAccountView(JSON.parse(jsonData));
         setdropdownValue(JSON.parse(jsonData));
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err);
       });
     return () => {
@@ -227,18 +224,18 @@ const CreateWiki = (args) => {
     debugger;
     let formdata = new FormData();
     console.log(CreatAccountView?.createWiki);
-    CreatAccountView?.createWiki?.CheckBox?.input?.map((ele) => {
+    CreatAccountView?.createWiki?.CheckBox?.input?.map(ele => {
       formdata.append(`${ele?.name._text}`, formData[ele?.name._text]);
     });
 
-    CreatAccountView?.createWiki?.MyDropDown?.map((ele) => {
+    CreatAccountView?.createWiki?.MyDropDown?.map(ele => {
       formdata.append(
         `${ele?.dropdown?.name?._text}`,
         formData[ele?.dropdown?.name?._text]
       );
     });
 
-    CreatAccountView?.createWiki?.input?.map((ele) => {
+    CreatAccountView?.createWiki?.input?.map(ele => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
@@ -283,30 +280,30 @@ const CreateWiki = (args) => {
 
     // let data = { ...formData, Comments: Comments && Comments, formdata };
     CreateProductWiki(formdata)
-      .then((res) => {
+      .then(res => {
         // console.log(res);
         // swal("Wiki Created Successfully");
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err.response);
         // swal("Something Went Wrong");
       });
   };
-  const submitHandler = (e) => {
+  const submitHandler = e => {
     e.preventDefault();
     let formdata = new FormData();
-    CreatAccountView?.createWiki?.CheckBox?.input?.map((ele) => {
+    CreatAccountView?.createWiki?.CheckBox?.input?.map(ele => {
       formdata.append(`${ele?.name._text}`, formData[ele?.name._text]);
     });
 
-    CreatAccountView?.createWiki?.MyDropDown?.map((ele) => {
+    CreatAccountView?.createWiki?.MyDropDown?.map(ele => {
       formdata.append(
         `${ele?.dropdown?.name?._text}`,
         formData[ele?.dropdown?.name?._text]
       );
     });
 
-    CreatAccountView?.createWiki?.input?.map((ele) => {
+    CreatAccountView?.createWiki?.input?.map(ele => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
@@ -351,12 +348,12 @@ const CreateWiki = (args) => {
 
     // let data = { ...formData, Comments: Comments && Comments, formdata };
     CreateProductWiki(formdata)
-      .then((res) => {
+      .then(res => {
         setIsSubmitted("Yes");
         console.log(res);
         swal("Wiki Created Successfully");
       })
-      .catch((err) => {
+      .catch(err => {
         console.log(err.response);
         swal("Something Went Wrong");
       });
@@ -447,7 +444,7 @@ const CreateWiki = (args) => {
                     let Edit = "";
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                        role => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -463,7 +460,7 @@ const CreateWiki = (args) => {
                                 <PhoneInput
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={(e) => {
+                                  onKeyDown={e => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -474,7 +471,7 @@ const CreateWiki = (args) => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={(phone) => {
+                                  onChange={phone => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -520,7 +517,7 @@ const CreateWiki = (args) => {
                                     className="mybtn primary"
                                   >
                                     <AiOutlineSearch
-                                      onClick={(e) => e.preventDefault()}
+                                      onClick={e => e.preventDefault()}
                                       fill="white"
                                     />
                                   </Button>
@@ -550,7 +547,7 @@ const CreateWiki = (args) => {
                               <Label>{ele?.label?._text}</Label>
 
                               <Input
-                                onKeyDown={(e) => {
+                                onKeyDown={e => {
                                   if (
                                     ele?.type?._attributes?.type == "number"
                                   ) {
@@ -562,7 +559,7 @@ const CreateWiki = (args) => {
                                 placeholder={ele?.placeholder?._text}
                                 name={ele?.name?._text}
                                 value={formData[ele?.name?._text]}
-                                onChange={(e) =>
+                                onChange={e =>
                                   handleInputChange(
                                     e,
                                     ele?.type?._attributes?.type,
@@ -601,7 +598,7 @@ const CreateWiki = (args) => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}
@@ -645,7 +642,7 @@ const CreateWiki = (args) => {
                       <Input
                         type="file"
                         multiple
-                        onChange={(e) => handleFileChange(i, e)}
+                        onChange={e => handleFileChange(i, e)}
                       />
                     </Col>
                     <Col className="d-flex mt-2" lg="3" md="3" sm="12">
@@ -764,7 +761,7 @@ const CreateWiki = (args) => {
                         name="comment"
                         placeholder="Comment"
                         value={element.comment || ""}
-                        onChange={(e) => handleComment(index, e)}
+                        onChange={e => handleComment(index, e)}
                       />
                     </Col>
 
@@ -798,7 +795,7 @@ const CreateWiki = (args) => {
             <Button
               className="ml-1 "
               color="primary"
-              onClick={(e) => {
+              onClick={e => {
                 SubmitComment(e);
               }}
             >
@@ -813,7 +810,7 @@ const CreateWiki = (args) => {
                       <Input
                         type="file"
                         multiple
-                        onChange={(e) => handleFileChanges(i, e)}
+                        onChange={e => handleFileChanges(i, e)}
                       />
                     </Col>
                     <Col className="d-flex mt-2" lg="3" md="3" sm="12">
