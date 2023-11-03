@@ -276,7 +276,6 @@ const CreateWarrenty = (args) => {
     // let data = { ...formData, Comments: Comments && Comments, formdata };
     WarrantySave(formdata)
       .then((res) => {
-        // setIsSubmitted("Yes");
         console.log(res);
         swal("Warrenty Created Successfully");
       })
