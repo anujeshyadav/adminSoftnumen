@@ -14,7 +14,6 @@ import {
   ModalHeader,
   ModalBody,
 } from "reactstrap";
-// import ExcelReader from "../../parts/ExcelReader";
 import { ContextLayout } from "../../../../../utility/context/Layout";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
@@ -38,11 +37,12 @@ import {
   FaArrowAltCircleRight,
   FaFilter,
 } from "react-icons/fa";
-import "moment-timezone";
+import moment from "moment-timezone";
 import swal from "sweetalert";
 import {
+  CreateAccountList,
+  CreateAccountView,
   DeleteAccount,
-  SupportsUploadView,
 } from "../../../../../ApiEndPoint/ApiCalling";
 import {
   BsCloudDownloadFill,
@@ -50,11 +50,12 @@ import {
   BsFillArrowUpSquareFill,
 } from "react-icons/bs";
 import * as XLSX from "xlsx";
-import { SparesPartsList } from "../../../../../ApiEndPoint/ApiCalling";
+import UserContext from "../../../../../context/Context";
 
-const SelectedCols = [];
+const SelectedColums = [];
 
 class SearchWarrenty extends React.Component {
+  static contextType = UserContext;
   constructor(props) {
     super(props);
     this.gridRef = React.createRef();
@@ -64,6 +65,7 @@ class SearchWarrenty extends React.Component {
       Arrindex: "",
       rowData: [],
       setMySelectedarr: [],
+      SelectedCols: [],
       paginationPageSize: 5,
       currenPageSize: "",
       getPageSize: "",
@@ -72,14 +74,15 @@ class SearchWarrenty extends React.Component {
       SelectedcolumnDefs: [],
       defaultColDef: {
         sortable: true,
-        // editable: true,
+        enablePivot: true,
+        enableValue: true,
         resizable: true,
         suppressMenu: true,
       },
     };
   }
 
-  toggleModal = () => {
+  LookupviewStart = () => {
     this.setState((prevState) => ({
       modal: !prevState.modal,
     }));
@@ -97,38 +100,78 @@ class SearchWarrenty extends React.Component {
   };
 
   async componentDidMount() {
-    let headings;
-    let maxKeys = 0;
-    let elementWithMaxKeys = null;
+    const UserInformation = this.context?.UserInformatio;
 
-    await SupportsUploadView()
+    await CreateAccountView()
       .then((res) => {
-        console.log(res);
-        for (const element of res?.Support) {
-          const numKeys = Object.keys(element).length; // Get the number of keys in the current element
-          if (numKeys > maxKeys) {
-            maxKeys = numKeys; // Update the maximum number of keys
-            elementWithMaxKeys = element; // Update the element with maximum keys
-          }
-        }
-        let findheading = Object.keys(elementWithMaxKeys);
-        let index = findheading.indexOf("_id");
-        if (index > -1) {
-          findheading.splice(index, 1);
-        }
-        let index1 = findheading.indexOf("__v");
-        if (index1 > -1) {
-          findheading.splice(index1, 1);
-        }
-        headings = findheading?.map((ele) => {
+        var mydropdownArray = [];
+        var adddropdown = [];
+        const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
+        console.log(JSON.parse(jsonData));
+
+        const inputs = JSON.parse(jsonData).CreateAccount?.input?.map((ele) => {
           return {
-            headerName: ele,
-            field: ele,
+            headerName: ele?.label._text,
+            field: ele?.name._text,
             filter: true,
             sortable: true,
           };
         });
-        // console.log(headings);
+        let Radioinput =
+          JSON.parse(jsonData).CreateAccount?.Radiobutton?.input[0]?.name
+            ?._text;
+        const addRadio = [
+          {
+            headerName: Radioinput,
+            field: Radioinput,
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              // console.log(params?.data);
+              return params.data?.Status === "Active" ? (
+                <div className="badge badge-pill badge-success">
+                  {params.data.Status}
+                </div>
+              ) : params.data?.Status === "Deactive" ? (
+                <div className="badge badge-pill badge-warning">
+                  {params.data.Status}
+                </div>
+              ) : (
+                "NA"
+              );
+            },
+          },
+        ];
+
+        let dropdown = JSON.parse(jsonData).CreateAccount?.MyDropdown?.dropdown;
+        if (dropdown.length) {
+          var mydropdownArray = dropdown?.map((ele) => {
+            return {
+              headerName: ele?.label,
+              field: ele?.name,
+              filter: true,
+              sortable: true,
+            };
+          });
+        } else {
+          var adddropdown = [
+            {
+              headerName: dropdown?.label._text,
+              field: dropdown?.name._text,
+              filter: true,
+              sortable: true,
+            },
+          ];
+        }
+
+        let myHeadings = [
+          // ...checkboxinput,
+          ...inputs,
+          ...adddropdown,
+          ...addRadio,
+          ...mydropdownArray,
+        ];
+        // console.log(myHeadings);
         let Product = [
           {
             headerName: "Actions",
@@ -179,11 +222,162 @@ class SearchWarrenty extends React.Component {
               );
             },
           },
-          ...headings,
+          {
+            headerName: "Whatsapp",
+            field: "whatsapp",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              console.log(params?.data?.whatsapp);
+              return params.data?.whatsapp === true ? (
+                <div className="badge badge-pill badge-success">YES</div>
+              ) : params.data?.whatsapp === false ? (
+                <div className="badge badge-pill badge-warning">NO</div>
+              ) : (
+                "NA"
+              );
+            },
+          },
+          {
+            headerName: "SMS",
+            field: "sms",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              console.log(params?.data?.sms);
+              return params.data?.sms === true ? (
+                <div className="badge badge-pill badge-success">YES</div>
+              ) : params.data?.sms === false ? (
+                <div className="badge badge-pill badge-warning">No</div>
+              ) : (
+                "NA"
+              );
+            },
+          },
+          {
+            headerName: "Gmail",
+            field: "gmail",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              console.log(params?.data?.gmail);
+              return params.data?.gmail === true ? (
+                <div className="badge badge-pill badge-success">YES</div>
+              ) : params.data?.gmail === false ? (
+                <div className="badge badge-pill badge-warning">NO</div>
+              ) : (
+                "NA"
+              );
+            },
+          },
+          ...myHeadings,
+          {
+            headerName: "Created date",
+            field: "createdAt",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              let convertedTime = "NA";
+              if (params?.data?.createdAt == undefined) {
+                convertedTime = "NA";
+              }
+              if (params?.data?.createdAt) {
+                convertedTime = params?.data?.createdAt;
+              }
+              if (
+                UserInformation?.timeZone !== undefined &&
+                params?.data?.createdAt !== undefined
+              ) {
+                if (params?.data?.createdAt != undefined) {
+                  convertedTime = moment(params?.data?.createdAt?.split(".")[0])
+                    .tz(UserInformation?.timeZone.split("-")[0])
+                    .format(UserInformation?.dateTimeFormat);
+                }
+              }
+
+              return (
+                <>
+                  <div className="actions cursor-pointer">
+                    {convertedTime == "NA" ? (
+                      "NA"
+                    ) : (
+                      <span>
+                        {convertedTime} &nbsp;
+                        {UserInformation?.timeZone &&
+                          UserInformation?.timeZone.split("-")[1]}
+                      </span>
+                    )}
+                  </div>
+                </>
+              );
+            },
+          },
+          {
+            headerName: "Updated date",
+            field: "updatedAt",
+            filter: true,
+            sortable: true,
+            cellRendererFramework: (params) => {
+              let convertedTime = "NA";
+              if (params?.data?.updatedAt == undefined) {
+                convertedTime = "NA";
+              }
+              if (params?.data?.updatedAt) {
+                convertedTime = params?.data?.updatedAt;
+              }
+              if (
+                UserInformation?.timeZone !== undefined &&
+                params?.data?.updatedAt !== undefined
+              ) {
+                if (params?.data?.updatedAt != undefined) {
+                  convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
+                    .tz(UserInformation?.timeZone.split("-")[0])
+                    .format(UserInformation?.dateTimeFormat);
+                }
+              }
+
+              return (
+                <>
+                  <div className="actions cursor-pointer">
+                    {convertedTime == "NA" ? (
+                      "NA"
+                    ) : (
+                      <span>
+                        {convertedTime} &nbsp;
+                        {UserInformation?.timeZone &&
+                          UserInformation?.timeZone.split("-")[1]}
+                      </span>
+                    )}
+                  </div>
+                </>
+              );
+            },
+          },
         ];
-        this.setState({ columnDefs: Product });
+
         this.setState({ AllcolumnDefs: Product });
-        this.setState({ rowData: res?.Support });
+
+        let userHeading = JSON.parse(
+          localStorage.getItem("UserSearchWarrenty")
+        );
+        if (userHeading?.length) {
+          this.setState({ columnDefs: userHeading });
+          this.gridApi.setColumnDefs(userHeading);
+          this.setState({ SelectedcolumnDefs: userHeading });
+        } else {
+          this.setState({ columnDefs: Product });
+          this.setState({ SelectedcolumnDefs: Product });
+        }
+        this.setState({ SelectedCols: Product });
+      })
+      .catch((err) => {
+        console.log(err);
+        swal("Error", "something went wrong try again");
+      });
+    await CreateAccountList()
+      .then((res) => {
+        let value = res?.CreateAccount;
+        this.setState({ rowData: value });
       })
       .catch((err) => {
         console.log(err);
@@ -218,8 +412,8 @@ class SearchWarrenty extends React.Component {
 
   onGridReady = (params) => {
     this.gridApi = params.api;
-    this.gridRef.current = params.api;
     this.gridColumnApi = params.columnApi;
+    this.gridRef.current = params.api;
 
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
@@ -244,13 +438,13 @@ class SearchWarrenty extends React.Component {
   handleChangeHeader = (e, value, index) => {
     let check = e.target.checked;
     if (check) {
-      SelectedCols.push(value);
+      SelectedColums?.push(value);
     } else {
-      const delindex = SelectedCols.findIndex(
+      const delindex = SelectedColums?.findIndex(
         (ele) => ele?.headerName === value?.headerName
       );
 
-      SelectedCols?.splice(delindex, 1);
+      SelectedColums?.splice(delindex, 1);
     }
   };
   parseCsv(csvData) {
@@ -287,11 +481,7 @@ class SearchWarrenty extends React.Component {
       body: tableData,
       startY: 60,
     });
-    // doc.setDrawColor("UserList.pdf");
-    // doc.setFont("UserList.pdf");
 
-    // doc.addImage("UserList.pdf");
-    // doc.setLanguage("UserList.pdf");
     doc.save("UserList.pdf");
   }
 
@@ -305,40 +495,6 @@ class SearchWarrenty extends React.Component {
     } catch (error) {
       console.error("Error parsing CSV:", error);
     }
-    // debugger;
-    // const doc = new jsPDF("landscape", "mm", "a4", false);
-    // const contentWidth = doc.internal.pageSize.getWidth();
-    // const contentHeight = doc.internal.pageSize.getHeight();
-    // // const tableHeight = this.gridApi.getRowHeight();
-    // // console.log(tableHeight);
-    // const tableWidth = contentWidth;
-    // const tableX = 10;
-    // const tableY = 10;
-    // const data1 = this.gridApi.getDataAsCsv({
-    //   processCellCallback: this.processCell,
-    // });
-
-    // const lines = data1.split("\n");
-    // const header = lines[0].split(",");
-    // const data = [];
-
-    // for (let i = 1; i < lines.length; i++) {
-    //   const line = lines[i].split(",");
-    //   data.push(line);
-    // }
-
-    // doc.text("User_Account  ", 10, 10);
-
-    // const columns = header;
-    // const rows = data;
-
-    // doc.autoTable({
-    //   head: [columns],
-    //   body: rows,
-    //   startY: 20,
-    // });
-
-    // doc.save("userlist.pdf");
   };
   processCell = (params) => {
     // console.log(params);
@@ -454,12 +610,44 @@ class SearchWarrenty extends React.Component {
       },
     });
   };
-  handleChangeView = (e) => {
+
+  HandleSetVisibleField = (e) => {
     e.preventDefault();
+    debugger;
+    this.gridApi.setColumnDefs(this.state.SelectedcolumnDefs);
     this.setState({ columnDefs: this.state.SelectedcolumnDefs });
-    this.toggleModal();
+    this.setState({ SelectedcolumnDefs: this.state.SelectedcolumnDefs });
+    this.setState({ rowData: this.state.rowData });
+    localStorage.setItem(
+      "UserSearchWarrenty",
+      JSON.stringify(this.state.SelectedcolumnDefs)
+    );
+    this.LookupviewStart();
   };
 
+  HeadingRightShift = () => {
+    const updatedSelectedColumnDefs = [
+      ...new Set([
+        ...this.state.SelectedcolumnDefs.map((item) => JSON.stringify(item)),
+        ...SelectedColums.map((item) => JSON.stringify(item)),
+      ]),
+    ].map((item) => JSON.parse(item));
+    this.setState({
+      SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)], // Update the state with the combined array
+    });
+  };
+  handleLeftShift = () => {
+    let SelectedCols = this.state.SelectedcolumnDefs.slice();
+    let delindex = this.state.Arrindex; /* Your delete index here */
+
+    if (SelectedCols && delindex >= 0) {
+      const splicedElement = SelectedCols.splice(delindex, 1); // Remove the element
+
+      this.setState({
+        SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
+      });
+    }
+  };
   render() {
     const {
       rowData,
@@ -467,6 +655,7 @@ class SearchWarrenty extends React.Component {
       defaultColDef,
       SelectedcolumnDefs,
       isOpen,
+      SelectedCols,
       AllcolumnDefs,
     } = this.state;
     return (
@@ -518,7 +707,7 @@ class SearchWarrenty extends React.Component {
                     <Card>
                       <Row className="m-2">
                         <Col>
-                          <h1 className="float-left">Warrenty List</h1>
+                          <h1 className="float-left">User List</h1>
                         </Col>
                         <Col>
                           <span className="mx-1">
@@ -526,10 +715,7 @@ class SearchWarrenty extends React.Component {
                               style={{ cursor: "pointer" }}
                               title="filter coloumn"
                               size="30px"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                this.toggleModal();
-                              }}
+                              onClick={this.LookupviewStart}
                               color="blue"
                               className="float-right"
                             />
@@ -613,7 +799,7 @@ class SearchWarrenty extends React.Component {
                                     0
                                       ? this.state.currenPageSize *
                                         this.state.getPageSize
-                                      : this.state.rowData.length}
+                                      : this.state.rowData.length}{" "}
                                     of {this.state.rowData.length}
                                     <ChevronDown className="ml-50" size={15} />
                                   </DropdownToggle>
@@ -622,13 +808,7 @@ class SearchWarrenty extends React.Component {
                                       tag="div"
                                       onClick={() => this.filterSize(5)}
                                     >
-                                      05
-                                    </DropdownItem>
-                                    <DropdownItem
-                                      tag="div"
-                                      onClick={() => this.filterSize(10)}
-                                    >
-                                      10
+                                      5
                                     </DropdownItem>
                                     <DropdownItem
                                       tag="div"
@@ -673,20 +853,31 @@ class SearchWarrenty extends React.Component {
                               {(context) => (
                                 <AgGridReact
                                   id="myAgGrid"
-                                  gridOptions={{
-                                    domLayout: "autoHeight", // or other layout options
-                                  }}
-                                  // gridOptions={this.gridOptions}
+                                  // gridOptions={{
+                                  //   domLayout: "autoHeight",
+                                  //   // or other layout options
+                                  // }}
+                                  gridOptions={this.gridOptions}
                                   rowSelection="multiple"
                                   defaultColDef={defaultColDef}
                                   columnDefs={columnDefs}
                                   rowData={rowData}
-                                  onGridReady={(params) => {
-                                    this.gridApi = params.api;
-                                    this.gridColumnApi = params.columnApi;
-                                    this.gridRef.current = params.api;
-                                  }}
-                                  // onGridReady={this.onGridReady}
+                                  // onGridReady={(params) => {
+                                  //   this.gridApi = params.api;
+                                  //   this.gridColumnApi = params.columnApi;
+                                  //   this.gridRef.current = params.api;
+
+                                  //   this.setState({
+                                  //     currenPageSize:
+                                  //       this.gridApi.paginationGetCurrentPage() +
+                                  //       1,
+                                  //     getPageSize:
+                                  //       this.gridApi.paginationGetPageSize(),
+                                  //     totalPages:
+                                  //       this.gridApi.paginationGetTotalPages(),
+                                  //   });
+                                  // }}
+                                  onGridReady={this.onGridReady}
                                   colResizeDefault={"shift"}
                                   animateRows={true}
                                   floatingFilter={false}
@@ -714,15 +905,15 @@ class SearchWarrenty extends React.Component {
 
         <Modal
           isOpen={this.state.modal}
-          toggle={this.toggleModal}
+          toggle={this.LookupviewStart}
           className={this.props.className}
           style={{ maxWidth: "1050px" }}
         >
-          <ModalHeader toggle={this.toggleModal}>Change Fileds</ModalHeader>
+          <ModalHeader toggle={this.LookupviewStart}>Change Fileds</ModalHeader>
           <ModalBody className="modalbodyhead">
             <Row>
               <Col lg="4" md="4" sm="12" xl="4" xs="12">
-                <h4>Columns</h4>
+                <h4>Avilable Columns</h4>
                 <div className="mainshffling">
                   <div class="ex1">
                     {AllcolumnDefs &&
@@ -761,22 +952,14 @@ class SearchWarrenty extends React.Component {
                 <div className="mainarrowbtn">
                   <div style={{ cursor: "pointer" }}>
                     <FaArrowAltCircleRight
-                      onClick={() =>
-                        this.setState({
-                          SelectedcolumnDefs: SelectedCols,
-                        })
-                      }
+                      onClick={this.HeadingRightShift}
                       className="arrowassign"
                       size="30px"
                     />
                   </div>
                   <div style={{ cursor: "pointer" }} className="my-2">
                     <FaArrowAltCircleLeft
-                      onClick={() =>
-                        this.setState({
-                          SelectedcolumnDefs: SelectedCols,
-                        })
-                      }
+                      onClick={this.handleLeftShift}
                       className="arrowassign"
                       size="30px"
                     />
@@ -786,7 +969,7 @@ class SearchWarrenty extends React.Component {
               <Col lg="6" md="6" sm="12" xl="6" xs="12">
                 <Row>
                   <Col lg="8" md="8" sm="12" xs="12">
-                    <h4>Selected Columns</h4>
+                    <h4>Visible Columns</h4>
                     <div className="mainshffling">
                       <div class="ex1">
                         {SelectedcolumnDefs &&
@@ -811,17 +994,35 @@ class SearchWarrenty extends React.Component {
                                     >
                                       <IoMdRemoveCircleOutline
                                         onClick={() => {
+                                          const SelectedCols =
+                                            this.state.SelectedcolumnDefs.slice();
                                           const delindex =
                                             SelectedCols.findIndex(
                                               (element) =>
-                                                element?.headerName ===
+                                                element?.headerName ==
                                                 ele?.headerName
                                             );
 
-                                          SelectedCols?.splice(delindex, 1);
-                                          this.setState({
-                                            SelectedcolumnDefs: SelectedCols,
-                                          });
+                                          if (SelectedCols && delindex >= 0) {
+                                            const splicedElement =
+                                              SelectedCols.splice(delindex, 1); // Remove the element
+                                            // splicedElement contains the removed element, if needed
+
+                                            this.setState({
+                                              SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
+                                            });
+                                          }
+                                          // const delindex =
+                                          //   SelectedCols.findIndex(
+                                          //     (element) =>
+                                          //       element?.headerName ==
+                                          //       ele?.headerName
+                                          //   );
+
+                                          // SelectedCols?.splice(delindex, 1);
+                                          // this.setState({
+                                          //   SelectedcolumnDefs: SelectedCols,
+                                          // });
                                         }}
                                         style={{ cursor: "pointer" }}
                                         size="25px"
@@ -845,12 +1046,12 @@ class SearchWarrenty extends React.Component {
                         <BsFillArrowUpSquareFill
                           className="arrowassign mb-1"
                           size="30px"
-                          onClick={() => this.shiftElementUp()}
+                          onClick={this.shiftElementUp}
                         />
                       </div>
                       <div>
                         <BsFillArrowDownSquareFill
-                          onClick={() => this.shiftElementDown()}
+                          onClick={this.shiftElementDown}
                           className="arrowassign"
                           size="30px"
                         />
@@ -863,10 +1064,7 @@ class SearchWarrenty extends React.Component {
             <Row>
               <Col>
                 <div className="d-flex justify-content-center">
-                  <Button
-                    onClick={(e) => this.handleChangeView(e)}
-                    color="primary"
-                  >
+                  <Button onClick={this.HandleSetVisibleField} color="primary">
                     Submit
                   </Button>
                 </div>
