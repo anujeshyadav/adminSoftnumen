@@ -25,6 +25,7 @@ import Select from "react-select";
 import "../../../../../../src/layouts/assets/scss/pages/users.scss";
 import {
   GetPartsCatalogue,
+  WarrantyListView,
   WarrantySave,
   Warranty_ViewData,
 } from "../../../../../ApiEndPoint/ApiCalling";
@@ -34,7 +35,7 @@ import { BsFillChatDotsFill, BsWhatsapp } from "react-icons/bs";
 import "../../../../../assets/scss/pages/users.scss";
 import { AiOutlineSearch } from "react-icons/ai";
 
-const CreateWarrenty = args => {
+const CreateWarrenty = (args) => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
@@ -70,10 +71,10 @@ const CreateWarrenty = args => {
   };
   const handleopentogglePart = () => {
     GetPartsCatalogue()
-      .then(res => {
+      .then((res) => {
         console.log(res);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
     toggleone();
@@ -83,7 +84,8 @@ const CreateWarrenty = args => {
     const min = 1000; // Smallest 5-digit number
     const max = 9999; // Largest 5-digit number
     const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-    setRandomNumber(randomNum);
+    let numb = "001";
+    setRandomNumber(numb);
   };
   let handleComment = (i, e) => {
     let user = JSON.parse(localStorage.getItem("userData"));
@@ -105,7 +107,7 @@ const CreateWarrenty = args => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = i => {
+  let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -117,7 +119,7 @@ const CreateWarrenty = args => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = i => {
+  let removeFormFields = (i) => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
@@ -177,13 +179,14 @@ const CreateWarrenty = args => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
     generateRandomNumber();
+    // WarrantyListView().then((res)=>{}).catch((err)=>{})
     Warranty_ViewData()
-      .then(res => {
+      .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         console.log(JSON.parse(jsonData).Warranty);
 
         let value = JSON.parse(jsonData)?.Warranty?.CheckBox?.input;
-        value?.map(ele => {
+        value?.map((ele) => {
           formData[ele?.name._text] = false;
         });
         setCreatAccountView(JSON.parse(jsonData)?.Warranty);
@@ -193,19 +196,19 @@ const CreateWarrenty = args => {
 
         setdropdownValue(JSON.parse(jsonData)?.Warranty);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }, []);
 
-  const submitHandler = e => {
+  const submitHandler = (e) => {
     e.preventDefault();
     let formdata = new FormData();
-    dropdownValue?.CheckBox?.input?.map(ele => {
+    dropdownValue?.CheckBox?.input?.map((ele) => {
       formdata.append(`${ele?.name._text}`, formData[ele?.name._text]);
     });
 
-    dropdownValue?.PartDetails?.MyDropDown?.map(ele => {
+    dropdownValue?.PartDetails?.MyDropDown?.map((ele) => {
       formdata.append(
         `${ele?.dropdown?.name?._text}`,
         formData[ele?.dropdown?.name?._text]
@@ -219,38 +222,37 @@ const CreateWarrenty = args => {
         formData[dropdown.name?._text]
       );
     }
-    dropdownValue?.PartDetails?.input?.map(ele => {
+    dropdownValue?.PartDetails?.input?.map((ele) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
-    dropdownValue?.ProductDetails?.MyDropDown?.map(ele => {
+    dropdownValue?.ProductDetails?.MyDropDown?.map((ele) => {
       formdata.append(
         `${ele?.dropdown?.name?._text}`,
         formData[ele?.dropdown?.name?._text]
       );
     });
 
-    dropdownValue?.ProductDetails?.input?.map(ele => {
+    dropdownValue?.ProductDetails?.input?.map((ele) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
-    dropdownValue?.WType?.MyDropDown?.map(ele => {
+    dropdownValue?.WType?.MyDropDown?.map((ele) => {
       formdata.append(
         `${ele?.dropdown?.name?._text}`,
         formData[ele?.dropdown?.name?._text]
       );
     });
 
-    dropdownValue?.WType?.input?.map(ele => {
+    dropdownValue?.WType?.input?.map((ele) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
-    dropdownValue?.input?.map(ele => {
+    dropdownValue?.input?.map((ele) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
-    // formdata.append(`Status`, Status);
-    formdata.append("id", JSON.stringify("wrn" + { randomNumber }));
+    formdata.append("id", `wrn${randomNumber}`);
     if (Comments.length > 0) {
       formdata.append(`Comments`, JSON.stringify(Comments));
     }
@@ -267,35 +269,19 @@ const CreateWarrenty = args => {
         formdata.append("files", ele);
       });
     }
-    // if (formValue.length || formValues.length) {
-    //   formdata.append("Role", user?.Role);
-    //   formdata.append("time", new Date().toString());
-    //   formdata.append("userName", user?.UserName);
-    // }
-    // if (formValue.length) {
-    //   let myarr = [];
-    //   formValue?.map((ele, i) => {
-    //     let newdata = Array.from(ele?.files);
-    //     myarr.push(newdata);
-    //   });
-    //   let totalimg = myarr.flat();
-    //   totalimg?.map((ele, i) => {
-    //     formdata.append("files", ele);
-    //   });
-    // }
-
-    for (const [key, value] of formdata.entries()) {
-      console.log(`Key: ${key}, Value: ${value}`);
+    if (formValues.length || formValues.length) {
+      formdata.append("Role", user?.Role);
+      formdata.append("time", new Date().toString());
+      formdata.append("userName", user?.UserName);
     }
 
     // let data = { ...formData, Comments: Comments && Comments, formdata };
     WarrantySave(formdata)
-      .then(res => {
-        setIsSubmitted("Yes");
+      .then((res) => {
         console.log(res);
-        swal("Wiki Created Successfully");
+        swal("Warrenty Created Successfully");
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err.response);
         swal("Something Went Wrong");
       });
@@ -398,7 +384,7 @@ const CreateWarrenty = args => {
                     let Edit = "";
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        role => role._attributes?.name === "WARRANTY APPROVER"
+                        (role) => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -426,7 +412,7 @@ const CreateWarrenty = args => {
                                     className="mybtn primary"
                                   >
                                     <AiOutlineSearch
-                                      onClick={e => e.preventDefault()}
+                                      onClick={(e) => e.preventDefault()}
                                       fill="white"
                                     />
                                   </Button>
@@ -462,7 +448,7 @@ const CreateWarrenty = args => {
                                   disabled
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={e => {
+                                  onKeyDown={(e) => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -473,7 +459,7 @@ const CreateWarrenty = args => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={phone => {
+                                  onChange={(phone) => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -576,7 +562,7 @@ const CreateWarrenty = args => {
                               placeholder={ele?.placeholder?._text}
                               name={ele?.name?._text}
                               value={formData[ele?.name?._text]}
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleInputChange(
                                   e,
                                   ele?.type?._attributes?.type,
@@ -638,7 +624,7 @@ const CreateWarrenty = args => {
                     let Edit = "";
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        role => role._attributes?.name === "WARRANTY APPROVER"
+                        (role) => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -666,7 +652,7 @@ const CreateWarrenty = args => {
                                     className="mybtn primary"
                                   >
                                     <AiOutlineSearch
-                                      onClick={e => e.preventDefault()}
+                                      onClick={(e) => e.preventDefault()}
                                       fill="white"
                                     />
                                   </Button>
@@ -702,7 +688,7 @@ const CreateWarrenty = args => {
                                   disabled
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={e => {
+                                  onKeyDown={(e) => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -713,7 +699,7 @@ const CreateWarrenty = args => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={phone => {
+                                  onChange={(phone) => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -816,7 +802,7 @@ const CreateWarrenty = args => {
                               placeholder={ele?.placeholder?._text}
                               name={ele?.name?._text}
                               value={formData[ele?.name?._text]}
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleInputChange(
                                   e,
                                   ele?.type?._attributes?.type,
@@ -879,7 +865,7 @@ const CreateWarrenty = args => {
                     let Edit = "";
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        role => role._attributes?.name === "WARRANTY APPROVER"
+                        (role) => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -907,7 +893,7 @@ const CreateWarrenty = args => {
                                     className="mybtn primary"
                                   >
                                     <AiOutlineSearch
-                                      onClick={e => e.preventDefault()}
+                                      onClick={(e) => e.preventDefault()}
                                       fill="white"
                                     />
                                   </Button>
@@ -943,7 +929,7 @@ const CreateWarrenty = args => {
                                   disabled
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={e => {
+                                  onKeyDown={(e) => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -954,7 +940,7 @@ const CreateWarrenty = args => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={phone => {
+                                  onChange={(phone) => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -1057,7 +1043,7 @@ const CreateWarrenty = args => {
                               placeholder={ele?.placeholder?._text}
                               name={ele?.name?._text}
                               value={formData[ele?.name?._text]}
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleInputChange(
                                   e,
                                   ele?.type?._attributes?.type,
@@ -1131,7 +1117,7 @@ const CreateWarrenty = args => {
                     let Edit = "";
                     if (ele?.role) {
                       let roles = ele?.role?.find(
-                        role => role._attributes?.name === "WARRANTY APPROVER"
+                        (role) => role._attributes?.name === "WARRANTY APPROVER"
                       );
 
                       View = roles?.permissions?._text.includes("View");
@@ -1159,7 +1145,7 @@ const CreateWarrenty = args => {
                                     className="mybtn primary"
                                   >
                                     <AiOutlineSearch
-                                      onClick={e => e.preventDefault()}
+                                      onClick={(e) => e.preventDefault()}
                                       fill="white"
                                     />
                                   </Button>
@@ -1195,7 +1181,7 @@ const CreateWarrenty = args => {
                                   disabled
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={e => {
+                                  onKeyDown={(e) => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -1206,7 +1192,7 @@ const CreateWarrenty = args => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={phone => {
+                                  onChange={(phone) => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -1309,7 +1295,7 @@ const CreateWarrenty = args => {
                               placeholder={ele?.placeholder?._text}
                               name={ele?.name?._text}
                               value={formData[ele?.name?._text]}
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleInputChange(
                                   e,
                                   ele?.type?._attributes?.type,
@@ -1345,7 +1331,9 @@ const CreateWarrenty = args => {
                                 style={{ marginRight: "3px" }}
                                 type={ele?.type?._attributes?.type}
                                 name={ele?.name?._text}
-                                onChange={e => handleInputChange(e, "checkbox")}
+                                onChange={(e) =>
+                                  handleInputChange(e, "checkbox")
+                                }
                               />{" "}
                               <span
                                 className="mt-1 mx-1"
@@ -1385,7 +1373,7 @@ const CreateWarrenty = args => {
                     <Input
                       type="file"
                       multiple
-                      onChange={e => handleFileChange(i, e)}
+                      onChange={(e) => handleFileChange(i, e)}
                     />
                   </Col>
                   <Col className="d-flex mt-2" lg="3" md="3" sm="12">
@@ -1505,7 +1493,7 @@ const CreateWarrenty = args => {
                           name="comment"
                           placeholder="Comment"
                           value={element.comment || ""}
-                          onChange={e => handleComment(index, e)}
+                          onChange={(e) => handleComment(index, e)}
                         />
                       </Col>
 
@@ -1540,7 +1528,7 @@ const CreateWarrenty = args => {
             <Button
               className="ml-1 "
               color="primary"
-              onClick={e => {
+              onClick={(e) => {
                 SubmitComment(e);
               }}
             >

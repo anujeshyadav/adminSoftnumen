@@ -33,7 +33,9 @@ import {
 import "../../../../assets/scss/pages/users.scss";
 import Payment from "./payment/Payment";
 import OrderedList from "./OrderedList";
-const CreateOrder = args => {
+import ProductData from "../house/ProductType";
+const CreateOrder = (args) => {
+
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
@@ -107,10 +109,10 @@ const CreateOrder = args => {
 
     setCommentshow(true);
     CommentProductWiki(user?.accountId, Comments)
-      .then(res => {
+      .then((res) => {
         console.log(res);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   };
@@ -122,7 +124,7 @@ const CreateOrder = args => {
     setFormValues([...formValues, { files: [] }]);
   };
 
-  let removeFileAttach = i => {
+  let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
     setFormValues(newFormValues);
@@ -134,7 +136,7 @@ const CreateOrder = args => {
     newFormValues[i].files = selectedFiles;
     setFormValues(newFormValues);
   };
-  let removeFormFields = i => {
+  let removeFormFields = (i) => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
     setComments(newFormValues);
@@ -192,18 +194,19 @@ const CreateOrder = args => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
     CreateOrder_ID()
-      .then(res => {
+      .then((res) => {
+        debugger;
         const lastElement = res.Order[res.Order.length - 1].id;
         const prefix = lastElement.substring(0, 5);
         const number = parseInt(lastElement.match(/\d+$/)[0], 10) + 1;
         const concatenatedString = prefix + number;
         setOrderID(concatenatedString);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
     CreateOrder_ViewData()
-      .then(res => {
+      .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
         setCreatAccountView(JSON.parse(jsonData));
         setStatusDropDown(
@@ -212,7 +215,7 @@ const CreateOrder = args => {
         setdropdownValue(JSON.parse(jsonData));
         setPartDetails(JSON.parse(jsonData)?.createOrder.PartDetails);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   }, []);
@@ -234,7 +237,7 @@ const CreateOrder = args => {
       },
     ]);
   };
-  let removeMorePart = i => {
+  let removeMorePart = (i) => {
     let newFormValues = [...part];
     newFormValues.splice(i, 1);
     setPart(newFormValues);
@@ -242,7 +245,7 @@ const CreateOrder = args => {
   let addMoreProduct = () => {
     setProduct([...product, { productName: "", model: "", variant: "" }]);
   };
-  let removeMoreProduct = i => {
+  let removeMoreProduct = (i) => {
     let newFormValues = [...product];
     newFormValues.splice(i, 1);
     setProduct(newFormValues);
@@ -253,7 +256,7 @@ const CreateOrder = args => {
     setPart(newFormValues);
   };
 
-  const submitHandler = e => {
+  const submitHandler = (e) => {
     e.preventDefault();
     console.log("previous", OrderID);
     const prefixStr = OrderID.substring(0, 5);
@@ -482,7 +485,7 @@ const CreateOrder = args => {
                                     onClick={handleopentoggle}
                                   >
                                     <AiOutlineSearch
-                                      onClick={e => e.preventDefault()}
+                                      onClick={(e) => e.preventDefault()}
                                       fill="white"
                                     />
                                   </Button>
@@ -516,7 +519,7 @@ const CreateOrder = args => {
                                 <PhoneInput
                                   inputClass="myphoneinput"
                                   country={"us"}
-                                  onKeyDown={e => {
+                                  onKeyDown={(e) => {
                                     if (
                                       ele?.type?._attributes?.type == "number"
                                     ) {
@@ -527,7 +530,7 @@ const CreateOrder = args => {
                                   countryCodeEditable={false}
                                   name={ele?.name?._text}
                                   value={formData[ele?.name?._text]}
-                                  onChange={phone => {
+                                  onChange={(phone) => {
                                     setFormData({
                                       ...formData,
                                       [ele?.name?._text]: phone,
@@ -632,7 +635,7 @@ const CreateOrder = args => {
                               placeholder={ele?.placeholder?._text}
                               name={ele?.name?._text}
                               value={formData[ele?.name?._text]}
-                              onChange={e =>
+                              onChange={(e) =>
                                 handleInputChange(
                                   e,
                                   ele?.type?._attributes?.type,
@@ -868,7 +871,7 @@ const CreateOrder = args => {
                                   style={{ marginRight: "3px" }}
                                   type={ele?.type?._attributes?.type}
                                   name={ele?.name?._text}
-                                  onChange={e =>
+                                  onChange={(e) =>
                                     handleInputChange(e, "checkbox")
                                   }
                                 />{" "}
@@ -907,7 +910,7 @@ const CreateOrder = args => {
               <hr />
 
               <h2 className="text-center">Product Details</h2>
-              {product.map((element, index) => (
+             {product.map((element, index) => (
                 <Row className="productRow" key={index}>
                   <div className="tyy" lg="2" md="2" sm="12">
                     <div className="">
@@ -1105,7 +1108,7 @@ const CreateOrder = args => {
                         className="mybtn primary"
                       >
                         <AiOutlineSearch
-                          onClick={e => e.preventDefault()}
+                          onClick={(e) => e.preventDefault()}
                           fill="white"
                         />
                       </Button>
@@ -1121,7 +1124,7 @@ const CreateOrder = args => {
                         readOnly
                         placeholder="PartName"
                         value={element.partName || ""}
-                        onChange={e => handlePartChange(index, e)}
+                        onChange={(e) => handlePartChange(index, e)}
                       />
                     </div>
                   </div>
@@ -1301,7 +1304,7 @@ const CreateOrder = args => {
                         name="comment"
                         placeholder="Comment"
                         value={element.comment || ""}
-                        onChange={e => handleComment(index, e)}
+                        onChange={(e) => handleComment(index, e)}
                       />
                     </Col>
 
@@ -1335,7 +1338,7 @@ const CreateOrder = args => {
             <Button
               className=""
               color="primary"
-              onClick={e => {
+              onClick={(e) => {
                 SubmitComment(e);
               }}
             >
@@ -1350,7 +1353,7 @@ const CreateOrder = args => {
                     <Input
                       type="file"
                       multiple
-                      onChange={e => handleFileChange(i, e)}
+                      onChange={(e) => handleFileChange(i, e)}
                     />
                   </Col>
                   <Col className="d-flex mt-2" lg="3" md="3" sm="12">
