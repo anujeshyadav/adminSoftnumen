@@ -30,6 +30,7 @@ export const Warrenty_Upload = "/warranty/save-warranty";
 
 // upload List
 export const Spare_PartsView = "/spare-parts/view-spare-parts"; // done
+export const SparePart_CatalogueList = "/part-catalogue/get-part-catalogue"; // done
 export const CampaignList_View = "/campaign/view-campaign"; // done
 export const WarrentyUpload_View = "/warranty/view-warranty";
 export const Orders_View = "/orders/view-orders"; // done

@@ -39,6 +39,7 @@ import {
   createQuoteView,
   createWarehouseView,
   Spare_PartsView,
+  SparePart_CatalogueList,
   Orders_View,
   Add_To_Cart_Get,
   CampaignList_View,
@@ -275,6 +276,12 @@ export const SparesPartsList = async () => {
 export const SparesPartsView = async () => {
   let response = await axiosConfig
     .get(`${Spare_PartsView}`)
+    .then(res => res.data);
+  return response;
+};
+export const SparePart_List = async () => {
+  let response = await axiosConfig
+    .get(`${SparePart_CatalogueList}`)
     .then(res => res.data);
   return response;
 };
