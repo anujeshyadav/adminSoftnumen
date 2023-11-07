@@ -11,7 +11,6 @@ import {
   Button,
   FormGroup,
   CustomInput,
-  Table,
   ModalBody,
   ModalHeader,
   Modal,
@@ -33,8 +32,10 @@ import {
 } from "../../../../ApiEndPoint/ApiCalling";
 import "../../../../assets/scss/pages/users.scss";
 import Payment from "./payment/Payment";
+import OrderedList from "./OrderedList";
 import ProductData from "../house/ProductType";
-const CreateWarrenty = (args) => {
+const CreateOrder = (args) => {
+
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
@@ -47,7 +48,11 @@ const CreateWarrenty = (args) => {
   const [OrderID, setOrderID] = useState(0);
   const [UserInfo, setUserInfo] = useState({});
   const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
+  const [items, setItems] = useState("");
+  const toggle = item => {
+    setItems(item);
+    setModal(!modal);
+  };
   // const [formValues, setFormValues] = useState([{ files: [] }]);
 
   // const newComment = {
@@ -60,7 +65,18 @@ const CreateWarrenty = (args) => {
     { productName: "", productImg: "", variant: "" },
   ]);
   const [part, setPart] = useState([
-    { part: "", partName: "", partImage: "", color: "" },
+    {
+      part: "",
+      partName: "",
+      Shipping: "",
+      availableQty: "",
+      rquiredQty: "",
+      price: "",
+      totalprice: "",
+      discount: "",
+      tax: "",
+      grandTotal: "",
+    },
   ]);
 
   const [Comments, setComments] = useState([
@@ -80,8 +96,8 @@ const CreateWarrenty = (args) => {
     time: new Date().toString(),
   };
 
-  const handleopentoggle = () => {
-    toggle();
+  const handleopentoggle = iteam => {
+    toggle(iteam);
   };
   let handleComment = (i, e) => {
     let newFormValues = [...Comments];
@@ -172,6 +188,9 @@ const CreateWarrenty = (args) => {
   // handleInputChange;
   useEffect(() => {}, [formData]);
   useEffect(() => {
+    console.log(part[0].Shipping);
+  }, [part]);
+  useEffect(() => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
     CreateOrder_ID()
@@ -189,9 +208,6 @@ const CreateWarrenty = (args) => {
     CreateOrder_ViewData()
       .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(
-          JSON.parse(jsonData).createOrder.PartDetails.input[0].Readonly
-        );
         setCreatAccountView(JSON.parse(jsonData));
         setStatusDropDown(
           JSON.parse(jsonData)?.createOrder.CurrentStatus?.MyDropDown?.dropdown
@@ -205,7 +221,21 @@ const CreateWarrenty = (args) => {
   }, []);
 
   let addMorePart = () => {
-    setPart([...part, { partName: "", part: "", partImg: "", color: "" }]);
+    setPart([
+      ...part,
+      {
+        part: "",
+        partName: "",
+        Shipping: "",
+        availableQty: "",
+        rquiredQty: "",
+        price: "",
+        totalprice: "",
+        discount: "",
+        tax: "",
+        grandTotal: "",
+      },
+    ]);
   };
   let removeMorePart = (i) => {
     let newFormValues = [...part];
@@ -225,9 +255,6 @@ const CreateWarrenty = (args) => {
     newFormValues[i][e.target.name] = e.target.value;
     setPart(newFormValues);
   };
-  // const generateOrderID = () => {
-
-  // };
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -363,7 +390,6 @@ const CreateWarrenty = (args) => {
                         <FormGroup>
                           <Label>{drop?.dropdown?.label?._text}</Label>
                           <CustomInput
-                            // required
                             type="select"
                             name={drop?.dropdown?.name?._text}
                             value={
@@ -397,7 +423,6 @@ const CreateWarrenty = (args) => {
                         <FormGroup>
                           <Label>{drop?.dropdown?.label?._text}</Label>
                           <CustomInput
-                            // required
                             type="select"
                             name={drop?.dropdown?.name?._text}
                             value={
@@ -443,7 +468,7 @@ const CreateWarrenty = (args) => {
                           <>
                             <Col key={i} lg="6" md="6" sm="12">
                               <FormGroup>
-                                <Label>{ele?.label?._text}656</Label>
+                                <Label>{ele?.label?._text}</Label>
                                 <InputGroup className="maininput">
                                   <Input
                                     className="form-control inputs"
@@ -454,9 +479,10 @@ const CreateWarrenty = (args) => {
                                     readOnly
                                   />
                                   <Button
-                                    onClick={handleopentoggle}
                                     color="primary"
                                     className="mybtn primary"
+                                    name="part"
+                                    onClick={handleopentoggle}
                                   >
                                     <AiOutlineSearch
                                       onClick={(e) => e.preventDefault()}
@@ -882,37 +908,39 @@ const CreateWarrenty = (args) => {
                 </div>
               </Row>
               <hr />
-              {product.map((element, index) => (
-                <Row className="" key={index}>
-                  <Col className="" lg="2" md="2" sm="12">
-                    <Label>Product#</Label>
-                    <InputGroup className="maininput">
-                      <Input
-                        // value={Role}
-                        // onChange={e => handleInputChange(e)}
-                        className="form-control inputs"
-                        disabled
-                        type="text"
-                        name="productN"
-                        readOnly
-                        placeholder="Product"
-                        // value={element.productName || ""}
-                        // onChange={e => handleProductChange(index, e)}
-                      />
-                      <Button
-                        onClick={handleopentoggle}
-                        color="primary"
-                        className="mybtn primary"
-                      >
-                        <AiOutlineSearch
-                          onClick={(e) => e.preventDefault()}
-                          fill="white"
+
+              <h2 className="text-center">Product Details</h2>
+             {product.map((element, index) => (
+                <Row className="productRow" key={index}>
+                  <div className="tyy" lg="2" md="2" sm="12">
+                    <div className="">
+                      <Label>Product#</Label>
+                      <InputGroup className="maininput">
+                        <Input
+                          className="form-control inputs"
+                          disabled
+                          type="text"
+                          name="productN"
+                          readOnly
+                          placeholder="Product"
+                          // value={element.productName || ""}
+                          // onChange={e => handleProductChange(index, e)}
                         />
-                      </Button>
-                    </InputGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                        <Button
+                          onClick={() => handleopentoggle("Product")}
+                          color="primary"
+                          className="mybtn primary"
+                        >
+                          <AiOutlineSearch
+                            onClick={e => e.preventDefault()}
+                            fill="white"
+                          />
+                        </Button>
+                      </InputGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
                       <Label>ProdName</Label>
                       <Input
                         type="text"
@@ -920,12 +948,12 @@ const CreateWarrenty = (args) => {
                         readOnly
                         placeholder="ProdName"
                         value={element.productName || ""}
-                        onChange={(e) => handleProductChange(index, e)}
+                        onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="Qntywidth">
                       <Label>Avl_Qty</Label>
                       <Input
                         type="number"
@@ -935,10 +963,10 @@ const CreateWarrenty = (args) => {
                         value={element.model || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="Qntywidth">
                       <Label>Req_Qty</Label>
                       <Input
                         type="number"
@@ -948,10 +976,10 @@ const CreateWarrenty = (args) => {
                         value={element.variant || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
                       <Label>Price</Label>
                       <Input
                         type="number"
@@ -961,36 +989,36 @@ const CreateWarrenty = (args) => {
                         value={element.variant || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
                       <Label>TtlPrice</Label>
                       <Input
                         type="number"
                         name="Price"
                         readOnly
-                        placeholder="Price"
+                        placeholder="TtlPrice"
                         value={element.variant || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
-                      <Label>Dsct</Label>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
+                      <Label>Dissct</Label>
                       <Input
                         type="number"
                         name="Dsct"
                         readOnly
-                        placeholder="Dsct"
+                        placeholder="Dissct"
                         value={element.variant || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
                       <Label>Shipcst</Label>
                       <Input
                         type="number"
@@ -1000,10 +1028,10 @@ const CreateWarrenty = (args) => {
                         value={element.variant || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="Qntywidth">
                       <Label>Tax</Label>
                       <Input
                         type="number"
@@ -1013,10 +1041,10 @@ const CreateWarrenty = (args) => {
                         value={element.variant || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="Qntywidth">
                       <Label>Grdttl</Label>
                       <Input
                         type="number"
@@ -1026,10 +1054,10 @@ const CreateWarrenty = (args) => {
                         value={element.variant || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="d-flex mt-2" lg="" md="2" sm="12">
-                    <div>
+                    </div>
+                  </div>
+                  <div className="d-flex mt-2 abb" lg="" md="2" sm="12">
+                    <div className="btnStyle">
                       {index ? (
                         <Button
                           type="button"
@@ -1042,7 +1070,7 @@ const CreateWarrenty = (args) => {
                       ) : null}
                     </div>
 
-                    <div>
+                    <div className="btnStyle">
                       <Button
                         className="ml-1 "
                         color="primary"
@@ -1052,13 +1080,14 @@ const CreateWarrenty = (args) => {
                         +
                       </Button>
                     </div>
-                  </Col>
+                  </div>
                 </Row>
               ))}
-
+              <hr></hr>
+              <h2 className="text-center">Part Details</h2>
               {part.map((element, index) => (
                 <Row className="" key={index}>
-                  <Col className="" lg="2" md="2" sm="12">
+                  <div className="" lg="2" md="2" sm="12">
                     <Label>Part#</Label>
                     <InputGroup className="maininput">
                       <Input
@@ -1074,7 +1103,7 @@ const CreateWarrenty = (args) => {
                         // onChange={e => handleProductChange(index, e)}
                       />
                       <Button
-                        onClick={handleopentoggle}
+                        onClick={() => handleopentoggle("Part")}
                         color="primary"
                         className="mybtn primary"
                       >
@@ -1084,9 +1113,10 @@ const CreateWarrenty = (args) => {
                         />
                       </Button>
                     </InputGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                  </div>
+
+                  <div className="setInput" lg="" md="2" sm="12">
+                    <div className="">
                       <Label>PartName</Label>
                       <Input
                         type="text"
@@ -1096,115 +1126,114 @@ const CreateWarrenty = (args) => {
                         value={element.partName || ""}
                         onChange={(e) => handlePartChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="Qntywidth">
                       <Label>Avl_Qty</Label>
                       <Input
                         type="number"
-                        name="Avl_Qty"
+                        name="availableQty"
                         readOnly
                         placeholder="Avl_Qty"
-                        value={element.model || ""}
+                        value={element.availableQty || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="Qntywidth">
                       <Label>Req_Qty</Label>
                       <Input
                         type="number"
-                        name="Req_Qty"
+                        name="rquiredQty"
                         readOnly
                         placeholder="Req_Qty"
-                        value={element.variant || ""}
+                        value={element.rquiredQty || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
                       <Label>Price</Label>
                       <Input
                         type="number"
                         name="Price"
                         readOnly
                         placeholder="Price"
-                        value={element.variant || ""}
+                        value={element.price || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
                       <Label>TtlPrice</Label>
                       <Input
                         type="number"
-                        name="Price"
+                        name="totalprice"
                         readOnly
-                        placeholder="Price"
-                        value={element.variant || ""}
+                        placeholder="TtlPrice"
+                        value={element.totalprice || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
-                      <Label>Dsct</Label>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
+                      <Label>Dissct</Label>
                       <Input
                         type="number"
-                        name="Dsct"
+                        name="discount"
                         readOnly
-                        placeholder="Dsct"
-                        value={element.variant || ""}
+                        placeholder="Dissct"
+                        value={element.discount || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="">
                       <Label>Shipcst</Label>
                       <Input
-                        type="number"
-                        name="Shipcst"
+                        type="text"
+                        name="Shipping"
                         readOnly
                         placeholder="Shipcst"
-                        value={element.variant || ""}
+                        value={element.Shipping}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="Qntywidth">
                       <Label>Tax</Label>
                       <Input
                         type="number"
                         name="tax"
                         readOnly
                         placeholder="Tax"
-                        value={element.variant || ""}
+                        value={element.tax || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-                  <Col className="" lg="" md="2" sm="12">
-                    <FormGroup>
+                    </div>
+                  </div>
+                  <div className="setInput" lg="2" md="2" sm="12">
+                    <div className="Qntywidth">
                       <Label>Grdttl</Label>
                       <Input
                         type="number"
                         name="Grdttl"
                         readOnly
                         placeholder="Grdttl"
-                        value={element.variant || ""}
+                        value={element.grandTotal || ""}
                         // onChange={e => handleProductChange(index, e)}
                       />
-                    </FormGroup>
-                  </Col>
-
+                    </div>
+                  </div>
                   <Col className="d-flex mt-2" lg="2" md="2" sm="12">
-                    <div>
+                    <div className="btnStyle">
                       {index ? (
                         <Button
                           type="button"
@@ -1217,7 +1246,7 @@ const CreateWarrenty = (args) => {
                       ) : null}
                     </div>
 
-                    <div>
+                    <div className="btnStyle">
                       <Button
                         className="ml-1 "
                         color="primary"
@@ -1230,44 +1259,6 @@ const CreateWarrenty = (args) => {
                   </Col>
                 </Row>
               ))}
-              {/* <Row className="mt-2 ">
-                <Col lg="6" md="6" sm="6" className="mb-2">
-                  <Label className="">
-                    <h4>Status</h4>
-                  </Label>
-                  <div className="form-label-group mx-1">
-                    {CreatAccountView &&
-                      CreatAccountView?.createOrder?.Radiobutton?.input?.map(
-                        (ele, i) => {
-                          return (
-                            <FormGroup key={i}>
-                              <Input
-                                key={i}
-                                style={{ marginRight: "3px" }}
-                                required
-                                type={ele?.type?._attributes?.type}
-                                name={ele?.name?._text}
-                                value={`${
-                                  ele?.label?._text == "Active"
-                                    ? "Active"
-                                    : "Deactive"
-                                }`}
-                                onChange={handleInputChange}
-                              />{" "}
-                              <span
-                                className="mx-1 mt-1"
-                                style={{ marginRight: "20px" }}
-                              >
-                                {ele?.label?._text}
-                              </span>
-                            </FormGroup>
-                          );
-                        }
-                      )}
-                  </div>
-                </Col>
-              </Row> */}
-
               <Row>
                 <Button.Ripple color="primary" type="submit" className="mt-2">
                   Submit
@@ -1404,31 +1395,11 @@ const CreateWarrenty = (args) => {
         >
           <ModalHeader toggle={toggle}>Product List</ModalHeader>
           <ModalBody>
-            {/* <div className="modalheaderaddrol p-1">
-              <h3>Product List</h3>
-              <Table
-                className="tableofrole"
-                bordered
-                borderless
-                hover
-                responsive
-                size="sm"
-                striped
-              >
-                <thead>
-                  <tr>
-                    <th>S.No.</th>
-                    <th>Product Name</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </Table>
-            </div> */}
-            <ProductData />
+            <OrderedList items={items} setPart={setPart} />
           </ModalBody>
         </Modal>
       </div>
     </div>
   );
 };
-export default CreateWarrenty;
+export default CreateOrder;
