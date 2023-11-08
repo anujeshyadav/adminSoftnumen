@@ -20,7 +20,6 @@ import { history } from "../../../../history";
 import "../../../../assets/scss/plugins/tables/_agGridStyleOverride.scss";
 import "../../../../assets/scss/pages/users.scss";
 import { Route, Link } from "react-router-dom";
-// import { components } from "react-select";
 import axiosConfig from "../../../../axiosConfig";
 import swal from "sweetalert";
 const rowHeight = 100;

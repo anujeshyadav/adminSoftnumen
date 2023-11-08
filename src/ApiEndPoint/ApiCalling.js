@@ -1,4 +1,3 @@
-// import React, { useEffect } from "react";
 import {
   Create_Account_xmlView,
   Create_Parts,
@@ -78,6 +77,8 @@ import {
   productwiki_View,
   ticketTool_View,
   CreaterOrder_View,
+  AddOrderComment,
+  Order_ViewList,
   orders_ID,
 } from "./Api";
 import axiosConfig from "../axiosConfig";
@@ -606,6 +607,18 @@ export const ticketToolDeleteOne = async (id) => {
 export const CreateOrder_ViewData = async () => {
   let response = await axiosConfig
     .get(`${CreaterOrder_View}`)
+    .then((res) => res.data);
+  return response;
+};
+export const OrderViewList = async () => {
+  let response = await axiosConfig
+    .get(`${Order_ViewList}`)
+    .then((res) => res.data);
+  return response;
+};
+export const CommentOrder= async (id, data) => {
+  let response = await axiosConfig
+    .post(`${AddOrderComment}`+ id,data)
     .then((res) => res.data);
   return response;
 };
