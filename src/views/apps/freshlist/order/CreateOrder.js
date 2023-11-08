@@ -20,6 +20,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { BiEnvelope } from "react-icons/bi";
 import { BsFillChatDotsFill, BsWhatsapp } from "react-icons/bs";
+import { FaHistory } from "react-icons/fa";
 import { FcPhoneAndroid } from "react-icons/fc";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FiSend } from "react-icons/fi";
@@ -27,13 +28,14 @@ import { FiSend } from "react-icons/fi";
 import "../../../../assets/scss/pages/users.scss";
 import {
   CreateOrder_ViewData,
+  CommentOrder,
   CreateOrder_ID,
   CommentProductWiki,
 } from "../../../../ApiEndPoint/ApiCalling";
 import "../../../../assets/scss/pages/users.scss";
 import Payment from "./payment/Payment";
 import OrderedList from "./OrderedList";
-import ProductData from "../house/ProductType";
+import AuditHistory from "./audithistory/AuditHistory";
 const CreateOrder = (args) => {
 
   const [CreatAccountView, setCreatAccountView] = useState({});
@@ -45,24 +47,32 @@ const CreateOrder = (args) => {
   const [error, setError] = useState("");
   const [permissions, setpermissions] = useState({});
   const [Commentshow, setCommentshow] = useState(false);
-  const [OrderID, setOrderID] = useState(0);
+  const [OrderID, setOrderID] = useState();
   const [UserInfo, setUserInfo] = useState({});
   const [modal, setModal] = useState(false);
   const [items, setItems] = useState("");
+  const [audit, setAudit] = useState(false);
   const toggle = item => {
     setItems(item);
     setModal(!modal);
   };
-  // const [formValues, setFormValues] = useState([{ files: [] }]);
-
-  // const newComment = {
-  //   userName: JSON.parse(localStorage.getItem("userData")).UserName,
-  //   Role: JSON.parse(localStorage.getItem("userData")).Role,
-  //   comment: "",
-  //   time: new Date().toString(),
-  // };
+  const audittoggle= ()=>{
+    setAudit(!audit)
+    // setModal(!modal);
+  }
+  const handleopentoggle = iteam => {
+    toggle(iteam);
+  };
+  const handleHistory = () => {
+    audittoggle()
+    
+  }
   const [product, setProduct] = useState([
-    { productName: "", productImg: "", variant: "" },
+    {
+       product: "", productName: "", availableQty: "", rquiredQty: 1, price: "", totalprice: "",
+      discount: "",Shipping: "", tax: "",
+      grandTotal: "",
+    },
   ]);
   const [part, setPart] = useState([
     {
@@ -70,7 +80,7 @@ const CreateOrder = (args) => {
       partName: "",
       Shipping: "",
       availableQty: "",
-      rquiredQty: "",
+      rquiredQty: 1,
       price: "",
       totalprice: "",
       discount: "",
@@ -96,19 +106,17 @@ const CreateOrder = (args) => {
     time: new Date().toString(),
   };
 
-  const handleopentoggle = iteam => {
-    toggle(iteam);
-  };
+ 
   let handleComment = (i, e) => {
     let newFormValues = [...Comments];
     newFormValues[i][e.target.name] = e.target.value;
     setComments(newFormValues);
   };
   const SubmitComment = () => {
+   debugger
     let user = JSON.parse(localStorage.getItem("userData"));
-
-    setCommentshow(true);
-    CommentProductWiki(user?.accountId, Comments)
+setCommentshow(true);
+    CommentOrder(user?.accountId, Comments)
       .then((res) => {
         console.log(res);
       })
@@ -123,6 +131,15 @@ const CreateOrder = (args) => {
   let addFileInput = () => {
     setFormValues([...formValues, { files: [] }]);
   };
+  const handleProductChangeProduct =(e,index)=>{
+  setProduct([{rquiredQty:e.target.value}])
+    // setProduct([...product ,{rquiredQty:requredQty,totalprice:product.price*requredQty}])
+  }
+
+const handleProductChangePart =(e,index)=>{
+  console.log(e.target.value)
+  setPart([{rquiredQty:e.target.value}])
+}
 
   let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
@@ -186,19 +203,18 @@ const CreateOrder = (args) => {
     }
   };
   // handleInputChange;
-  useEffect(() => {}, [formData]);
+  useEffect(() => { }, [formData]);
   useEffect(() => {
-    console.log(part[0].Shipping);
+    // console.log(part[0].Shipping);
   }, [part]);
   useEffect(() => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
     CreateOrder_ID()
       .then((res) => {
-        debugger;
-        const lastElement = res.Order[res.Order.length - 1].id;
-        const prefix = lastElement.substring(0, 5);
-        const number = parseInt(lastElement.match(/\d+$/)[0], 10) + 1;
+        const lastElement = res?.Order[res?.Order?.length - 1].id;
+        const prefix = lastElement?.substring(0, 5);
+        const number = parseInt(lastElement?.match(/\d+$/)[0], 10) + 1;
         const concatenatedString = prefix + number;
         setOrderID(concatenatedString);
       })
@@ -242,8 +258,11 @@ const CreateOrder = (args) => {
     newFormValues.splice(i, 1);
     setPart(newFormValues);
   };
+  
   let addMoreProduct = () => {
-    setProduct([...product, { productName: "", model: "", variant: "" }]);
+    setProduct([...product, {  productName: "", availableQty: "", rquiredQty: "", price: "", totalprice: "",
+    discount: "",Shipping: "", tax: "",
+    grandTotal: "",}]);
   };
   let removeMoreProduct = (i) => {
     let newFormValues = [...product];
@@ -255,7 +274,7 @@ const CreateOrder = (args) => {
     newFormValues[i][e.target.name] = e.target.value;
     setPart(newFormValues);
   };
-
+  
   const submitHandler = (e) => {
     e.preventDefault();
     console.log("previous", OrderID);
@@ -300,8 +319,9 @@ const CreateOrder = (args) => {
                   <span className="orderIdtext pr-1">Order Id</span>
 
                   <span className="orderId">
-                    {OrderID ? `#${OrderID}` : `#ord00 ${OrderID}`}
+                    {OrderID ? `#${OrderID}` : `#ord00${OrderID}`}
                   </span>
+                  <span className="ml-2" onClick={handleHistory} style={{cursor:"pointer"}}><FaHistory size={15}   color="#055761" /></span>
                 </div>
                 <div>
                   <span className="orderId">Status:</span> <span>Draft</span>
@@ -536,7 +556,7 @@ const CreateOrder = (args) => {
                                       [ele?.name?._text]: phone,
                                     });
                                   }}
-                                  // onChange={handleInputChange}
+                                // onChange={handleInputChange}
                                 />
                                 {index === i ? (
                                   <>
@@ -890,6 +910,7 @@ const CreateOrder = (args) => {
                                       {ele.label?._text == "SMS" ? (
                                         <>
                                           <FcPhoneAndroid size={30} />
+
                                         </>
                                       ) : (
                                         <>
@@ -910,10 +931,10 @@ const CreateOrder = (args) => {
               <hr />
 
               <h2 className="text-center">Product Details</h2>
-             {product.map((element, index) => (
+              {product.map((product, index) => (
                 <Row className="productRow" key={index}>
-                  <div className="tyy" lg="2" md="2" sm="12">
-                    <div className="">
+                <div className="setInput lookUp" lg="2" md="2" sm="12">
+                 <div className="mainLook">
                       <Label>Product#</Label>
                       <InputGroup className="maininput">
                         <Input
@@ -923,8 +944,7 @@ const CreateOrder = (args) => {
                           name="productN"
                           readOnly
                           placeholder="Product"
-                          // value={element.productName || ""}
-                          // onChange={e => handleProductChange(index, e)}
+                        // value={element.productName || ""}
                         />
                         <Button
                           onClick={() => handleopentoggle("Product")}
@@ -947,8 +967,7 @@ const CreateOrder = (args) => {
                         name="ProdName"
                         readOnly
                         placeholder="ProdName"
-                        value={element.productName || ""}
-                        onChange={e => handleProductChange(index, e)}
+                        value={product.productName || ""}
                       />
                     </div>
                   </div>
@@ -957,11 +976,10 @@ const CreateOrder = (args) => {
                       <Label>Avl_Qty</Label>
                       <Input
                         type="number"
-                        name="Avl_Qty"
+                        name="availableQty"
                         readOnly
                         placeholder="Avl_Qty"
-                        value={element.model || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={product.availableQty}
                       />
                     </div>
                   </div>
@@ -970,11 +988,11 @@ const CreateOrder = (args) => {
                       <Label>Req_Qty</Label>
                       <Input
                         type="number"
-                        name="Req_Qty"
-                        readOnly
+                        name="rquiredQty"
+                        // readOnly
                         placeholder="Req_Qty"
-                        value={element.variant || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={product.rquiredQty}
+                      onChange={e => handleProductChangeProduct(e)}
                       />
                     </div>
                   </div>
@@ -986,8 +1004,7 @@ const CreateOrder = (args) => {
                         name="Price"
                         readOnly
                         placeholder="Price"
-                        value={element.variant || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={product.price}
                       />
                     </div>
                   </div>
@@ -996,11 +1013,11 @@ const CreateOrder = (args) => {
                       <Label>TtlPrice</Label>
                       <Input
                         type="number"
-                        name="Price"
+                        name="totalprice"
                         readOnly
                         placeholder="TtlPrice"
-                        value={element.variant || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        // value={product.totalprice}
+                        value={product.price*product.rquiredQty}
                       />
                     </div>
                   </div>
@@ -1009,11 +1026,10 @@ const CreateOrder = (args) => {
                       <Label>Dissct</Label>
                       <Input
                         type="number"
-                        name="Dsct"
+                        name="discount"
                         readOnly
                         placeholder="Dissct"
-                        value={element.variant || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={product.discount}
                       />
                     </div>
                   </div>
@@ -1025,8 +1041,7 @@ const CreateOrder = (args) => {
                         name="Shipcst"
                         readOnly
                         placeholder="Shipcst"
-                        value={element.variant || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={product.Shipping}
                       />
                     </div>
                   </div>
@@ -1038,8 +1053,7 @@ const CreateOrder = (args) => {
                         name="tax"
                         readOnly
                         placeholder="Tax"
-                        value={element.variant || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={product.tax}
                       />
                     </div>
                   </div>
@@ -1051,8 +1065,7 @@ const CreateOrder = (args) => {
                         name="Grdttl"
                         readOnly
                         placeholder="Grdttl"
-                        value={element.variant || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={product.grandTotal || ""}
                       />
                     </div>
                   </div>
@@ -1085,9 +1098,9 @@ const CreateOrder = (args) => {
               ))}
               <hr></hr>
               <h2 className="text-center">Part Details</h2>
-              {part.map((element, index) => (
+              {part.map((part, index) => (
                 <Row className="" key={index}>
-                  <div className="" lg="2" md="2" sm="12">
+                  <div className="setInput" lg="2" md="2" sm="12">
                     <Label>Part#</Label>
                     <InputGroup className="maininput">
                       <Input
@@ -1099,8 +1112,7 @@ const CreateOrder = (args) => {
                         name="part"
                         readOnly
                         placeholder="Part"
-                        // value={element.productName || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                      // value={element.productName || ""}
                       />
                       <Button
                         onClick={() => handleopentoggle("Part")}
@@ -1115,7 +1127,7 @@ const CreateOrder = (args) => {
                     </InputGroup>
                   </div>
 
-                  <div className="setInput" lg="" md="2" sm="12">
+                  <div className="setInput"  md="2" sm="12">
                     <div className="">
                       <Label>PartName</Label>
                       <Input
@@ -1123,7 +1135,7 @@ const CreateOrder = (args) => {
                         name="partName"
                         readOnly
                         placeholder="PartName"
-                        value={element.partName || ""}
+                        value={part.partName || ""}
                         onChange={(e) => handlePartChange(index, e)}
                       />
                     </div>
@@ -1136,8 +1148,7 @@ const CreateOrder = (args) => {
                         name="availableQty"
                         readOnly
                         placeholder="Avl_Qty"
-                        value={element.availableQty || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={part.availableQty}
                       />
                     </div>
                   </div>
@@ -1147,10 +1158,10 @@ const CreateOrder = (args) => {
                       <Input
                         type="number"
                         name="rquiredQty"
-                        readOnly
+                        // readOnly
                         placeholder="Req_Qty"
-                        value={element.rquiredQty || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={part.rquiredQty}
+                      onChange={e => handleProductChangePart(e, index)}
                       />
                     </div>
                   </div>
@@ -1159,11 +1170,10 @@ const CreateOrder = (args) => {
                       <Label>Price</Label>
                       <Input
                         type="number"
-                        name="Price"
+                        name="price"
                         readOnly
                         placeholder="Price"
-                        value={element.price || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={part.price}
                       />
                     </div>
                   </div>
@@ -1175,8 +1185,7 @@ const CreateOrder = (args) => {
                         name="totalprice"
                         readOnly
                         placeholder="TtlPrice"
-                        value={element.totalprice || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={part.price*part.rquiredQty}
                       />
                     </div>
                   </div>
@@ -1188,8 +1197,7 @@ const CreateOrder = (args) => {
                         name="discount"
                         readOnly
                         placeholder="Dissct"
-                        value={element.discount || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={part.discount}
                       />
                     </div>
                   </div>
@@ -1201,8 +1209,7 @@ const CreateOrder = (args) => {
                         name="Shipping"
                         readOnly
                         placeholder="Shipcst"
-                        value={element.Shipping}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={part.Shipping}
                       />
                     </div>
                   </div>
@@ -1214,8 +1221,7 @@ const CreateOrder = (args) => {
                         name="tax"
                         readOnly
                         placeholder="Tax"
-                        value={element.tax || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={part.tax}
                       />
                     </div>
                   </div>
@@ -1227,8 +1233,7 @@ const CreateOrder = (args) => {
                         name="Grdttl"
                         readOnly
                         placeholder="Grdttl"
-                        value={element.grandTotal || ""}
-                        // onChange={e => handleProductChange(index, e)}
+                        value={part.grandTotal}
                       />
                     </div>
                   </div>
@@ -1395,7 +1400,20 @@ const CreateOrder = (args) => {
         >
           <ModalHeader toggle={toggle}>Product List</ModalHeader>
           <ModalBody>
-            <OrderedList items={items} setPart={setPart} />
+            <OrderedList items={items} setPart={setPart} setProduct={setProduct} />
+          </ModalBody>
+        </Modal>
+        <Modal
+          fullscreen="xl"
+          size="lg"
+          backdrop={false}
+          isOpen={audit}
+          toggle={audittoggle}
+          {...args}
+        >
+          <ModalHeader toggle={audittoggle}>Audit History List</ModalHeader>
+          <ModalBody>
+            <AuditHistory  />
           </ModalBody>
         </Modal>
       </div>
