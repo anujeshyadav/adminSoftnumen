@@ -176,7 +176,6 @@ const CreateWarrenty = (args) => {
     setUserInfo(userInfo);
     CreateOrder_ID()
       .then((res) => {
-        debugger;
         const lastElement = res.Order[res.Order.length - 1].id;
         const prefix = lastElement.substring(0, 5);
         const number = parseInt(lastElement.match(/\d+$/)[0], 10) + 1;

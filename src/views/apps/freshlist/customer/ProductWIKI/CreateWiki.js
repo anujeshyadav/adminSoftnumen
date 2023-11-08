@@ -224,7 +224,6 @@ const CreateWiki = (args) => {
   }, []);
 
   const HandleSaveDraft = () => {
-    debugger;
     let formdata = new FormData();
     console.log(CreatAccountView?.createWiki);
     CreatAccountView?.createWiki?.CheckBox?.input?.map((ele) => {

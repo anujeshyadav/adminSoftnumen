@@ -107,7 +107,7 @@ class Campaignlist extends React.Component {
     let elementWithMaxKeys = null;
     await CampaignListView()
       .then((res) => {
-        console.log(res);
+        // console.log(res);
 
         for (const element of res?.Campaign) {
           const numKeys = Object.keys(element).length; // Get the number of keys in the current element
