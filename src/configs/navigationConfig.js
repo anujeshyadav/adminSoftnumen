@@ -240,7 +240,7 @@ const navigationConfig = [
     children: [
       {
         id: "Publish WIKI",
-        title: "Publish WIKI",
+        title: "Create WIKI",
         type: "item",
         icon: <FaCode size={15} />,
         permissions: ["admin", "editor"],

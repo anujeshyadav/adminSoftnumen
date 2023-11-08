@@ -1,6 +1,4 @@
 import React, { useRef } from "react";
-import { Route } from "react-router-dom";
-import xmlJs from "xml-js";
 import {
   Card,
   CardBody,
@@ -16,14 +14,12 @@ import {
   ModalHeader,
   ModalBody,
 } from "reactstrap";
-import ExcelReader from "../parts/ExcelReader";
 import { ContextLayout } from "../../../../utility/context/Layout";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import EditAccount from "../../freshlist/accounts/EditAccount";
 import ViewAccount from "../../freshlist/accounts/ViewAccount";
 import jsPDF from "jspdf";
-// import db from "../../../../context/indexdb";
 import "jspdf-autotable";
 import Logo from "../../../../assets/img/profile/pages/logomain.png";
 import Papa from "papaparse";
@@ -31,17 +27,18 @@ import { Eye, Trash2, ChevronDown, Edit } from "react-feather";
 import { IoMdRemoveCircleOutline } from "react-icons/io";
 import "../../../../assets/scss/plugins/tables/_agGridStyleOverride.scss";
 import "../../../../assets/scss/pages/users.scss";
+import { Route } from "react-router-dom";
+import xmlJs from "xml-js";
 
 import {
   FaArrowAltCircleLeft,
   FaArrowAltCircleRight,
   FaFilter,
 } from "react-icons/fa";
-import moment from "moment-timezone";
 import swal from "sweetalert";
 import {
-  CreateAccountList,
-  CreateAccountView,
+  SparePart_List,
+  SparesPartsView,
   DeleteAccount,
 } from "../../../../ApiEndPoint/ApiCalling";
 import {
@@ -54,12 +51,13 @@ import UserContext from "../../../../context/Context";
 
 const SelectedColums = [];
 
-class ProductType extends React.Component {
+class PartList extends React.Component {
   static contextType = UserContext;
   constructor(props) {
     super(props);
     this.gridRef = React.createRef();
     this.gridApi = null;
+    // console.log(props.setPart);
     this.state = {
       isOpen: false,
       Arrindex: "",
@@ -100,267 +98,245 @@ class ProductType extends React.Component {
   };
 
   async componentDidMount() {
+    let headings;
+    // let inputs;
+    let maxKeys = 0;
+    let elementWithMaxKeys = null;
     const UserInformation = this.context?.UserInformatio;
-
-    // db.myObjectStore.get(1).then((data) => {
-    //   console.log(data);
-    // });
-    await CreateAccountView()
+    await SparesPartsView()
       .then(res => {
-        var mydropdownArray = [];
-        var adddropdown = [];
-        const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData));
-
-        const inputs = JSON.parse(jsonData).CreateAccount?.input?.map(ele => {
+        const rowData = res?.SparePart.filter(
+          value => value.Type == this.props.items
+        );
+        this.setState({ rowData: rowData });
+        for (const element of res?.SparePart) {
+          const numKeys = Object.keys(element).length;
+          if (numKeys > maxKeys) {
+            maxKeys = numKeys;
+            elementWithMaxKeys = element;
+          }
+        }
+        console.log(maxKeys);
+        let findheading = Object.keys(elementWithMaxKeys);
+        let index = findheading.indexOf("_id");
+        if (index > -1) {
+          findheading.splice(index, 1);
+        }
+        let index1 = findheading.indexOf("__v");
+        if (index1 > -1) {
+          findheading.splice(index1, 1);
+        }
+        headings = findheading?.map(ele => {
           return {
-            headerName: ele?.label._text,
-            field: ele?.name._text,
+            headerName: ele,
+            field: ele,
             filter: true,
             sortable: true,
           };
         });
-        let Radioinput =
-          JSON.parse(jsonData).CreateAccount?.Radiobutton?.input[0]?.name
-            ?._text;
-        const addRadio = [
-          {
-            headerName: Radioinput,
-            field: Radioinput,
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              // console.log(params?.data);
-              return params.data?.Status === "Active" ? (
-                <div className="badge badge-pill badge-success">
-                  {params.data.Status}
-                </div>
-              ) : params.data?.Status === "Deactive" ? (
-                <div className="badge badge-pill badge-warning">
-                  {params.data.Status}
-                </div>
-              ) : (
-                "NA"
-              );
-            },
-          },
-        ];
+        // var adddropdown = [];
+        // const inputs = res?.SparePart?.map(ele => {
+        //   console.log(ele);
+        //   Object.keys(ele).map(key => ({
+        //     headerName: key,
+        //     field: key,
+        //     filter: true,
+        //     sortable: true,
+        //   }));
+        // });
 
-        let dropdown = JSON.parse(jsonData).CreateAccount?.MyDropdown?.dropdown;
-        if (dropdown.length) {
-          var mydropdownArray = dropdown?.map(ele => {
-            return {
-              headerName: ele?.label,
-              field: ele?.name,
-              filter: true,
-              sortable: true,
-            };
-          });
-        } else {
-          var adddropdown = [
-            {
-              headerName: dropdown?.label._text,
-              field: dropdown?.name._text,
-              filter: true,
-              sortable: true,
-            },
-          ];
-        }
+        // let Radioinput =
+        //   JSON.parse(jsonData).CreateAccount?.Radiobutton?.input[0]?.name
+        //     ?._text;
+        // const addRadio = [
+        //   {
+        //     headerName: Radioinput,
+        //     field: Radioinput,
+        //     filter: true,
+        //     sortable: true,
+        //     cellRendererFramework: params => {
+        //       return params.data?.Status === "Active" ? (
+        //         <div className="badge badge-pill badge-success">
+        //           {params.data.Status}
+        //         </div>
+        //       ) : params.data?.Status === "Deactive" ? (
+        //         <div className="badge badge-pill badge-warning">
+        //           {params.data.Status}
+        //         </div>
+        //       ) : (
+        //         "NA"
+        //       );
+        //     },
+        //   },
+        // ];
+
+        // let dropdown = JSON.parse(jsonData).CreateAccount?.MyDropdown?.dropdown;
+        // if (dropdown?.length) {
+        //   var mydropdownArray = dropdown?.map(ele => {
+        //     return {
+        //       headerName: ele?.label,
+        //       field: ele?.name,
+        //       filter: true,
+        //       sortable: true,
+        //     };
+        //   });
+        // } else {
+        //   var adddropdown = [
+        //     {
+        //       headerName: dropdown?.label._text,
+        //       field: dropdown?.name._text,
+        //       filter: true,
+        //       sortable: true,
+        //     },
+        //   ];
+        // }
 
         let myHeadings = [
           // ...checkboxinput,
-          ...inputs,
-          ...adddropdown,
-          ...addRadio,
-          ...mydropdownArray,
+          ...headings,
+          // ...adddropdown,
+          // ...addRadio,
+          // ...mydropdownArray,
         ];
-        // console.log(myHeadings);
         let Product = [
-          {
-            headerName: "Actions",
-            field: "sortorder",
-            field: "transactions",
-            width: 190,
-            cellRendererFramework: params => {
-              return (
-                <div className="actions cursor-pointer">
-                  <Route
-                    render={({ history }) => (
-                      <Eye
-                        className="mr-50"
-                        size="25px"
-                        color="green"
-                        onClick={() => {
-                          this.handleChangeEdit(params.data, "readonly");
-                        }}
-                      />
-                    )}
-                  />
-                  <Route
-                    render={({ history }) => (
-                      <Edit
-                        className="mr-50"
-                        size="25px"
-                        color="blue"
-                        onClick={() => {
-                          this.handleChangeEdit(params.data, "Editable");
-                        }}
-                      />
-                    )}
-                  />
+          // {
+          //   headerName: "Actions",
+          //   field: "sortorder",
+          //   field: "transactions",
+          //   width: 190,
+          //   cellRendererFramework: params => {
+          //     return (
+          //       <div className="actions cursor-pointer">
+          //         <Route
+          //           render={({ history }) => (
+          //             <Eye
+          //               className="mr-50"
+          //               size="25px"
+          //               color="green"
+          //               onClick={() => {
+          //                 this.handleChangeEdit(params.data, "readonly");
+          //               }}
+          //             />
+          //           )}
+          //         />
+          //         <Route
+          //           render={({ history }) => (
+          //             <Edit
+          //               className="mr-50"
+          //               size="25px"
+          //               color="blue"
+          //               onClick={() => {
+          //                 this.handleChangeEdit(params.data, "Editable");
+          //               }}
+          //             />
+          //           )}
+          //         />
+          //         <Route
+          //           render={() => (
+          //             <Trash2
+          //               className="mr-50"
+          //               size="25px"
+          //               color="red"
+          //               onClick={() => {
+          //                 this.runthisfunction(params?.data?._id);
+          //               }}
+          //             />
+          //           )}
+          //         />
+          //       </div>
+          //     );
+          //   },
+          // },
 
-                  <Route
-                    render={() => (
-                      <Trash2
-                        className="mr-50"
-                        size="25px"
-                        color="red"
-                        onClick={() => {
-                          this.runthisfunction(params?.data?._id);
-                        }}
-                      />
-                    )}
-                  />
-                </div>
-              );
-            },
-          },
-          {
-            headerName: "Whatsapp",
-            field: "whatsapp",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              console.log(params?.data?.whatsapp);
-              return params.data?.whatsapp === true ? (
-                <div className="badge badge-pill badge-success">YES</div>
-              ) : params.data?.whatsapp === false ? (
-                <div className="badge badge-pill badge-warning">NO</div>
-              ) : (
-                "NA"
-              );
-            },
-          },
-          {
-            headerName: "SMS",
-            field: "sms",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              console.log(params?.data?.sms);
-              return params.data?.sms === true ? (
-                <div className="badge badge-pill badge-success">YES</div>
-              ) : params.data?.sms === false ? (
-                <div className="badge badge-pill badge-warning">No</div>
-              ) : (
-                "NA"
-              );
-            },
-          },
-          {
-            headerName: "Gmail",
-            field: "gmail",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              console.log(params?.data?.gmail);
-              return params.data?.gmail === true ? (
-                <div className="badge badge-pill badge-success">YES</div>
-              ) : params.data?.gmail === false ? (
-                <div className="badge badge-pill badge-warning">NO</div>
-              ) : (
-                "NA"
-              );
-            },
-          },
           ...myHeadings,
-          {
-            headerName: "Created date",
-            field: "createdAt",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              let convertedTime = "NA";
-              if (params?.data?.createdAt == undefined) {
-                convertedTime = "NA";
-              }
-              if (params?.data?.createdAt) {
-                convertedTime = params?.data?.createdAt;
-              }
-              if (
-                UserInformation?.timeZone !== undefined &&
-                params?.data?.createdAt !== undefined
-              ) {
-                if (params?.data?.createdAt != undefined) {
-                  convertedTime = moment(params?.data?.createdAt?.split(".")[0])
-                    .tz(UserInformation?.timeZone.split("-")[0])
-                    .format(UserInformation?.dateTimeFormat);
-                }
-              }
+          // {
+          //   headerName: "Created date",
+          //   field: "createdAt",
+          //   filter: true,
+          //   sortable: true,
+          //   cellRendererFramework: params => {
+          //     let convertedTime = "NA";
+          //     if (params?.data?.createdAt == undefined) {
+          //       convertedTime = "NA";
+          //     }
+          //     if (params?.data?.createdAt) {
+          //       convertedTime = params?.data?.createdAt;
+          //     }
+          //     if (
+          //       UserInformation?.timeZone !== undefined &&
+          //       params?.data?.createdAt !== undefined
+          //     ) {
+          //       if (params?.data?.createdAt != undefined) {
+          //         convertedTime = moment(params?.data?.createdAt?.split(".")[0])
+          //           .tz(UserInformation?.timeZone.split("-")[0])
+          //           .format(UserInformation?.dateTimeFormat);
+          //       }
+          //     }
 
-              return (
-                <>
-                  <div className="actions cursor-pointer">
-                    {convertedTime == "NA" ? (
-                      "NA"
-                    ) : (
-                      <span>
-                        {convertedTime} &nbsp;
-                        {UserInformation?.timeZone &&
-                          UserInformation?.timeZone.split("-")[1]}
-                      </span>
-                    )}
-                  </div>
-                </>
-              );
-            },
-          },
-          {
-            headerName: "Updated date",
-            field: "updatedAt",
-            filter: true,
-            sortable: true,
-            cellRendererFramework: params => {
-              let convertedTime = "NA";
-              if (params?.data?.updatedAt == undefined) {
-                convertedTime = "NA";
-              }
-              if (params?.data?.updatedAt) {
-                convertedTime = params?.data?.updatedAt;
-              }
-              if (
-                UserInformation?.timeZone !== undefined &&
-                params?.data?.updatedAt !== undefined
-              ) {
-                if (params?.data?.updatedAt != undefined) {
-                  convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
-                    .tz(UserInformation?.timeZone.split("-")[0])
-                    .format(UserInformation?.dateTimeFormat);
-                }
-              }
+          //     return (
+          //       <>
+          //         <div className="actions cursor-pointer">
+          //           {convertedTime == "NA" ? (
+          //             "NA"
+          //           ) : (
+          //             <span>
+          //               {convertedTime} &nbsp;
+          //               {UserInformation?.timeZone &&
+          //                 UserInformation?.timeZone.split("-")[1]}
+          //             </span>
+          //           )}
+          //         </div>
+          //       </>
+          //     );
+          //   },
+          // },
+          // {
+          //   headerName: "Updated date",
+          //   field: "updatedAt",
+          //   filter: true,
+          //   sortable: true,
+          //   cellRendererFramework: params => {
+          //     let convertedTime = "NA";
+          //     if (params?.data?.updatedAt == undefined) {
+          //       convertedTime = "NA";
+          //     }
+          //     if (params?.data?.updatedAt) {
+          //       convertedTime = params?.data?.updatedAt;
+          //     }
+          //     if (
+          //       UserInformation?.timeZone !== undefined &&
+          //       params?.data?.updatedAt !== undefined
+          //     ) {
+          //       if (params?.data?.updatedAt != undefined) {
+          //         convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
+          //           .tz(UserInformation?.timeZone.split("-")[0])
+          //           .format(UserInformation?.dateTimeFormat);
+          //       }
+          //     }
 
-              return (
-                <>
-                  <div className="actions cursor-pointer">
-                    {convertedTime == "NA" ? (
-                      "NA"
-                    ) : (
-                      <span>
-                        {convertedTime} &nbsp;
-                        {UserInformation?.timeZone &&
-                          UserInformation?.timeZone.split("-")[1]}
-                      </span>
-                    )}
-                  </div>
-                </>
-              );
-            },
-          },
+          //     return (
+          //       <>
+          //         <div className="actions cursor-pointer">
+          //           {convertedTime == "NA" ? (
+          //             "NA"
+          //           ) : (
+          //             <span>
+          //               {convertedTime} &nbsp;
+          //               {UserInformation?.timeZone &&
+          //                 UserInformation?.timeZone.split("-")[1]}
+          //             </span>
+          //           )}
+          //         </div>
+          //       </>
+          //     );
+          //   },
+          // },
         ];
-
         this.setState({ AllcolumnDefs: Product });
 
-        let userHeading = JSON.parse(localStorage.getItem("UserSearchheading"));
+        let userHeading = JSON.parse(
+          localStorage.getItem("UserSearchParSearch")
+        );
         if (userHeading?.length) {
           this.setState({ columnDefs: userHeading });
           this.gridApi.setColumnDefs(userHeading);
@@ -375,47 +351,36 @@ class ProductType extends React.Component {
         console.log(err);
         swal("Error", "something went wrong try again");
       });
-    await CreateAccountList()
-      .then(res => {
-        let value = res?.CreateAccount;
-        this.setState({ rowData: value });
-      })
-      .catch(err => {
-        console.log(err);
-      });
   }
   toggleDropdown = () => {
     this.setState(prevState => ({ isOpen: !prevState.isOpen }));
   };
 
-  runthisfunction(id) {
-    swal("Warning", "Sure You Want to Delete it", {
-      buttons: {
-        cancel: "cancel",
-        catch: { text: "Delete ", value: "delete" },
-      },
-    }).then(value => {
-      switch (value) {
-        case "delete":
-          DeleteAccount(id)
-            .then(res => {
-              let selectedData = this.gridApi.getSelectedRows();
-              this.gridApi.updateRowData({ remove: selectedData });
-            })
-            .catch(err => {
-              console.log(err);
-            });
-          break;
-        default:
-      }
-    });
-  }
-
   onGridReady = params => {
+    // console.log(params.api);
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
     this.gridRef.current = params.api;
-
+    this.gridApi.addEventListener("rowClicked", event => {
+      const selectedRow = event.data;
+      console.log(selectedRow);
+      console.log(this.props);
+      this.props.setPart([
+        {
+          Shipping: selectedRow.Shipping,
+          part: "",
+          partName: "",
+          Shipping: "",
+          availableQty: "",
+          rquiredQty: "",
+          price: "",
+          totalprice: "",
+          discount: "",
+          tax: "",
+          grandTotal: "",
+        },
+      ]);
+    });
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
       getPageSize: this.gridApi.paginationGetPageSize(),
@@ -586,7 +551,6 @@ class ProductType extends React.Component {
     Papa.parse(CsvData, {
       complete: result => {
         const rows = result.data;
-
         // Create XML
         let xmlString = "<root>\n";
 
@@ -614,13 +578,12 @@ class ProductType extends React.Component {
 
   HandleSetVisibleField = e => {
     e.preventDefault();
-    debugger;
     this.gridApi.setColumnDefs(this.state.SelectedcolumnDefs);
     this.setState({ columnDefs: this.state.SelectedcolumnDefs });
     this.setState({ SelectedcolumnDefs: this.state.SelectedcolumnDefs });
     this.setState({ rowData: this.state.rowData });
     localStorage.setItem(
-      "UserSearchheading",
+      "UserSearchParSearch",
       JSON.stringify(this.state.SelectedcolumnDefs)
     );
     this.LookupviewStart();
@@ -634,16 +597,15 @@ class ProductType extends React.Component {
       ]),
     ].map(item => JSON.parse(item));
     this.setState({
-      SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)], // Update the state with the combined array
+      SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)],
     });
   };
   handleLeftShift = () => {
     let SelectedCols = this.state.SelectedcolumnDefs.slice();
-    let delindex = this.state.Arrindex; /* Your delete index here */
+    let delindex = this.state.Arrindex;
 
     if (SelectedCols && delindex >= 0) {
-      const splicedElement = SelectedCols.splice(delindex, 1); // Remove the element
-
+      SelectedCols.splice(delindex, 1);
       this.setState({
         SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
       });
@@ -661,7 +623,6 @@ class ProductType extends React.Component {
     } = this.state;
     return (
       <>
-        {/* <ExcelReader /> */}
         <Row className="app-user-list">
           {this.state.EditOneUserView && this.state.EditOneUserView ? (
             <Row className="card">
@@ -708,7 +669,7 @@ class ProductType extends React.Component {
                     <Card>
                       <Row className="m-2">
                         <Col>
-                          <h1 className="float-left">User List</h1>
+                          <h1 className="float-left">SparePart List</h1>
                         </Col>
                         <Col>
                           <span className="mx-1">
@@ -800,7 +761,7 @@ class ProductType extends React.Component {
                                     0
                                       ? this.state.currenPageSize *
                                         this.state.getPageSize
-                                      : this.state.rowData.length}{" "}
+                                      : this.state.rowData.length}
                                     of {this.state.rowData.length}
                                     <ChevronDown className="ml-50" size={15} />
                                   </DropdownToggle>
@@ -854,31 +815,13 @@ class ProductType extends React.Component {
                               {context => (
                                 <AgGridReact
                                   id="myAgGrid"
-                                  // gridOptions={{
-                                  //   domLayout: "autoHeight",
-                                  //   // or other layout options
-                                  // }}
                                   gridOptions={this.gridOptions}
                                   rowSelection="multiple"
                                   defaultColDef={defaultColDef}
                                   columnDefs={columnDefs}
                                   rowData={rowData}
-                                  // onGridReady={(params) => {
-                                  //   this.gridApi = params.api;
-                                  //   this.gridColumnApi = params.columnApi;
-                                  //   this.gridRef.current = params.api;
-
-                                  //   this.setState({
-                                  //     currenPageSize:
-                                  //       this.gridApi.paginationGetCurrentPage() +
-                                  //       1,
-                                  //     getPageSize:
-                                  //       this.gridApi.paginationGetPageSize(),
-                                  //     totalPages:
-                                  //       this.gridApi.paginationGetTotalPages(),
-                                  //   });
-                                  // }}
                                   onGridReady={this.onGridReady}
+                                  //   onGridReady={this.onGridReady.bind(this)}
                                   colResizeDefault={"shift"}
                                   animateRows={true}
                                   floatingFilter={false}
@@ -914,7 +857,7 @@ class ProductType extends React.Component {
           <ModalBody className="modalbodyhead">
             <Row>
               <Col lg="4" md="4" sm="12" xl="4" xs="12">
-                <h4>Avilable Columns</h4>
+                <h4>Available Columns</h4>
                 <div className="mainshffling">
                   <div class="ex1">
                     {AllcolumnDefs &&
@@ -1003,25 +946,11 @@ class ProductType extends React.Component {
                                             );
 
                                           if (SelectedCols && delindex >= 0) {
-                                            const splicedElement =
-                                              SelectedCols.splice(delindex, 1); // Remove the element
-                                            // splicedElement contains the removed element, if needed
-
+                                            SelectedCols.splice(delindex, 1);
                                             this.setState({
-                                              SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
+                                              SelectedcolumnDefs: SelectedCols,
                                             });
                                           }
-                                          // const delindex =
-                                          //   SelectedCols.findIndex(
-                                          //     (element) =>
-                                          //       element?.headerName ==
-                                          //       ele?.headerName
-                                          //   );
-
-                                          // SelectedCols?.splice(delindex, 1);
-                                          // this.setState({
-                                          //   SelectedcolumnDefs: SelectedCols,
-                                          // });
                                         }}
                                         style={{ cursor: "pointer" }}
                                         size="25px"
@@ -1075,4 +1004,4 @@ class ProductType extends React.Component {
     );
   }
 }
-export default ProductType;
+export default PartList;

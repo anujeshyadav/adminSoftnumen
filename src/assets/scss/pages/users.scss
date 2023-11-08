@@ -1,7 +1,26 @@
 /*** User pages ***/
 // -------
 
-.input-group {
+// .input-group {
+//   position: relative;
+//   display: flex;
+//   flex-wrap: wrap;
+//   align-items: stretch;
+//   width: 80%;
+// }
+.setInput {
+  margin: 9px;
+}
+.inputwidth {
+  width: 100px;
+}
+.Qntywidth {
+  width: 80px;
+}
+.btnStyle {
+  margin-top: 8px;
+}
+.maininput {
   position: relative;
   display: flex;
   flex-wrap: wrap;
