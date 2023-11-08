@@ -81,11 +81,26 @@ const CreateWarrenty = (args) => {
   };
 
   const generateRandomNumber = () => {
-    const min = 1000; // Smallest 5-digit number
-    const max = 9999; // Largest 5-digit number
-    const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-    let numb = "001";
-    setRandomNumber(numb);
+    // const min = 1000; // Smallest 5-digit number
+    // const max = 9999; // Largest 5-digit number
+    // const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+    WarrantyListView()
+      .then((res) => {
+        console.log(res?.Warranty);
+        if (res?.Warranty.length) {
+          const lastElement = res?.Warranty[res?.Warranty?.length - 1]?.id;
+          const prefix = lastElement.substring(0, 5);
+          const number = parseInt(lastElement.match(/\d+$/)[0], 10) + 1;
+          const concatenatedString = prefix + number;
+          setRandomNumber(concatenatedString);
+        } else {
+          let numb = "wrn001";
+          setRandomNumber(numb);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   let handleComment = (i, e) => {
     let user = JSON.parse(localStorage.getItem("userData"));
@@ -176,10 +191,40 @@ const CreateWarrenty = (args) => {
   }, [formData, Comments, formValues]);
 
   useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      console.log("start");
+      // Save your data or run your function here
+      saveDataOrRunFunction();
+
+      // Show a confirmation dialog to the user
+      event.preventDefault();
+      event.returnValue = "";
+
+      // You can customize the confirmation message
+      return "Are you sure you want to leave this page? Your changes may not be saved.";
+    };
+
+    const saveDataOrRunFunction = () => {
+      // Perform the desired action, e.g., save data or run a function
+      console.log("Saving data or running a function when leaving the page.");
+    };
+
+    // Add an event listener for the beforeunload event
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      console.log("remove");
+      console.log(formData);
+      console.log(Comments);
+      console.log(formValues);
+      // Clean up the event listener when the component unmounts
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+  useEffect(() => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
     generateRandomNumber();
-    // WarrantyListView().then((res)=>{}).catch((err)=>{})
     Warranty_ViewData()
       .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
@@ -252,7 +297,7 @@ const CreateWarrenty = (args) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
-    formdata.append("id", `wrn${randomNumber}`);
+    formdata.append("id", randomNumber);
     if (Comments.length > 0) {
       formdata.append(`Comments`, JSON.stringify(Comments));
     }
@@ -278,7 +323,8 @@ const CreateWarrenty = (args) => {
     // let data = { ...formData, Comments: Comments && Comments, formdata };
     WarrantySave(formdata)
       .then((res) => {
-        console.log(res);
+        console.log(res?.Warranty);
+        generateRandomNumber();
         swal("Warrenty Created Successfully");
       })
       .catch((err) => {
@@ -339,7 +385,7 @@ const CreateWarrenty = (args) => {
                 </div>
               </div>
               <div>
-                <span>Warranty Id</span> <span># :wrn{randomNumber}</span>
+                <span>Warranty Id</span> <span># :{randomNumber}</span>
               </div>
             </Col>
           </Row>
