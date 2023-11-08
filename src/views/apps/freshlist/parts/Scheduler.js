@@ -126,7 +126,7 @@ const Scheduler = () => {
     let formdata = new FormData();
     var selectType;
     var selectTypes;
-    debugger;
+    // debugger;
     console.log(Role.split(" ").join(""));
     if (Role.split(" ").join("").includes("/")) {
       selectType = Role.split("/").join("").split(" ")[0];
@@ -143,8 +143,8 @@ const Scheduler = () => {
       if (Role == "SpareParts") {
         SpareParts(formdata)
           .then(res => {
-            console.log(res);
-            swal(`${Role} File Uploaded Successfully`);
+            console.log(res.message);
+            swal(`${Role} ${res.message}`);
           })
           .catch(err => {
             console.log(err);

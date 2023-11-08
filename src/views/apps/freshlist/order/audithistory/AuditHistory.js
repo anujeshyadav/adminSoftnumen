@@ -14,21 +14,15 @@ import {
   ModalHeader,
   ModalBody,
 } from "reactstrap";
-import { ContextLayout } from "../../../../utility/context/Layout";
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/dist/styles/ag-grid.css";
-import EditAccount from "../../freshlist/accounts/EditAccount";
-import ViewAccount from "../../freshlist/accounts/ViewAccount";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import Logo from "../../../../assets/img/profile/pages/logomain.png";
 import Papa from "papaparse";
-import { Eye, Trash2, ChevronDown, Edit,HelpCircle } from "react-feather";
-import { IoMdRemoveCircleOutline } from "react-icons/io";
-import "../../../../assets/scss/plugins/tables/_agGridStyleOverride.scss";
-import "../../../../assets/scss/pages/users.scss";
+import { AgGridReact } from "ag-grid-react";
 import { Route } from "react-router-dom";
 import xmlJs from "xml-js";
+import "ag-grid-community/dist/styles/ag-grid.css";
+import { Eye, Trash2, ChevronDown, Edit,HelpCircle } from "react-feather";
+import { IoMdRemoveCircleOutline } from "react-icons/io";
 
 import {
   FaArrowAltCircleLeft,
@@ -37,28 +31,36 @@ import {
 } from "react-icons/fa";
 import swal from "sweetalert";
 import {
-  SparePart_List,
-  SparesPartsView,
-  DeleteAccount,
-} from "../../../../ApiEndPoint/ApiCalling";
-import {
   BsCloudDownloadFill,
   BsFillArrowDownSquareFill,
   BsFillArrowUpSquareFill,
 } from "react-icons/bs";
 import * as XLSX from "xlsx";
-import UserContext from "../../../../context/Context";
+
+
+import EditAccount from "../../accounts/EditAccount";
+import ViewAccount from "../../accounts/ViewAccount";
+import Logo from "../../../../../assets/img/profile/pages/logomain.png";
+// import Logo from "../../../../assets/img/profile/pages/logomain.png";
+import "../../../../../assets/scss/plugins/tables/_agGridStyleOverride.scss";
+import "../../../../../assets/scss/pages/users.scss";
+import { ContextLayout } from "../../../../../utility/context/Layout";
+
+import {
+  SparePart_List,
+  SparesPartsView,
+  DeleteAccount,
+} from "../../../../../ApiEndPoint/ApiCalling";
+import UserContext from "../../../../../context/Context";
 
 const SelectedColums = [];
 
-class OrderedList extends React.Component {
+class AuditHistory extends React.Component {
   static contextType = UserContext;
   constructor(props) {
     super(props);
-    console.log(props)
     this.gridRef = React.createRef();
     this.gridApi = null;
-    // console.log(props.setPart);
     this.state = {
       isOpen: false,
       Arrindex: "",
@@ -100,7 +102,6 @@ class OrderedList extends React.Component {
 
   async componentDidMount() {
     let headings;
-    // let inputs;
     let maxKeys = 0;
     let elementWithMaxKeys = null;
     const UserInformation = this.context?.UserInformatio;
@@ -109,7 +110,6 @@ class OrderedList extends React.Component {
         const rowData = res?.SparePart.filter(
           value => value.Type == this.props.items
         );
-        console.log(rowData[0])
         this.setState({ rowData: rowData });
         for (const element of res?.SparePart) {
           const numKeys = Object.keys(element).length;
@@ -118,7 +118,6 @@ class OrderedList extends React.Component {
             elementWithMaxKeys = element;
           }
         }
-        console.log(maxKeys);
         let findheading = Object.keys(elementWithMaxKeys);
         let index = findheading.indexOf("_id");
         if (index > -1) {
@@ -136,204 +135,14 @@ class OrderedList extends React.Component {
             sortable: true,
           };
         });
-        // var adddropdown = [];
-        // const inputs = res?.SparePart?.map(ele => {
-        //   console.log(ele);
-        //   Object.keys(ele).map(key => ({
-        //     headerName: key,
-        //     field: key,
-        //     filter: true,
-        //     sortable: true,
-        //   }));
-        // });
-
-        // let Radioinput =
-        //   JSON.parse(jsonData).CreateAccount?.Radiobutton?.input[0]?.name
-        //     ?._text;
-        // const addRadio = [
-        //   {
-        //     headerName: Radioinput,
-        //     field: Radioinput,
-        //     filter: true,
-        //     sortable: true,
-        //     cellRendererFramework: params => {
-        //       return params.data?.Status === "Active" ? (
-        //         <div className="badge badge-pill badge-success">
-        //           {params.data.Status}
-        //         </div>
-        //       ) : params.data?.Status === "Deactive" ? (
-        //         <div className="badge badge-pill badge-warning">
-        //           {params.data.Status}
-        //         </div>
-        //       ) : (
-        //         "NA"
-        //       );
-        //     },
-        //   },
-        // ];
-
-        // let dropdown = JSON.parse(jsonData).CreateAccount?.MyDropdown?.dropdown;
-        // if (dropdown?.length) {
-        //   var mydropdownArray = dropdown?.map(ele => {
-        //     return {
-        //       headerName: ele?.label,
-        //       field: ele?.name,
-        //       filter: true,
-        //       sortable: true,
-        //     };
-        //   });
-        // } else {
-        //   var adddropdown = [
-        //     {
-        //       headerName: dropdown?.label._text,
-        //       field: dropdown?.name._text,
-        //       filter: true,
-        //       sortable: true,
-        //     },
-        //   ];
-        // }
+       
 
         let myHeadings = [
-          // ...checkboxinput,
-          ...headings,
-          // ...adddropdown,
-          // ...addRadio,
-          // ...mydropdownArray,
-        ];
+         ...headings,
+         ];
         let Product = [
-          // {
-          //   headerName: "Actions",
-          //   field: "sortorder",
-          //   field: "transactions",
-          //   width: 190,
-          //   cellRendererFramework: params => {
-          //     return (
-          //       <div className="actions cursor-pointer">
-          //         <Route
-          //           render={({ history }) => (
-          //             <Eye
-          //               className="mr-50"
-          //               size="25px"
-          //               color="green"
-          //               onClick={() => {
-          //                 this.handleChangeEdit(params.data, "readonly");
-          //               }}
-          //             />
-          //           )}
-          //         />
-          //         <Route
-          //           render={({ history }) => (
-          //             <Edit
-          //               className="mr-50"
-          //               size="25px"
-          //               color="blue"
-          //               onClick={() => {
-          //                 this.handleChangeEdit(params.data, "Editable");
-          //               }}
-          //             />
-          //           )}
-          //         />
-          //         <Route
-          //           render={() => (
-          //             <Trash2
-          //               className="mr-50"
-          //               size="25px"
-          //               color="red"
-          //               onClick={() => {
-          //                 this.runthisfunction(params?.data?._id);
-          //               }}
-          //             />
-          //           )}
-          //         />
-          //       </div>
-          //     );
-          //   },
-          // },
-
           ...myHeadings,
-          // {
-          //   headerName: "Created date",
-          //   field: "createdAt",
-          //   filter: true,
-          //   sortable: true,
-          //   cellRendererFramework: params => {
-          //     let convertedTime = "NA";
-          //     if (params?.data?.createdAt == undefined) {
-          //       convertedTime = "NA";
-          //     }
-          //     if (params?.data?.createdAt) {
-          //       convertedTime = params?.data?.createdAt;
-          //     }
-          //     if (
-          //       UserInformation?.timeZone !== undefined &&
-          //       params?.data?.createdAt !== undefined
-          //     ) {
-          //       if (params?.data?.createdAt != undefined) {
-          //         convertedTime = moment(params?.data?.createdAt?.split(".")[0])
-          //           .tz(UserInformation?.timeZone.split("-")[0])
-          //           .format(UserInformation?.dateTimeFormat);
-          //       }
-          //     }
-
-          //     return (
-          //       <>
-          //         <div className="actions cursor-pointer">
-          //           {convertedTime == "NA" ? (
-          //             "NA"
-          //           ) : (
-          //             <span>
-          //               {convertedTime} &nbsp;
-          //               {UserInformation?.timeZone &&
-          //                 UserInformation?.timeZone.split("-")[1]}
-          //             </span>
-          //           )}
-          //         </div>
-          //       </>
-          //     );
-          //   },
-          // },
-          // {
-          //   headerName: "Updated date",
-          //   field: "updatedAt",
-          //   filter: true,
-          //   sortable: true,
-          //   cellRendererFramework: params => {
-          //     let convertedTime = "NA";
-          //     if (params?.data?.updatedAt == undefined) {
-          //       convertedTime = "NA";
-          //     }
-          //     if (params?.data?.updatedAt) {
-          //       convertedTime = params?.data?.updatedAt;
-          //     }
-          //     if (
-          //       UserInformation?.timeZone !== undefined &&
-          //       params?.data?.updatedAt !== undefined
-          //     ) {
-          //       if (params?.data?.updatedAt != undefined) {
-          //         convertedTime = moment(params?.data?.updatedAt?.split(".")[0])
-          //           .tz(UserInformation?.timeZone.split("-")[0])
-          //           .format(UserInformation?.dateTimeFormat);
-          //       }
-          //     }
-
-          //     return (
-          //       <>
-          //         <div className="actions cursor-pointer">
-          //           {convertedTime == "NA" ? (
-          //             "NA"
-          //           ) : (
-          //             <span>
-          //               {convertedTime} &nbsp;
-          //               {UserInformation?.timeZone &&
-          //                 UserInformation?.timeZone.split("-")[1]}
-          //             </span>
-          //           )}
-          //         </div>
-          //       </>
-          //     );
-          //   },
-          // },
-        ];
+       ];
         this.setState({ AllcolumnDefs: Product });
 
         let userHeading = JSON.parse(
@@ -350,7 +159,6 @@ class OrderedList extends React.Component {
         this.setState({ SelectedCols: Product });
       })
       .catch(err => {
-        console.log(err);
         swal("Error", "something went wrong try again");
       });
   }
@@ -359,40 +167,27 @@ class OrderedList extends React.Component {
   };
 
   onGridReady = params => {
-    // console.log(params.api);
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
     this.gridRef.current = params.api;
     this.gridApi.addEventListener("rowClicked", event => {
       const selectedRow = event.data;
-      console.log(selectedRow)
-      selectedRow.Type==="Product"? this.props.setProduct([
-        {
-        Shipping: selectedRow.ShippingCost,
-        productName: selectedRow['Part Name'],
-        availableQty: selectedRow['Part Quantity'],
-          // rquiredQty: 1,
-          price: selectedRow.Price,
-          totalprice: "",
-          discount: selectedRow.Discount,
-          tax: selectedRow.Tax,
-          grandTotal: "",
-         },
-      ]):  this.props.setPart([
-        {
-          Shipping: selectedRow.ShippingCost,
-          part: "",
-          partName:selectedRow['Part Name'],
-          availableQty: selectedRow['Part Quantity'],
-          // rquiredQty: 1,
-          price: selectedRow.Price,
-          totalprice: "",
-          discount: selectedRow.Discount,
-           tax: selectedRow.Tax,
-          grandTotal: "",
-        },
-      ]);
-      
+      console.log(selectedRow);
+      console.log(this.props);
+      // this.props.setPart([
+      //   {
+      //     Shipping: selectedRow.Shipping,
+      //     part: "",
+      //     partName: "",
+      //     Shipping: "",
+      //   rquiredQty: "",
+      //     price: "",
+      //     totalprice: "",
+      //     discount: selectedRow.Discount,
+      //     tax: "",
+      //     grandTotal: "",
+      //   },
+      // ]);
     });
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
@@ -476,8 +271,6 @@ class OrderedList extends React.Component {
     }
   };
   processCell = params => {
-    // console.log(params);
-    // Customize cell content as needed
     return params.value;
   };
 
@@ -589,40 +382,40 @@ class OrderedList extends React.Component {
     });
   };
 
-  HandleSetVisibleField = e => {
-    e.preventDefault();
-    this.gridApi.setColumnDefs(this.state.SelectedcolumnDefs);
-    this.setState({ columnDefs: this.state.SelectedcolumnDefs });
-    this.setState({ SelectedcolumnDefs: this.state.SelectedcolumnDefs });
-    this.setState({ rowData: this.state.rowData });
-    localStorage.setItem(
-      "UserSearchParSearch",
-      JSON.stringify(this.state.SelectedcolumnDefs)
-    );
-    this.LookupviewStart();
-  };
+  // HandleSetVisibleField = e => {
+  //   e.preventDefault();
+  //   this.gridApi.setColumnDefs(this.state.SelectedcolumnDefs);
+  //   this.setState({ columnDefs: this.state.SelectedcolumnDefs });
+  //   this.setState({ SelectedcolumnDefs: this.state.SelectedcolumnDefs });
+  //   this.setState({ rowData: this.state.rowData });
+  //   localStorage.setItem(
+  //     "UserSearchParSearch",
+  //     JSON.stringify(this.state.SelectedcolumnDefs)
+  //   );
+  //   this.LookupviewStart();
+  // };
 
-  HeadingRightShift = () => {
-    const updatedSelectedColumnDefs = [
-      ...new Set([
-        ...this.state.SelectedcolumnDefs.map(item => JSON.stringify(item)),
-        ...SelectedColums.map(item => JSON.stringify(item)),
-      ]),
-    ].map(item => JSON.parse(item));
-    this.setState({
-      SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)],
-    });
-  };
-  handleLeftShift = () => {
-    let SelectedCols = this.state.SelectedcolumnDefs.slice();
-    let delindex = this.state.Arrindex;
-  if (SelectedCols && delindex >= 0) {
-      SelectedCols.splice(delindex, 1);
-      this.setState({
-        SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
-      });
-    }
-  };
+  // HeadingRightShift = () => {
+  //   const updatedSelectedColumnDefs = [
+  //     ...new Set([
+  //       ...this.state.SelectedcolumnDefs.map(item => JSON.stringify(item)),
+  //       ...SelectedColums.map(item => JSON.stringify(item)),
+  //     ]),
+  //   ].map(item => JSON.parse(item));
+  //   this.setState({
+  //     SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)],
+  //   });
+  // };
+  // handleLeftShift = () => {
+  //   let SelectedCols = this.state.SelectedcolumnDefs.slice();
+  //   let delindex = this.state.Arrindex;
+  // if (SelectedCols && delindex >= 0) {
+  //     SelectedCols.splice(delindex, 1);
+  //     this.setState({
+  //       SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
+  //     });
+  //   }
+  // };
   render() {
     const {
       rowData,
@@ -681,7 +474,7 @@ class OrderedList extends React.Component {
                     <Card>
                       <Row className="m-2">
                         <Col>
-                          <h1 className="float-left">SparePart List</h1>
+                          <h1 className="float-left">Audit History List</h1>
                         </Col>
                         <Col>
                           <span className="mx-1">
@@ -690,7 +483,7 @@ class OrderedList extends React.Component {
                               title="filter coloumn"
                               size="30px"
                               onClick={this.LookupviewStart}
-                              color="blue"
+                              color="#055761"
                               className="float-right"
                             />
                           </span>
@@ -701,7 +494,7 @@ class OrderedList extends React.Component {
                                 title="download file"
                                 size="30px"
                                 className="dropdown-button "
-                                color="blue"
+                                color="#055761"
                                 onClick={this.toggleDropdown}
                               />
                               {isOpen && (
@@ -858,13 +651,13 @@ class OrderedList extends React.Component {
           )}
         </Row>
 
-        <Modal
+        {/* <Modal
           isOpen={this.state.modal}
           toggle={this.LookupviewStart}
           className={this.props.className}
           style={{ maxWidth: "1050px" }}
         >
-          <ModalHeader toggle={this.LookupviewStart}>Change Fields</ModalHeader>
+          <ModalHeader toggle={this.LookupviewStart}>Change Fileds</ModalHeader>
           <ModalBody className="modalbodyhead">
             <Row>
               <Col lg="4" md="4" sm="12" xl="4" xs="12">
@@ -1010,9 +803,9 @@ class OrderedList extends React.Component {
               </Col>
             </Row>
           </ModalBody>
-        </Modal>
+        </Modal> */}
       </>
     );
   }
 }
-export default OrderedList;
+export default AuditHistory;

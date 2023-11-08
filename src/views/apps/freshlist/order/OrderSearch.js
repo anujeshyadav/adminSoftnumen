@@ -14,22 +14,19 @@ import {
   ModalHeader,
   ModalBody,
 } from "reactstrap";
-import ExcelReader from "../parts/ExcelReader";
 import { ContextLayout } from "../../../../utility/context/Layout";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
-import EditAccount from "../accounts/EditAccount";
-import ViewAccount from "../accounts/ViewAccount";
+import EditAccount from "../../freshlist/accounts/EditAccount";
+import ViewAccount from "../../freshlist/accounts/ViewAccount";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Logo from "../../../../assets/img/profile/pages/logomain.png";
 import Papa from "papaparse";
-import { Eye, Trash2, ChevronDown, Edit, CloudLightning } from "react-feather";
+import { Eye, Trash2, ChevronDown, Edit } from "react-feather";
 import { IoMdRemoveCircleOutline } from "react-icons/io";
-import { history } from "../../../../history";
 import "../../../../assets/scss/plugins/tables/_agGridStyleOverride.scss";
 import "../../../../assets/scss/pages/users.scss";
-import Moment from "react-moment";
 import { Route } from "react-router-dom";
 import xmlJs from "xml-js";
 
@@ -38,13 +35,10 @@ import {
   FaArrowAltCircleRight,
   FaFilter,
 } from "react-icons/fa";
-import "moment-timezone";
 import swal from "sweetalert";
 import {
-  CreateAccountList,
-  CreateAccountView,
+  OrderViewList,
   DeleteAccount,
-  OrderPartsList,
 } from "../../../../ApiEndPoint/ApiCalling";
 import {
   BsCloudDownloadFill,
@@ -52,10 +46,12 @@ import {
   BsFillArrowUpSquareFill,
 } from "react-icons/bs";
 import * as XLSX from "xlsx";
+import UserContext from "../../../../context/Context";
 
-const SelectedCols = [];
+const SelectedColums = [];
 
 class OrderSearch extends React.Component {
+  static contextType = UserContext;
   constructor(props) {
     super(props);
     this.gridRef = React.createRef();
@@ -65,7 +61,8 @@ class OrderSearch extends React.Component {
       Arrindex: "",
       rowData: [],
       setMySelectedarr: [],
-      paginationPageSize: 20,
+      SelectedCols: [],
+      paginationPageSize: 5,
       currenPageSize: "",
       getPageSize: "",
       columnDefs: [],
@@ -73,14 +70,15 @@ class OrderSearch extends React.Component {
       SelectedcolumnDefs: [],
       defaultColDef: {
         sortable: true,
-        // editable: true,
+        enablePivot: true,
+        enableValue: true,
         resizable: true,
         suppressMenu: true,
       },
     };
   }
 
-  toggleModal = () => {
+  LookupviewStart = () => {
     this.setState(prevState => ({
       modal: !prevState.modal,
     }));
@@ -101,29 +99,37 @@ class OrderSearch extends React.Component {
     let headings;
     let maxKeys = 0;
     let elementWithMaxKeys = null;
-    OrderPartsList()
-      .then(resp => {
-        console.log(resp?.FrontPartDetail);
-
-        // Iterate through the array
-        for (const element of resp?.FrontPartDetail) {
-          const numKeys = Object.keys(element).length; // Get the number of keys in the current element
-
-          // Check if the current element has more keys than the previous maximum
+    await OrderViewList()
+      .then(res => {
+        console.log(res.Order);
+    for (let key in res.Order) {
+    if (res.Order.hasOwnProperty(key)) {
+      const value = res.Order[key];
+      console.log(value);
+    }
+  }
+ for (const element of res?.Order) {
+        console.log(element)
+        const numKeys = Object.keys(element).length;
           if (numKeys > maxKeys) {
-            maxKeys = numKeys; // Update the maximum number of keys
-            elementWithMaxKeys = element; // Update the element with maximum keys
+            maxKeys = numKeys;
+            elementWithMaxKeys = element;
           }
         }
-        // console.log(elementWithMaxKeys);
+        console.log(elementWithMaxKeys)
+        this.setState({ rowData: Object.keys(elementWithMaxKeys)});
+        // console.log(maxKeys);
         let findheading = Object.keys(elementWithMaxKeys);
-
+        let index = findheading.indexOf("_id");
+        if (index > -1) {
+          findheading.splice(index, 1);
+        }
+        let index1 = findheading.indexOf("__v");
+        if (index1 > -1) {
+          findheading.splice(index1, 1);
+        }
         headings = findheading?.map(ele => {
-          debugger;
-          if (ele == "_id") {
-          } else {
-          }
-          return {
+        return {
             headerName: ele,
             field: ele,
             filter: true,
@@ -131,108 +137,68 @@ class OrderSearch extends React.Component {
           };
         });
 
-        let Product = [
-          {
-            headerName: "Actions",
-            field: "sortorder",
-            field: "transactions",
-            width: 190,
-            cellRendererFramework: params => {
-              return (
-                <div className="actions cursor-pointer">
-                  <Route
-                    render={({ history }) => (
-                      <Eye
-                        className="mr-50"
-                        size="25px"
-                        color="green"
-                        onClick={() => {
-                          this.handleChangeEdit(params.data, "readonly");
-                        }}
-                      />
-                    )}
-                  />
-                  <Route
-                    render={({ history }) => (
-                      <Edit
-                        className="mr-50"
-                        size="25px"
-                        color="blue"
-                        onClick={() => {
-                          this.handleChangeEdit(params.data, "Editable");
-                        }}
-                      />
-                    )}
-                  />
 
-                  <Route
-                    render={() => (
-                      <Trash2
-                        className="mr-50"
-                        size="25px"
-                        color="red"
-                        onClick={() => {
-                          this.runthisfunction(params?.data?._id);
-                        }}
-                      />
-                    )}
-                  />
-                </div>
-              );
-            },
-          },
+        let myHeadings = [
+
           ...headings,
+
         ];
-        this.setState({ columnDefs: Product });
+        let Product = [
+
+          ...myHeadings,
+
+        ];
         this.setState({ AllcolumnDefs: Product });
-        this.setState({ rowData: resp?.FrontPartDetail });
+
+        let userHeading = JSON.parse(
+          localStorage.getItem("UserSearchParSearch")
+        );
+        if (userHeading?.length) {
+          this.setState({ columnDefs: userHeading });
+          this.gridApi.setColumnDefs(userHeading);
+          this.setState({ SelectedcolumnDefs: userHeading });
+        } else {
+          this.setState({ columnDefs: Product });
+          this.setState({ SelectedcolumnDefs: Product });
+        }
+        this.setState({ SelectedCols: Product });
       })
       .catch(err => {
         console.log(err);
-      });
-
-    // Use the map function to iterate through the array
-
-    await CreateAccountList()
-      .then(res => {
-        let value = res?.CreateAccount;
-        this.setState({ rowData: value });
-      })
-      .catch(err => {
-        console.log(err);
+        swal("Error", "something went wrong try again");
       });
   }
   toggleDropdown = () => {
     this.setState(prevState => ({ isOpen: !prevState.isOpen }));
   };
 
-  runthisfunction(id) {
-    swal("Warning", "Sure You Want to Delete it", {
-      buttons: {
-        cancel: "cancel",
-        catch: { text: "Delete ", value: "delete" },
-      },
-    }).then(value => {
-      switch (value) {
-        case "delete":
-          DeleteAccount(id)
-            .then(res => {
-              let selectedData = this.gridApi.getSelectedRows();
-              this.gridApi.updateRowData({ remove: selectedData });
-            })
-            .catch(err => {
-              console.log(err);
-            });
-          break;
-        default:
-      }
-    });
-  }
+  // runthisfunction(id) {
+  //   swal("Warning", "Sure You Want to Delete it", {
+  //     buttons: {
+  //       cancel: "cancel",
+  //       catch: { text: "Delete ", value: "delete" },
+  //     },
+  //   }).then(value => {
+  //     switch (value) {
+  //       case "delete":
+  //         DeleteAccount(id)
+  //           .then(res => {
+  //             let selectedData = this.gridApi.getSelectedRows();
+  //             this.gridApi.updateRowData({ remove: selectedData });
+  //           })
+  //           .catch(err => {
+  //             console.log(err);
+  //           });
+  //         break;
+  //       default:
+  //     }
+  //   });
+  // }
 
   onGridReady = params => {
     this.gridApi = params.api;
-    this.gridRef.current = params.api;
     this.gridColumnApi = params.columnApi;
+    this.gridRef.current = params.api;
 
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
@@ -257,13 +223,13 @@ class OrderSearch extends React.Component {
   handleChangeHeader = (e, value, index) => {
     let check = e.target.checked;
     if (check) {
-      SelectedCols.push(value);
+      SelectedColums?.push(value);
     } else {
-      const delindex = SelectedCols.findIndex(
+      const delindex = SelectedColums?.findIndex(
         ele => ele?.headerName === value?.headerName
       );
 
-      SelectedCols?.splice(delindex, 1);
+      SelectedColums?.splice(delindex, 1);
     }
   };
   parseCsv(csvData) {
@@ -300,11 +266,7 @@ class OrderSearch extends React.Component {
       body: tableData,
       startY: 60,
     });
-    // doc.setDrawColor("UserList.pdf");
-    // doc.setFont("UserList.pdf");
 
-    // doc.addImage("UserList.pdf");
-    // doc.setLanguage("UserList.pdf");
     doc.save("UserList.pdf");
   }
 
@@ -318,40 +280,6 @@ class OrderSearch extends React.Component {
     } catch (error) {
       console.error("Error parsing CSV:", error);
     }
-    // debugger;
-    // const doc = new jsPDF("landscape", "mm", "a4", false);
-    // const contentWidth = doc.internal.pageSize.getWidth();
-    // const contentHeight = doc.internal.pageSize.getHeight();
-    // // const tableHeight = this.gridApi.getRowHeight();
-    // // console.log(tableHeight);
-    // const tableWidth = contentWidth;
-    // const tableX = 10;
-    // const tableY = 10;
-    // const data1 = this.gridApi.getDataAsCsv({
-    //   processCellCallback: this.processCell,
-    // });
-
-    // const lines = data1.split("\n");
-    // const header = lines[0].split(",");
-    // const data = [];
-
-    // for (let i = 1; i < lines.length; i++) {
-    //   const line = lines[i].split(",");
-    //   data.push(line);
-    // }
-
-    // doc.text("User_Account  ", 10, 10);
-
-    // const columns = header;
-    // const rows = data;
-
-    // doc.autoTable({
-    //   head: [columns],
-    //   body: rows,
-    //   startY: 20,
-    // });
-
-    // doc.save("userlist.pdf");
   };
   processCell = params => {
     // console.log(params);
@@ -467,12 +395,42 @@ class OrderSearch extends React.Component {
       },
     });
   };
-  handleChangeView = e => {
+
+  HandleSetVisibleField = e => {
     e.preventDefault();
+    this.gridApi.setColumnDefs(this.state.SelectedcolumnDefs);
     this.setState({ columnDefs: this.state.SelectedcolumnDefs });
-    this.toggleModal();
+    this.setState({ SelectedcolumnDefs: this.state.SelectedcolumnDefs });
+    this.setState({ rowData: this.state.rowData });
+    localStorage.setItem(
+      "UserSearchParSearch",
+      JSON.stringify(this.state.SelectedcolumnDefs)
+    );
+    this.LookupviewStart();
   };
 
+  HeadingRightShift = () => {
+    const updatedSelectedColumnDefs = [
+      ...new Set([
+        ...this.state.SelectedcolumnDefs.map(item => JSON.stringify(item)),
+        ...SelectedColums.map(item => JSON.stringify(item)),
+      ]),
+    ].map(item => JSON.parse(item));
+    this.setState({
+      SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)], // Update the state with the combined array
+    });
+  };
+  handleLeftShift = () => {
+    let SelectedCols = this.state.SelectedcolumnDefs.slice();
+    let delindex = this.state.Arrindex; /* Your delete index here */
+
+    if (SelectedCols && delindex >= 0) {
+      SelectedCols.splice(delindex, 1); // Remove the element
+      this.setState({
+        SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
+      });
+    }
+  };
   render() {
     const {
       rowData,
@@ -480,11 +438,11 @@ class OrderSearch extends React.Component {
       defaultColDef,
       SelectedcolumnDefs,
       isOpen,
+      SelectedCols,
       AllcolumnDefs,
     } = this.state;
     return (
       <>
-        {/* <ExcelReader /> */}
         <Row className="app-user-list">
           {this.state.EditOneUserView && this.state.EditOneUserView ? (
             <Row className="card">
@@ -531,7 +489,7 @@ class OrderSearch extends React.Component {
                     <Card>
                       <Row className="m-2">
                         <Col>
-                          <h1 className="float-left"> Create Order</h1>
+                          <h1 className="float-left">Order Search</h1>
                         </Col>
                         <Col>
                           <span className="mx-1">
@@ -539,10 +497,7 @@ class OrderSearch extends React.Component {
                               style={{ cursor: "pointer" }}
                               title="filter coloumn"
                               size="30px"
-                              onClick={e => {
-                                e.preventDefault();
-                                this.toggleModal();
-                              }}
+                              onClick={this.LookupviewStart}
                               color="blue"
                               className="float-right"
                             />
@@ -618,14 +573,14 @@ class OrderSearch extends React.Component {
                                     {this.gridApi
                                       ? this.state.currenPageSize
                                       : "" * this.state.getPageSize -
-                                        (this.state.getPageSize - 1)}{" "}
+                                      (this.state.getPageSize - 1)}{" "}
                                     -{" "}
                                     {this.state.rowData.length -
                                       this.state.currenPageSize *
-                                        this.state.getPageSize >
-                                    0
+                                      this.state.getPageSize >
+                                      0
                                       ? this.state.currenPageSize *
-                                        this.state.getPageSize
+                                      this.state.getPageSize
                                       : this.state.rowData.length}
                                     of {this.state.rowData.length}
                                     <ChevronDown className="ml-50" size={15} />
@@ -635,13 +590,7 @@ class OrderSearch extends React.Component {
                                       tag="div"
                                       onClick={() => this.filterSize(5)}
                                     >
-                                      05
-                                    </DropdownItem>
-                                    <DropdownItem
-                                      tag="div"
-                                      onClick={() => this.filterSize(10)}
-                                    >
-                                      10
+                                      5
                                     </DropdownItem>
                                     <DropdownItem
                                       tag="div"
@@ -670,10 +619,10 @@ class OrderSearch extends React.Component {
                                   </DropdownMenu>
                                 </UncontrolledDropdown>
                               </div>
-                              <div className="d-flex flex-wrap justify-content-between mb-1">
+                              <div className="d-flex flex-wrap justify-content-end mb-1">
                                 <div className="table-input mr-1">
                                   <Input
-                                    placeholder="search..."
+                                    placeholder="search Item here..."
                                     onChange={e =>
                                       this.updateSearchQuery(e.target.value)
                                     }
@@ -686,20 +635,12 @@ class OrderSearch extends React.Component {
                               {context => (
                                 <AgGridReact
                                   id="myAgGrid"
-                                  gridOptions={{
-                                    domLayout: "autoHeight", // or other layout options
-                                  }}
-                                  // gridOptions={this.gridOptions}
+                                  gridOptions={this.gridOptions}
                                   rowSelection="multiple"
                                   defaultColDef={defaultColDef}
                                   columnDefs={columnDefs}
                                   rowData={rowData}
-                                  onGridReady={params => {
-                                    this.gridApi = params.api;
-                                    this.gridColumnApi = params.columnApi;
-                                    this.gridRef.current = params.api;
-                                  }}
-                                  // onGridReady={this.onGridReady}
+                                  onGridReady={this.onGridReady}
                                   colResizeDefault={"shift"}
                                   animateRows={true}
                                   floatingFilter={false}
@@ -727,15 +668,15 @@ class OrderSearch extends React.Component {
 
         <Modal
           isOpen={this.state.modal}
-          toggle={this.toggleModal}
+          toggle={this.LookupviewStart}
           className={this.props.className}
           style={{ maxWidth: "1050px" }}
         >
-          <ModalHeader toggle={this.toggleModal}>Change Fileds</ModalHeader>
+          <ModalHeader toggle={this.LookupviewStart}>Change Fileds</ModalHeader>
           <ModalBody className="modalbodyhead">
             <Row>
               <Col lg="4" md="4" sm="12" xl="4" xs="12">
-                <h4>Columns</h4>
+                <h4>Available Columns</h4>
                 <div className="mainshffling">
                   <div class="ex1">
                     {AllcolumnDefs &&
@@ -772,22 +713,14 @@ class OrderSearch extends React.Component {
                 <div className="mainarrowbtn">
                   <div style={{ cursor: "pointer" }}>
                     <FaArrowAltCircleRight
-                      onClick={() =>
-                        this.setState({
-                          SelectedcolumnDefs: SelectedCols,
-                        })
-                      }
+                      onClick={this.HeadingRightShift}
                       className="arrowassign"
                       size="30px"
                     />
                   </div>
                   <div style={{ cursor: "pointer" }} className="my-2">
                     <FaArrowAltCircleLeft
-                      onClick={() =>
-                        this.setState({
-                          SelectedcolumnDefs: SelectedCols,
-                        })
-                      }
+                      onClick={this.handleLeftShift}
                       className="arrowassign"
                       size="30px"
                     />
@@ -797,7 +730,7 @@ class OrderSearch extends React.Component {
               <Col lg="6" md="6" sm="12" xl="6" xs="12">
                 <Row>
                   <Col lg="8" md="8" sm="12" xs="12">
-                    <h4>Selected Columns</h4>
+                    <h4>Visible Columns</h4>
                     <div className="mainshffling">
                       <div class="ex1">
                         {SelectedcolumnDefs &&
@@ -812,27 +745,30 @@ class OrderSearch extends React.Component {
                                       }
                                       style={{
                                         cursor: "pointer",
-                                        backgroundColor: `${
-                                          this.state.Arrindex === i
+                                        backgroundColor: `${this.state.Arrindex === i
                                             ? "#1877f2"
                                             : ""
-                                        }`,
+                                          }`,
                                       }}
                                       className="allfields"
                                     >
                                       <IoMdRemoveCircleOutline
                                         onClick={() => {
+                                          const SelectedCols =
+                                            this.state.SelectedcolumnDefs.slice();
                                           const delindex =
                                             SelectedCols.findIndex(
                                               element =>
-                                                element?.headerName ===
+                                                element?.headerName ==
                                                 ele?.headerName
                                             );
 
-                                          SelectedCols?.splice(delindex, 1);
-                                          this.setState({
-                                            SelectedcolumnDefs: SelectedCols,
-                                          });
+                                          if (SelectedCols && delindex >= 0) {
+                                            SelectedCols.splice(delindex, 1); // Remove the element
+                                               this.setState({
+                                              SelectedcolumnDefs: SelectedCols, // Update the state with the
+                                            });
+                                          }
                                         }}
                                         style={{ cursor: "pointer" }}
                                         size="25px"
@@ -856,12 +792,12 @@ class OrderSearch extends React.Component {
                         <BsFillArrowUpSquareFill
                           className="arrowassign mb-1"
                           size="30px"
-                          onClick={() => this.shiftElementUp()}
+                          onClick={this.shiftElementUp}
                         />
                       </div>
                       <div>
                         <BsFillArrowDownSquareFill
-                          onClick={() => this.shiftElementDown()}
+                          onClick={this.shiftElementDown}
                           className="arrowassign"
                           size="30px"
                         />
@@ -874,10 +810,7 @@ class OrderSearch extends React.Component {
             <Row>
               <Col>
                 <div className="d-flex justify-content-center">
-                  <Button
-                    onClick={e => this.handleChangeView(e)}
-                    color="primary"
-                  >
+                  <Button onClick={this.HandleSetVisibleField} color="primary">
                     Submit
                   </Button>
                 </div>
