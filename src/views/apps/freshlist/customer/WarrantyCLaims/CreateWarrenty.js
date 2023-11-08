@@ -86,7 +86,7 @@ const CreateWarrenty = (args) => {
     // const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
     WarrantyListView()
       .then((res) => {
-        console.log(res?.Warranty);
+        // console.log(res?.Warranty);
         if (res?.Warranty.length) {
           const lastElement = res?.Warranty[res?.Warranty?.length - 1]?.id;
           const prefix = lastElement.substring(0, 5);
@@ -184,43 +184,28 @@ const CreateWarrenty = (args) => {
       }
     }
   };
-  useEffect(() => {
-    console.log(formData);
-    console.log(Comments);
-    console.log(formValues);
-  }, [formData, Comments, formValues]);
 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      console.log("start");
-      // Save your data or run your function here
-      saveDataOrRunFunction();
-
-      // Show a confirmation dialog to the user
-      event.preventDefault();
-      event.returnValue = "";
-
-      // You can customize the confirmation message
-      return "Are you sure you want to leave this page? Your changes may not be saved.";
+    const handlePopstate = (event) => {
+      if (event.state === null) {
+        // This condition is true when the user uses the browser's back button
+        console.log("User used the browser back button.");
+        // submitHandlerAfterback();
+        // saving data as draft from here
+      } else {
+        // This condition is true when the user navigated to another menu or route
+        console.log("User navigated to another menu or route.");
+      }
     };
 
-    const saveDataOrRunFunction = () => {
-      // Perform the desired action, e.g., save data or run a function
-      console.log("Saving data or running a function when leaving the page.");
-    };
-
-    // Add an event listener for the beforeunload event
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    // Add an event listener for the popstate event
+    window.addEventListener("popstate", handlePopstate);
 
     return () => {
-      console.log("remove");
-      console.log(formData);
-      console.log(Comments);
-      console.log(formValues);
       // Clean up the event listener when the component unmounts
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopstate);
     };
-  }, []);
+  }, [formData, Comments, formValues]);
   useEffect(() => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
@@ -228,7 +213,7 @@ const CreateWarrenty = (args) => {
     Warranty_ViewData()
       .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData).Warranty);
+        // console.log(JSON.parse(jsonData).Warranty);
 
         let value = JSON.parse(jsonData)?.Warranty?.CheckBox?.input;
         value?.map((ele) => {
@@ -246,6 +231,91 @@ const CreateWarrenty = (args) => {
       });
   }, []);
 
+  const submitHandlerAfterback = () => {
+    let formdata = new FormData();
+    dropdownValue?.CheckBox?.input?.map((ele) => {
+      formdata.append(`${ele?.name._text}`, formData[ele?.name._text]);
+    });
+
+    dropdownValue?.PartDetails?.MyDropDown?.map((ele) => {
+      formdata.append(
+        `${ele?.dropdown?.name?._text}`,
+        formData[ele?.dropdown?.name?._text]
+      );
+    });
+
+    let dropdown = dropdownValue?.MyDropDown?.dropdown;
+    if (dropdown) {
+      formdata.append(
+        `${dropdown.name?._text}`,
+        "Draft" // formData[dropdown.name?._text]
+      );
+    }
+    dropdownValue?.PartDetails?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    dropdownValue?.ProductDetails?.MyDropDown?.map((ele) => {
+      formdata.append(
+        `${ele?.dropdown?.name?._text}`,
+        formData[ele?.dropdown?.name?._text]
+      );
+    });
+
+    dropdownValue?.ProductDetails?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    dropdownValue?.WType?.MyDropDown?.map((ele) => {
+      formdata.append(
+        `${ele?.dropdown?.name?._text}`,
+        formData[ele?.dropdown?.name?._text]
+      );
+    });
+
+    dropdownValue?.WType?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    dropdownValue?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    formdata.append("id", randomNumber);
+    if (Comments.length > 0) {
+      formdata.append(`Comments`, JSON.stringify(Comments));
+    }
+
+    let user = JSON.parse(localStorage.getItem("userData"));
+    if (formValues.length) {
+      let myarr = [];
+      formValues?.map((ele, i) => {
+        let newdata = Array.from(ele?.files);
+        myarr.push(newdata);
+      });
+      let totalimg = myarr.flat();
+      totalimg?.map((ele, i) => {
+        formdata.append("files", ele);
+      });
+    }
+    if (formValues.length || formValues.length) {
+      formdata.append("Role", user?.Role);
+      formdata.append("time", new Date().toString());
+      formdata.append("userName", user?.UserName);
+    }
+
+    // let data = { ...formData, Comments: Comments && Comments, formdata };
+    WarrantySave(formdata)
+      .then((res) => {
+        console.log(res?.Warranty);
+        generateRandomNumber();
+        // swal("Warrenty Created Successfully");
+      })
+      .catch((err) => {
+        console.log(err.response);
+        // swal("Something Went Wrong");
+      });
+  };
   const submitHandler = (e) => {
     e.preventDefault();
     let formdata = new FormData();
@@ -1412,41 +1482,6 @@ const CreateWarrenty = (args) => {
                   </div>
                 </div>
               </Row>
-              <Label className="mt-1">Upload Files</Label>
-              {formValues.map((index, i) => (
-                <Row className="my-2 mt-1">
-                  <Col lg="6" md="6" sm="12" key={i}>
-                    <Input
-                      type="file"
-                      multiple
-                      onChange={(e) => handleFileChange(i, e)}
-                    />
-                  </Col>
-                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
-                    <div>
-                      {i ? (
-                        <Button
-                          type="button"
-                          className="btn btn-danger"
-                          onClick={() => removeFileAttach(i)}
-                        >
-                          -
-                        </Button>
-                      ) : null}
-                    </div>
-                    <div>
-                      <Button
-                        className="ml-1"
-                        color="primary"
-                        type="button"
-                        onClick={() => addFileInput()}
-                      >
-                        +
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
-              ))}
 
               <hr />
 
@@ -1500,31 +1535,38 @@ const CreateWarrenty = (args) => {
             </Form>
             {Commentshow && Commentshow ? (
               <>
-                {Comments.length &&
-                  Comments?.map((ele, i) => (
-                    <Row key={i}>
-                      <Col>
-                        <div
-                          style={{
-                            border: "1px solid black",
-                            padding: "2px 2px",
-                            borderRadius: "8px",
-                            marginBottom: "4px",
-                          }}
-                          className=""
-                        >
-                          <div className="py-1 mx-2">
-                            <strong>
-                              {" "}
-                              <BsFillChatDotsFill size={25} fill="#055761" />
-                            </strong>{" "}
-                            &nbsp;{ele?.comment} {ele?.userName} ({ele?.Role}){" "}
-                            {ele?.time}
-                          </div>
-                        </div>
-                      </Col>
-                    </Row>
-                  ))}
+                {Comments[0]?.comment !== "" ? (
+                  <>
+                    {Comments.length &&
+                      Comments?.map((ele, i) => (
+                        <Row key={i}>
+                          <Col>
+                            <div
+                              style={{
+                                border: "1px solid black",
+                                padding: "2px 2px",
+                                borderRadius: "8px",
+                                marginBottom: "4px",
+                              }}
+                              className=""
+                            >
+                              <div className="py-1 mx-2">
+                                <strong>
+                                  {" "}
+                                  <BsFillChatDotsFill
+                                    size={25}
+                                    fill="#055761"
+                                  />
+                                </strong>{" "}
+                                &nbsp;{ele?.comment} {ele?.userName} (
+                                {ele?.Role}) {ele?.time}
+                              </div>
+                            </div>
+                          </Col>
+                        </Row>
+                      ))}
+                  </>
+                ) : null}
               </>
             ) : null}
             {Comments &&
@@ -1580,6 +1622,43 @@ const CreateWarrenty = (args) => {
             >
               Submit Comment
             </Button>
+            <div className="py-2 mx-1">
+              <Label className="mt-1">Attachment</Label>
+              {formValues.map((index, i) => (
+                <Row className="my-2 mt-1">
+                  <Col lg="6" md="6" sm="12" key={i}>
+                    <Input
+                      type="file"
+                      multiple
+                      onChange={(e) => handleFileChange(i, e)}
+                    />
+                  </Col>
+                  <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                    <div>
+                      {i ? (
+                        <Button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() => removeFileAttach(i)}
+                        >
+                          -
+                        </Button>
+                      ) : null}
+                    </div>
+                    <div>
+                      <Button
+                        className="ml-1"
+                        color="primary"
+                        type="button"
+                        onClick={() => addFileInput()}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              ))}
+            </div>
           </CardBody>
         </Card>
         <Modal

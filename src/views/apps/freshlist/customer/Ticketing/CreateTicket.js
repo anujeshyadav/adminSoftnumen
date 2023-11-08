@@ -30,6 +30,8 @@ import {
   Warranty_ViewData,
   CreateTicketViewData,
   TicketTool_ViewData,
+  ticketToolSave,
+  ticketToolList,
 } from "../../../../../ApiEndPoint/ApiCalling";
 import { BiEnvelope } from "react-icons/bi";
 import { FcPhoneAndroid } from "react-icons/fc";
@@ -44,8 +46,11 @@ const CreateTicket = (args) => {
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
   const [index, setindex] = useState("");
+  const [StatusDropDown, setStatusDropDown] = useState({});
+  const [UserInfo, setUserInfo] = useState({});
   const [error, setError] = useState("");
   const [permissions, setpermissions] = useState({});
+  const [randomNumber, setRandomNumber] = useState("");
 
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -156,38 +161,137 @@ const CreateTicket = (args) => {
   };
   useEffect(() => {
     // console.log(formData);
-  }, [formData]);
+    // console.log(Comments);
+    // console.log(formValues);
+  }, [formData, Comments, formValues]);
   useEffect(() => {
+    ticketToolList()
+      .then((res) => {
+        console.log(res?.TicketTool);
+        if (res?.TicketTool?.length) {
+          const lastElement = res?.TicketTool[res?.TicketTool?.length - 1]?.id;
+          const prefix = lastElement.substring(0, 5);
+          const number = parseInt(lastElement.match(/\d+$/)[0], 10) + 1;
+          const concatenatedString = prefix + number;
+          setRandomNumber(concatenatedString);
+        } else {
+          let numb = "sup001";
+          setRandomNumber(numb);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    let userInfo = JSON.parse(localStorage.getItem("userData"));
+    setUserInfo(userInfo);
     TicketTool_ViewData()
       .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData)?.createTicket);
-        // let origionalpermission =
-        //   JSON.parse(jsonData)?.Warranty?.input[14].permissions?.role;
+        // console.log(JSON.parse(jsonData)?.createTicket);
+        // console.log(
+        //   JSON.parse(jsonData)?.createTicket?.CurrentStatus?.MyDropDown
+        //     ?.dropdown
+        // );
         setCreatAccountView(JSON.parse(jsonData));
         setdropdownValue(JSON.parse(jsonData));
+        setStatusDropDown(
+          JSON.parse(jsonData)?.createTicket?.CurrentStatus?.MyDropDown
+            ?.dropdown
+        );
+        let value = JSON.parse(jsonData)?.createTicket?.CheckBox?.input;
+        value?.map((ele) => {
+          formData[ele?.name._text] = false;
+        });
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
+    console.log(CreatAccountView?.createTicket);
+    let formdata = new FormData();
+
+    CreatAccountView?.createTicket?.CheckBox?.input?.map((ele) => {
+      formdata.append(`${ele?.name._text}`, formData[ele?.name._text]);
+    });
+
+    CreatAccountView?.createTicket?.Parts?.MyDropDown?.map((ele) => {
+      formdata.append(
+        `${ele?.dropdown?.name?._text}`,
+        formData[ele?.dropdown?.name?._text]
+      );
+    });
+
+    let dropdown =
+      CreatAccountView?.createTicket?.CurrentStatus?.MyDropDown?.dropdown;
+    if (dropdown) {
+      formdata.append(
+        `${dropdown.name?._text}`,
+        formData[dropdown?.name?._text]
+      );
+    }
+    CreatAccountView?.createTicket?.Parts?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    CreatAccountView?.createTicket?.Product?.MyDropDown?.map((ele) => {
+      formdata.append(
+        `${ele?.dropdown?.name?._text}`,
+        formData[ele?.dropdown?.name?._text]
+      );
+    });
+
+    CreatAccountView?.createTicket?.Product?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    CreatAccountView?.createTicket?.input?.map((ele) => {
+      formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    });
+
+    formdata.append("id", randomNumber);
+    if (Comments.length > 0) {
+      formdata.append(`Comments`, JSON.stringify(Comments));
+    }
+
+    let user = JSON.parse(localStorage.getItem("userData"));
+    if (formValues.length) {
+      let myarr = [];
+      formValues?.map((ele, i) => {
+        let newdata = Array.from(ele?.files);
+        myarr.push(newdata);
+      });
+      let totalimg = myarr.flat();
+      totalimg?.map((ele, i) => {
+        formdata.append("files", ele);
+      });
+    }
+    if (formValues.length || formValues.length) {
+      formdata.append("Role", user?.Role);
+      formdata.append("time", new Date().toString());
+      formdata.append("userName", user?.UserName);
+    }
+
+    for (const [key, value] of formdata.entries()) {
+      console.log(`Key: ${key}, Value: ${value}`);
+    }
+
+    await ticketToolSave(formdata)
+      .then((res) => {
+        console.log(res);
+        swal(
+          "successs",
+          `Support Ticket Created Successfully with id ${res?.TicketTool?.id}`
+        );
+      })
+      .catch((err) => {
+        console.log(dropdown);
+      });
     if (error) {
       swal("Error occured while Entering Details");
     } else {
-      CreateAccountSave(formData)
-        .then((res) => {
-          if (res.status) {
-            setFormData({});
-            window.location.reload();
-            swal("Acccont Created Successfully");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
     }
   };
 
@@ -197,11 +301,54 @@ const CreateTicket = (args) => {
         <Card>
           <Row className="m-2">
             <Col className="">
-              <div>
-                <h1 className="">Create Ticket </h1>
+              <div
+                style={{ justifyContent: "space-between" }}
+                className="d-flex myclasswikiheading"
+              >
+                <h1 className="justify-content-start">Create Ticket</h1>
+                <div className="mystatus">Status : (Draft) </div>
+                <div className="mystatus">
+                  <div>
+                    {!!StatusDropDown && !!StatusDropDown ? (
+                      <>
+                        <Label>{StatusDropDown?.label?._text}</Label>
+                        <CustomInput
+                          required
+                          type="select"
+                          name={StatusDropDown?.name?._text}
+                          value={formData[StatusDropDown?.name?._text]}
+                          onChange={handleInputChange}
+                        >
+                          <option value="">--Select Status---</option>
+                          {StatusDropDown?.option?.map((option, index) => {
+                            let dropdownpermision =
+                              option?._attributes?.permission?.split(",");
+                            let permission = dropdownpermision?.includes(
+                              UserInfo?.Role
+                            );
+
+                            return (
+                              <>
+                                {permission && (
+                                  <option
+                                    key={index}
+                                    value={option?._attributes?.value}
+                                  >
+                                    {option?._attributes?.value}
+                                  </option>
+                                )}
+                              </>
+                            );
+                          })}
+                        </CustomInput>
+                      </>
+                    ) : null}
+                  </div>
+                </div>
               </div>
+
               <div>
-                <span>Ticket Id</span> <span>#</span>
+                <span>Ticket Id</span> <span># {randomNumber}</span>
               </div>
             </Col>
           </Row>
@@ -258,6 +405,7 @@ const CreateTicket = (args) => {
                                 type="select"
                                 name={ele?.dropdown?.name?._text}
                                 value={formData[ele?.dropdown?.name?._text]}
+                                onChange={handleInputChange}
                               >
                                 <option value="">--Select---</option>
                                 {ele?.dropdown?.option?.map((option, index) => {
@@ -312,6 +460,7 @@ const CreateTicket = (args) => {
                                       name={ele?.name?._text}
                                       placeholder={ele?.name._text}
                                       value={formData[ele?.name?._text]}
+                                      onChange={handleInputChange}
                                       readOnly
                                     />{" "}
                                     <Button
@@ -466,7 +615,9 @@ const CreateTicket = (args) => {
                 {CreatAccountView &&
                   CreatAccountView?.createTicket?.Parts?.MyDropDown?.map(
                     (ele, i) => {
-                      console.log(ele);
+                      {
+                        /* console.log(ele); */
+                      }
                       return (
                         <>
                           <Col key={i} lg="6" md="6" sm="12">
@@ -478,6 +629,7 @@ const CreateTicket = (args) => {
                                 type="select"
                                 name={ele?.dropdown?.name?._text}
                                 value={formData[ele?.dropdown?.name?._text]}
+                                onChange={handleInputChange}
                               >
                                 <option value="">--Select---</option>
                                 {ele?.dropdown?.option?.map((option, index) => {
@@ -529,6 +681,7 @@ const CreateTicket = (args) => {
                                       name={ele?.name?._text}
                                       placeholder={ele?.name._text}
                                       value={formData[ele?.name?._text]}
+                                      onChange={handleInputChange}
                                       readOnly
                                     />{" "}
                                     <Button
@@ -575,6 +728,7 @@ const CreateTicket = (args) => {
                                     name={ele?.name?._text}
                                     placeholder={ele?.name._text}
                                     value={formData[ele?.value?._text]}
+                                    onChange={handleInputChange}
                                   />
                                   <span className="mx-3 pt-1">
                                     {ele?.value?._text}
@@ -723,43 +877,6 @@ const CreateTicket = (args) => {
                   </div>
                 </div>
               </Row>
-              {formValues.map((index, i) => (
-                <>
-                  <label className="mt-1">Upload files</label>
-                  <Row className="">
-                    <Col lg="6" md="6" sm="12" key={i}>
-                      <Input
-                        type="file"
-                        multiple
-                        onChange={(e) => handleFileChange(i, e)}
-                      />
-                    </Col>
-                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
-                      <div>
-                        {i ? (
-                          <Button
-                            type="button"
-                            className="btn btn-danger"
-                            onClick={() => removeFileAttach(i)}
-                          >
-                            -
-                          </Button>
-                        ) : null}
-                      </div>
-                      <div>
-                        <Button
-                          className="ml-1"
-                          color="primary"
-                          type="button"
-                          onClick={() => addFileInput()}
-                        >
-                          +
-                        </Button>
-                      </div>
-                    </Col>
-                  </Row>
-                </>
-              ))}
 
               <hr />
               {/* <Row className="mt-2 ">
@@ -861,6 +978,45 @@ const CreateTicket = (args) => {
             >
               Submit Comment
             </Button>
+            <div className="mx-1 pt-1">
+              {formValues.map((index, i) => (
+                <>
+                  <label className="mt-1">Attachment</label>
+                  <Row className="">
+                    <Col lg="6" md="6" sm="12" key={i}>
+                      <Input
+                        type="file"
+                        multiple
+                        onChange={(e) => handleFileChange(i, e)}
+                      />
+                    </Col>
+                    <Col className="d-flex mt-2" lg="3" md="3" sm="12">
+                      <div>
+                        {i ? (
+                          <Button
+                            type="button"
+                            className="btn btn-danger"
+                            onClick={() => removeFileAttach(i)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
+                      <div>
+                        <Button
+                          className="ml-1"
+                          color="primary"
+                          type="button"
+                          onClick={() => addFileInput()}
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                </>
+              ))}
+            </div>
           </CardBody>
         </Card>
       </div>

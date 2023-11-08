@@ -27,6 +27,7 @@ import { connect } from "react-redux";
 import UserContext from "../../../../context/Context";
 import OtpInput from "react-otp-input";
 import swal from "sweetalert";
+
 import axiosConfig from "../../../../axiosConfig";
 import { UserLogin, UserOTPVerify } from "../../../../ApiEndPoint/ApiCalling";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
@@ -112,7 +113,10 @@ class Login extends React.Component {
         })
         .catch((err) => {
           console.log(err.response);
-          swal(`Error`, `${err.response?.data.message}`);
+          swal(
+            `Error`,
+            `${err.response?.data.error} Please Enter correct Details`
+          );
         });
     } else {
       swal("Please Enter OTP");
@@ -135,6 +139,7 @@ class Login extends React.Component {
     // console.log(data);
     await UserLogin(data)
       .then((res) => {
+        console.log(res?.user);
         if (
           JSON.parse(res?.user?.gmail) ||
           JSON.parse(res?.user?.whatsapp) ||
@@ -142,7 +147,16 @@ class Login extends React.Component {
         ) {
           this.setState({ UserCredential: res?.user });
           if (res?.status) {
-            swal("Success", "OTP sent");
+            swal({
+              icon: "success",
+              title: "OTP has been sent to Registered mail",
+              text: `${res?.user.email}`,
+            });
+            // swal(
+            //   "Success",
+            //   `OTP has been sent`,
+            //   `to Registered mail:- ${res?.user.email}`
+            // );
             this.setState({ OtpScreen: true });
           } else {
             swal("Something Went Wrong");
@@ -160,23 +174,29 @@ class Login extends React.Component {
         }
       })
       .catch((err) => {
-        console.log(err.response);
-        let Incorrectpassword =
-          err.response?.data.message == "Incorrect password";
-        let IncorrectEmail = err.response?.data.message == "Incorrect Email";
-        if (Incorrectpassword) {
+        console.log(err.response?.data.message);
+        // let Incorrectpassword =
+        //   err.response?.data.message == "Incorrect password";
+        // let IncorrectEmail = err.response?.data.message == "Incorrect Email";
+        if (err.response?.data.message == "Incorrect password") {
           swal({
             title: "Some Error Occurred",
             text: `Incorrect Password`,
             icon: "warning",
             dangerMode: false,
           });
-        }
-        if (IncorrectEmail) {
+        } else if (err.response?.data.message == "Incorrect Email") {
           // swal("Error", "Please Enter Correct Password");
           swal({
             title: "Some Error Occurred",
             text: `Incorrect Email`,
+            icon: "warning",
+            dangerMode: false,
+          });
+        } else {
+          swal({
+            title: "Please Enter Correct Username",
+            text: `Incorrect username`,
             icon: "warning",
             dangerMode: false,
           });

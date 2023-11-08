@@ -766,7 +766,7 @@ class SearchWarrenty extends React.Component {
                     <Card>
                       <Row className="m-2">
                         <Col>
-                          <h1 className="float-left">User List</h1>
+                          <h1 className="float-left">Search Warrenty</h1>
                         </Col>
                         <Col>
                           <span className="mx-1">
