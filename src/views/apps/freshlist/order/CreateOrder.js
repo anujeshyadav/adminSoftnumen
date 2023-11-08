@@ -215,7 +215,7 @@ const handleProductChangePart =(e,index)=>{
         const lastElement = res?.Order[res?.Order?.length - 1].id;
         const prefix = lastElement?.substring(0, 5);
         const number = parseInt(lastElement?.match(/\d+$/)[0], 10) + 1;
-        const concatenatedString = prefix + number;
+         const concatenatedString = prefix + number;
         setOrderID(concatenatedString);
       })
       .catch((err) => {
