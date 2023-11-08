@@ -3,6 +3,7 @@ import {
   Create_Parts,
   customerRegistration,
   Product_Registration,
+  ticketTool_deleteList,
   Warranty_Delete,
   Create_Account_save,
   Create_Account_List,
@@ -30,6 +31,8 @@ import {
   GET_PARTS_CATELOGUE,
   Inspection_XMLView,
   Order_Parts,
+  ticketTool_Save,
+  ticketTool_List,
   Login_User,
   Login_OTP,
   Part_CatalogueView,
@@ -80,6 +83,7 @@ import {
 } from "./Api";
 import axiosConfig from "../axiosConfig";
 import dotenv from "dotenv";
+import { data } from "../views/apps/ecommerce/shop/shopData";
 dotenv.config();
 
 // const apiKey = process.env.REACT_APP_API_KEY;
@@ -292,7 +296,7 @@ export const SparesPartsView = async () => {
 export const SparePart_List = async () => {
   let response = await axiosConfig
     .get(`${SparePart_CatalogueList}`)
-    .then(res => res.data);
+    .then((res) => res.data);
   return response;
 };
 export const OrdersViewList = async () => {
@@ -577,6 +581,24 @@ export const CommentProductWiki = async (id, data) => {
 export const TicketTool_ViewData = async () => {
   let response = await axiosConfig
     .get(`${ticketTool_View}`)
+    .then((res) => res.data);
+  return response;
+};
+export const ticketToolSave = async (data) => {
+  let response = await axiosConfig
+    .post(`${ticketTool_Save}`, data)
+    .then((res) => res.data);
+  return response;
+};
+export const ticketToolList = async () => {
+  let response = await axiosConfig
+    .get(`${ticketTool_List}`)
+    .then((res) => res.data);
+  return response;
+};
+export const ticketToolDeleteOne = async (id) => {
+  let response = await axiosConfig
+    .get(`${ticketTool_deleteList}` + id)
     .then((res) => res.data);
   return response;
 };

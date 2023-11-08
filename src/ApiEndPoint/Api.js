@@ -68,6 +68,9 @@ export const Inspection_XMLView = "/inspection/get-xml"; //done
 export const productwiki_View = "/product-wiki/createWiki"; //done
 // ticketTool
 export const ticketTool_View = "/ticket-tool/get-xml"; //done
+export const ticketTool_Save = "/ticket-tool/save-ticket-tool"; //done
+export const ticketTool_List = "/ticket-tool/view-ticket-tool"; //done
+export const ticketTool_deleteList = "/ticket-tool/delete-ticket-tool/"; //done
 
 export const Spare_Parts = "/part-catalogue/get-spare-parts";
 export const Parts_Catalogue = "/part-catalogue/get-partscatalogue-parts";
