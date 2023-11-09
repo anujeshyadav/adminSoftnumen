@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect } from "react";
 import { Button } from "reactstrap";
 import { Razorpay } from "react-razorpay"; // Import Razorpay correctly
+import image from "../../../../../assets/img/logo/logowithoutback.png";
 
-export default function Payment({ amount, img }) {
-  const loadScript = src => {
-    return new Promise(resolve => {
+export default function Payment({ amount, img, total }) {
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
       const script = document.createElement("script");
       script.src = src;
       script.onload = () => {
@@ -26,16 +27,18 @@ export default function Payment({ amount, img }) {
     // });
 
     // let data = response.data;
+    let totalamount = total.split(".")[0];
     const options = {
       key: "rzp_test_Vhg1kq9b86udsY",
       currency: "INR",
-      amount: 500,
+      amount: totalamount * 100,
       name: "SoftNumen",
       description: "Test Wallet Transaction",
-      image:
-        "https://tse2.mm.bing.net/th?id=OIP.4p7ztcUW4gAM6_1VGZ1EVwHaIj&pid=Api&P=0",
+      image: image,
+      // image:
+      //   "https://tse2.mm.bing.net/th?id=OIP.4p7ztcUW4gAM6_1VGZ1EVwHaIj&pid=Api&P=0",
       // order_id: 12,
-      handler: async response => {
+      handler: async (response) => {
         console.log(response.razorpay_payment_id);
         console.log(response.razorpay_order_id);
         console.log(response.razorpay_signature);

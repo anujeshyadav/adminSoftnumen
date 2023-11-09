@@ -3,6 +3,7 @@ import {
   Create_Parts,
   customerRegistration,
   Product_Registration,
+  Sevice_Card_List,
   ticketTool_deleteList,
   Warranty_Delete,
   Create_Account_save,
@@ -24,6 +25,7 @@ import {
   Warehouse_Upload,
   Service_Upload,
   Part_catelougue,
+  Sevice_Card_DeleteOne,
   Service_Rate_Upload,
   Products_Upload,
   Delete_CartItem_PartsCat,
@@ -331,6 +333,18 @@ export const ServicingView = async () => {
     .then((res) => res.data);
   return response;
 };
+export const SeviceCardList = async () => {
+  let response = await axiosConfig
+    .get(`${Sevice_Card_List}`)
+    .then((res) => res.data);
+  return response;
+};
+export const SeviceCardDeleteOne = async (id) => {
+  let response = await axiosConfig
+    .get(`${Sevice_Card_DeleteOne}` + id)
+    .then((res) => res.data);
+  return response;
+};
 export const WareHouseUploadView = async () => {
   let response = await axiosConfig
     .get(`${WareHouseUpload_View}`)
@@ -624,17 +638,10 @@ export const OrderViewList = async () => {
     .then((res) => res.data);
   return response;
 };
-<<<<<<< HEAD
-export const CommentOrder= async (id, data) => {
- 
-  let response = await axiosConfig
-    // .post(`${AddOrderComment}`+ id,data)
-    .post(`${AddOrderComment}`+ `${id}`,data)
-=======
+
 export const CommentOrder = async (id, data) => {
   let response = await axiosConfig
     .post(`${AddOrderComment}` + id, data)
->>>>>>> 7ccaf2f28f212a480ba5420c9576fbadb8ab4617
     .then((res) => res.data);
   return response;
 };

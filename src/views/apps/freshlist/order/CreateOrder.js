@@ -1434,10 +1434,10 @@ const CreateOrder = (args) => {
           <ModalBody>
             <OrderedList
               items={items}
+              setProduct={setProduct}
               toggle={toggle}
               setPart={setPart}
               part={part}
-              setProduct={setProduct}
               product={product}
             />
           </ModalBody>

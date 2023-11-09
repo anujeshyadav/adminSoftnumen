@@ -14,10 +14,16 @@ import {
   Col,
   Label,
   CustomInput,
+  Input,
+  Form,
 } from "reactstrap";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import axiosConfig from "../../../axiosConfig";
+import { Country, State, City } from "country-state-city";
+import Select from "react-select";
 import * as Icon from "react-feather";
 import classnames from "classnames";
 import ReactCountryFlag from "react-country-flag";
@@ -37,20 +43,22 @@ import {
   AddToCartGet,
   DeleteCartItemPartsCatelogue,
   GetDeliveryAddress,
+  SaveDeliveryAddress,
 } from "../../../ApiEndPoint/ApiCalling";
 import swal from "sweetalert";
 import { FaAngleLeft } from "react-icons/fa";
+import Payment from "../../../views/apps/freshlist/order/payment/Payment";
 
 const total = [];
-const handleNavigation = e => {
+const handleNavigation = (e) => {
   e.preventDefault();
   history.push("/#/pages/profile/userProfile");
 };
-const handleSelect = e => {
+const handleSelect = (e) => {
   e.preventDefault();
   history.push("/#/pages/profile/userProfile");
 };
-const UserDropdown = props => {
+const UserDropdown = (props) => {
   // const { logout, isAuthenticated } = useAuth0()
   return (
     <DropdownMenu right>
@@ -91,7 +99,7 @@ const UserDropdown = props => {
         render={({ history }) => (
           <DropdownItem
             tag="a"
-            onClick={e => {
+            onClick={(e) => {
               e.preventDefault();
               history.push("/pages/profile/userProfile");
             }}
@@ -106,7 +114,7 @@ const UserDropdown = props => {
           <DropdownItem
             tag="a"
             href="#"
-            onClick={e => {
+            onClick={(e) => {
               localStorage.clear();
               localStorage.removeItem("userData");
               history.push("/#/pages/login");
@@ -116,13 +124,13 @@ const UserDropdown = props => {
               data.append("role", pageparmission?.Userinfo?.role);
               axiosConfig
                 .post("/apiLogout", data)
-                .then(resp => {
+                .then((resp) => {
                   console.log(resp);
                   localStorage.clear();
                   localStorage.removeItem("userData");
                   history.push("/#/pages/login");
                 })
-                .catch(err => {
+                .catch((err) => {
                   console.log(err);
                   // swal("Somethig Went Wrong");
                 });
@@ -164,10 +172,21 @@ class NavbarUser extends React.PureComponent {
     AddressIndex: "0",
     modal: false,
     switchScreen: false,
+    setAddress: false,
+    paymentmode: false,
     myCart: [],
     AddressList: [],
     SetTotal: [],
     TaxType: "All",
+    fullname: "",
+    Landmark: "",
+    address: "",
+    pincode: "",
+    Alternateno: "",
+    selectedCountry: null,
+    selectedState: null,
+    selectedCity: null,
+    MobileNo: "",
     TaxPercentage: 5,
     Shippingfee: 5,
     Total: Number,
@@ -229,8 +248,50 @@ class NavbarUser extends React.PureComponent {
     ],
     suggestions: [],
   };
+
+  changeCountry = (item) => {
+    this.setState({ selectedCountry: item });
+  };
+  changeCity = (item) => {
+    console.log("item", item);
+    this.setState({
+      submitPlaceHandler: item,
+    });
+  };
+  handleSubmit = (e) => {
+    e.preventDefault();
+    let user = JSON.parse(localStorage.getItem("userData"));
+    console.log(this.state);
+    const {
+      fullname,
+      Landmark,
+      address,
+      pincode,
+      Alternateno,
+      selectedCountry,
+      selectedState,
+      selectedCity,
+      MobileNo,
+    } = this.state;
+
+    let payload = {
+      id: user?._id,
+      address: "dasfs",
+    };
+    this.setState({ paymentmode: true });
+    // debugger;
+    // SaveDeliveryAddress(payload);
+  };
+  changeHandler = (e) => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
+
+  handleAddAddress = (e) => {
+    e.preventDefault();
+    this.setState({ setAddress: true });
+  };
   toggleModal = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       modal: !prevState.modal,
     }));
   };
@@ -262,7 +323,7 @@ class NavbarUser extends React.PureComponent {
         cancel: "Cancel",
         catch: { text: "Delete ", value: "delete" },
       },
-    }).then(value => {
+    }).then((value) => {
       switch (value) {
         case "delete":
           let value = {
@@ -270,10 +331,10 @@ class NavbarUser extends React.PureComponent {
             productId: ele?.productId,
           };
           DeleteCartItemPartsCatelogue(value)
-            .then(res => {
+            .then((res) => {
               this.handleShowCart();
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err);
             });
           break;
@@ -285,7 +346,7 @@ class NavbarUser extends React.PureComponent {
     let userData = JSON.parse(localStorage.getItem("userData")); //forgot to close
 
     await AddToCartGet(userData?._id)
-      .then(res => {
+      .then((res) => {
         // console.log(res?.cart);
         const user = this.context;
         user?.setPartsCatalougueCart(res?.cart);
@@ -302,7 +363,7 @@ class NavbarUser extends React.PureComponent {
         // console.log(findtotal);
         this.setState({ Total: findtotal });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   };
@@ -312,14 +373,14 @@ class NavbarUser extends React.PureComponent {
   //   })
   // }
 
-  removeItem = id => {
+  removeItem = (id) => {
     let cart = this.state.shoppingCart;
-    let updatedCart = cart.filter(i => i.id !== id);
+    let updatedCart = cart.filter((i) => i.id !== id);
     this.setState({
       shoppingCart: updatedCart,
     });
   };
-  handleQuantityChange = e => {
+  handleQuantityChange = (e) => {
     console.log(e.target.value);
   };
   HandleAddresIndex = (e, index) => {
@@ -330,11 +391,11 @@ class NavbarUser extends React.PureComponent {
     console.log(userData?._id);
     this.setState({ switchScreen: true });
     GetDeliveryAddress(userData?._id)
-      .then(res => {
+      .then((res) => {
         console.log(res?.Address);
         this.setState({ AddressList: res?.Address });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
   };
@@ -346,7 +407,7 @@ class NavbarUser extends React.PureComponent {
     console.log(this.state.SetTotal);
     let findtotal = this.state.SetTotal?.reduce((a, b) => a + b, 0);
     this.setState({ Total: findtotal });
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const newQuantities = [...prevState.Quantity];
       if (newQuantities[index] > 0) {
         newQuantities[index] -= 1;
@@ -364,7 +425,7 @@ class NavbarUser extends React.PureComponent {
     let findtotal = this.state.SetTotal?.reduce((a, b) => a + b, 0);
     console.log(findtotal);
     this.setState({ Total: findtotal });
-    this.setState(prevState => {
+    this.setState((prevState) => {
       const newQuantities = [...prevState.Quantity];
       newQuantities[index] += 1;
       console.log(ele?.product?.Part_Price * newQuantities);
@@ -392,7 +453,7 @@ class NavbarUser extends React.PureComponent {
     ).toFixed(2);
 
     const { userData } = this.state;
-    const renderCartItems = this.state.shoppingCart?.map(item => {
+    const renderCartItems = this.state.shoppingCart?.map((item) => {
       return (
         <>
           <div className="cart-item" key={item.id}>
@@ -424,7 +485,7 @@ class NavbarUser extends React.PureComponent {
                   <Icon.X
                     className="danger"
                     size={15}
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       this.removeItem(item.id);
                     }}
@@ -440,7 +501,7 @@ class NavbarUser extends React.PureComponent {
     return (
       <ul className="nav navbar-nav navbar-nav-user float-right">
         <IntlContext.Consumer>
-          {context => {
+          {(context) => {
             let langArr = {
               // "en" : "English",
               // "de" : "German",
@@ -493,62 +554,297 @@ class NavbarUser extends React.PureComponent {
                               <FaAngleLeft className="" />
                             </Badge>
                           </div>
-                          <Row>
-                            <Col>
-                              <div className="p-2">
-                                <h5 className="mx-1">Delivery Address</h5>
-                                <hr />
-                                {this.state.AddressList &&
-                                  this.state.AddressList?.map((ele, i) => (
-                                    <div key={i} className="mynewaddrss py-1">
-                                      <input
-                                        className="mt-1"
-                                        checked={
-                                          this.state.AddressIndex == i
-                                            ? true
-                                            : false
-                                        }
-                                        onClick={e => {
-                                          this.HandleAddresIndex(e, i);
-                                        }}
-                                        type="radio"
-                                        name="address"
-                                      />
-                                      <span className="mx-1">
-                                        {ele?.address}
-                                      </span>
-                                      <div className="mx-2">
-                                        {this.state.AddressIndex == i ? (
-                                          <Badge
-                                            style={{ cursor: "pointer" }}
-                                            color="primary"
-                                            className="mt-1"
-                                          >
-                                            Deliver to This Address
-                                          </Badge>
-                                        ) : null}
-                                      </div>
-                                    </div>
-                                  ))}
-                              </div>
-                            </Col>
-                            <Col>
-                              <div className="addmoreaddress p-2">
-                                <h5 className="mx-1">
-                                  <Badge
-                                    title="Add new Address"
+
+                          {this.state.paymentmode ? (
+                            <>
+                              <Payment
+                                total={(user?.Currencyconvert * Grand).toFixed(
+                                  2
+                                )}
+                                amount="1200"
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <Row>
+                                <Col>
+                                  <div className="p-2">
+                                    <h5 className="mx-1">Delivery Address</h5>
+                                    <hr />
+                                    {this.state.AddressList &&
+                                    this.state.AddressList?.length ? (
+                                      <>
+                                        {this.state.AddressList?.map(
+                                          (ele, i) => (
+                                            <div
+                                              key={i}
+                                              className="mynewaddrss py-1"
+                                            >
+                                              <input
+                                                className="mt-1"
+                                                checked={
+                                                  this.state.AddressIndex == i
+                                                    ? true
+                                                    : false
+                                                }
+                                                onClick={(e) => {
+                                                  this.HandleAddresIndex(e, i);
+                                                }}
+                                                type="radio"
+                                                name="address"
+                                              />
+                                              <span className="mx-1">
+                                                {ele?.address}
+                                              </span>
+                                              <div className="mx-2">
+                                                {this.state.AddressIndex ==
+                                                i ? (
+                                                  <Badge
+                                                    style={{
+                                                      cursor: "pointer",
+                                                    }}
+                                                    color="primary"
+                                                    className="mt-1"
+                                                  >
+                                                    Deliver to This Address
+                                                  </Badge>
+                                                ) : null}
+                                              </div>
+                                            </div>
+                                          )
+                                        )}
+                                      </>
+                                    ) : (
+                                      <>
+                                        <div>No Address found</div>
+                                        <Badge
+                                          className="mt-1"
+                                          color="primary"
+                                          style={{ cursor: "pointer" }}
+                                          onClick={this.handleAddAddress}
+                                        >
+                                          + Add New
+                                        </Badge>
+                                      </>
+                                    )}
+                                  </div>
+                                </Col>
+                                <Col>
+                                  <div
                                     style={{ cursor: "pointer" }}
-                                    className="mx-2"
-                                    color="primary"
+                                    onClick={this.handleAddAddress}
+                                    className="addmoreaddress d-flex justify-content-center"
                                   >
-                                    <strong>+</strong>
-                                  </Badge>
-                                  Add New Address{" "}
-                                </h5>
-                                <hr />
-                              </div>
-                            </Col>
-                          </Row>
+                                    <h5 className="mx-1">
+                                      <Badge
+                                        title="Add new Address"
+                                        style={{ cursor: "pointer" }}
+                                        className="mx-2"
+                                        color="primary"
+                                      >
+                                        <strong>+</strong>
+                                      </Badge>
+                                      Add New Address{" "}
+                                    </h5>
+                                    <hr />
+                                  </div>
+                                  {this.state.setAddress && (
+                                    <div className="addaddress container px-1">
+                                      <div className="d-flex justify-content-center">
+                                        <h4>Add Address here</h4>
+                                      </div>
+                                      <hr />
+                                      <Form onSubmit={this.handleSubmit}>
+                                        <Row>
+                                          <Col
+                                            className="mb-1"
+                                            lg="6"
+                                            md="6"
+                                            sm="6"
+                                            xs="12"
+                                          >
+                                            <Label>Full Name *</Label>
+                                            <Input
+                                              required
+                                              className="mb-1"
+                                              onChange={this.changeHandler}
+                                              type="text"
+                                              name="fullname"
+                                              value={this.state.fullname}
+                                            />
+                                          </Col>
+                                          <Col lg="6" md="6" sm="6" xs="6">
+                                            <Label>Mobile No *</Label>
+                                            <PhoneInput
+                                              required
+                                              className="mb-1"
+                                              countryCodeEditable={false}
+                                              inputClass="myphoneinput"
+                                              name="MobileNo"
+                                              country={"us"}
+                                              onKeyDown={(e) => {
+                                                ["e", "E", "+", "-"].includes(
+                                                  e.key
+                                                ) && e.preventDefault();
+                                              }}
+                                              value={this.state.MobileNo}
+                                              onChange={(phone) => {
+                                                this.setState({
+                                                  MobileNo: phone,
+                                                });
+                                              }}
+                                            />
+                                          </Col>
+
+                                          <Col lg="6" md="6" sm="6" xs="6">
+                                            <Label>
+                                              Alternate Mobile No (optional)
+                                            </Label>
+                                            <PhoneInput
+                                              className="mb-1"
+                                              countryCodeEditable={false}
+                                              // inputClass="myphoneinput"
+                                              name="Alternateno"
+                                              country={"us"}
+                                              onKeyDown={(e) => {
+                                                ["e", "E", "+", "-"].includes(
+                                                  e.key
+                                                ) && e.preventDefault();
+                                              }}
+                                              value={this.state.Alternateno}
+                                              onChange={(phone) => {
+                                                this.setState({
+                                                  Alternateno: phone,
+                                                });
+                                                // setFormData({
+                                                //   ...formData,
+                                                //   [ele?.name?._text]: phone,
+                                                // });
+                                              }}
+                                            />
+                                          </Col>
+
+                                          <Col lg="6" md="6" sm="6" xs="12">
+                                            <label>Country</label>
+                                            <Select
+                                              className="mb-1"
+                                              options={Country.getAllCountries()}
+                                              getOptionLabel={(options) => {
+                                                return options["name"];
+                                              }}
+                                              getOptionValue={(options) => {
+                                                return options["name"];
+                                              }}
+                                              value={this.state.selectedCountry}
+                                              onChange={(item) => {
+                                                this.changeCountry(item);
+                                              }}
+                                            />
+                                          </Col>
+
+                                          <Col lg="6" md="6" sm="6" xs="12">
+                                            <label>State</label>
+                                            <Select
+                                              className="mb-1"
+                                              options={State?.getStatesOfCountry(
+                                                this.state.selectedCountry
+                                                  ?.isoCode
+                                              )}
+                                              getOptionLabel={(options) => {
+                                                return options["name"];
+                                              }}
+                                              getOptionValue={(options) => {
+                                                return options["name"];
+                                              }}
+                                              value={this.state.selectedState}
+                                              onChange={(item) => {
+                                                this.setState({
+                                                  selectedState: item,
+                                                });
+                                              }}
+                                            />
+                                          </Col>
+
+                                          <Col lg="6" md="6" sm="6" xs="12">
+                                            <label>City</label>
+                                            <Select
+                                              className="mb-1"
+                                              options={City.getCitiesOfState(
+                                                this.state.selectedState
+                                                  ?.countryCode,
+                                                this.state.selectedState
+                                                  ?.isoCode
+                                              )}
+                                              getOptionLabel={(options) => {
+                                                return options["name"];
+                                              }}
+                                              getOptionValue={(options) => {
+                                                return options["name"];
+                                              }}
+                                              value={
+                                                this.state.submitPlaceHandler
+                                              }
+                                              onChange={(item) => {
+                                                this.changeCity(item);
+                                                this.setState({
+                                                  selectedCity: item,
+                                                });
+                                              }}
+                                            />
+                                          </Col>
+                                          <Col lg="6" md="6" sm="6" xs="12">
+                                            <Label>Address *</Label>
+                                            <textarea
+                                              required
+                                              className="mb-1 form-control"
+                                              onChange={this.changeHandler}
+                                              type="text"
+                                              name="address"
+                                              value={this.state.address}
+                                            />
+                                          </Col>
+                                          <Col lg="6" md="6" sm="6" xs="12">
+                                            <Label>LandMark *</Label>
+                                            <Input
+                                              className="mb-1"
+                                              required
+                                              onChange={this.changeHandler}
+                                              type="text"
+                                              value={this.state.Landmark}
+                                              name="Landmark"
+                                            />
+                                          </Col>
+                                          <Col lg="6" md="6" sm="6" xs="12">
+                                            <Label>Pin code *</Label>
+                                            <Input
+                                              required
+                                              className="mb-1"
+                                              onChange={this.changeHandler}
+                                              type="number"
+                                              value={this.state.pincode}
+                                              name="pincode"
+                                            />
+                                          </Col>
+                                        </Row>
+                                        <Row>
+                                          <Col>
+                                            <div className="d-flex justify-content-center">
+                                              <Button
+                                                type="submit"
+                                                color="primary"
+                                              >
+                                                Submit
+                                              </Button>
+                                            </div>
+                                          </Col>
+                                        </Row>
+                                      </Form>
+                                    </div>
+                                  )}
+                                </Col>
+                              </Row>
+                            </>
+                          )}
                         </>
                       ) : (
                         <>
@@ -559,7 +855,7 @@ class NavbarUser extends React.PureComponent {
                               <CustomInput
                                 type="select"
                                 value={this.state.TaxType}
-                                onChange={e =>
+                                onChange={(e) =>
                                   this.setState({ TaxType: e.target.value })
                                 }
                                 name="TaxType"
@@ -576,7 +872,7 @@ class NavbarUser extends React.PureComponent {
                                 <input
                                   type="number"
                                   value={this.state.TaxPercentage}
-                                  onChange={e =>
+                                  onChange={(e) =>
                                     this.setState({
                                       TaxPercentage: e.target.value,
                                     })
@@ -600,7 +896,7 @@ class NavbarUser extends React.PureComponent {
                                     className="form-control"
                                     id="productSelect"
                                     type="number"
-                                    onChange={e =>
+                                    onChange={(e) =>
                                       this.setState({
                                         TaxPercentage: e.target.value,
                                       })
@@ -621,7 +917,7 @@ class NavbarUser extends React.PureComponent {
                               <input
                                 value={this.state.Shippingfee}
                                 type="number"
-                                onChange={e =>
+                                onChange={(e) =>
                                   this.setState({ Shippingfee: e.target.value })
                                 }
                                 name="Shippingfee"
@@ -631,7 +927,7 @@ class NavbarUser extends React.PureComponent {
                             <Col lg="2" md="2" sm="12" xs="12">
                               <Button
                                 className="mt-1"
-                                onClick={e => e.preventDefault()}
+                                onClick={(e) => e.preventDefault()}
                                 color="primary"
                               >
                                 Submit
@@ -691,7 +987,7 @@ class NavbarUser extends React.PureComponent {
                                         <MdDelete
                                           color="red"
                                           size={20}
-                                          onClick={e => {
+                                          onClick={(e) => {
                                             this.handleDeletePartsCate(e, ele);
                                           }}
                                           style={{ cursor: "pointer" }}
@@ -719,7 +1015,7 @@ class NavbarUser extends React.PureComponent {
                                             className="minusbutton"
                                             color="primary"
                                             size="sm"
-                                            onClick={e =>
+                                            onClick={(e) =>
                                               this.handleDecreaseCount(
                                                 ele,
                                                 i,
@@ -736,10 +1032,10 @@ class NavbarUser extends React.PureComponent {
                                               name="cart"
                                               min="0"
                                               value={this.state.Quantity[i]}
-                                              onChange={e => {
+                                              onChange={(e) => {
                                                 this.handleQuantityChange(e, i);
                                               }}
-                                              onKeyDown={e => {
+                                              onKeyDown={(e) => {
                                                 ["e", "E", "+", "-"].includes(
                                                   e.key
                                                 ) && e.preventDefault();
@@ -749,7 +1045,7 @@ class NavbarUser extends React.PureComponent {
                                             />
                                           </div>{" "}
                                           <Button
-                                            onClick={e =>
+                                            onClick={(e) =>
                                               this.handleIncreaseCount(
                                                 ele,
                                                 i,
@@ -949,7 +1245,7 @@ class NavbarUser extends React.PureComponent {
                             <MdDelete
                               color="red"
                               size={20}
-                              onClick={e => {
+                              onClick={(e) => {
                                 this.handleDeletePartsCate(e, ele);
                               }}
                               style={{ cursor: "pointer" }}
