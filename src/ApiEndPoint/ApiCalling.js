@@ -3,6 +3,7 @@ import {
   Create_Parts,
   customerRegistration,
   Product_Registration,
+  Sevice_Card_List,
   ticketTool_deleteList,
   Warranty_Delete,
   Create_Account_save,
@@ -24,6 +25,7 @@ import {
   Warehouse_Upload,
   Service_Upload,
   Part_catelougue,
+  Sevice_Card_DeleteOne,
   Service_Rate_Upload,
   Products_Upload,
   Delete_CartItem_PartsCat,
@@ -328,6 +330,18 @@ export const InspectionView = async () => {
 export const ServicingView = async () => {
   let response = await axiosConfig
     .get(`${Servicing_View}`)
+    .then((res) => res.data);
+  return response;
+};
+export const SeviceCardList = async () => {
+  let response = await axiosConfig
+    .get(`${Sevice_Card_List}`)
+    .then((res) => res.data);
+  return response;
+};
+export const SeviceCardDeleteOne = async (id) => {
+  let response = await axiosConfig
+    .get(`${Sevice_Card_DeleteOne}` + id)
     .then((res) => res.data);
   return response;
 };

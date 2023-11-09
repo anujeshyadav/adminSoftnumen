@@ -48,6 +48,8 @@ export const Dealers_View = "/dealers/view-dealer";
 export const Supplier_View = "/suppliers/view-supplier"; // done
 export const SerViceCenter_View = "/service-centers/view-service-center";
 export const Part_CatalogueView = "/part-catalogue/view-parts"; //done
+export const Sevice_Card_List = "/service-rate/view-service-rate"; //done
+export const Sevice_Card_DeleteOne = "/service-rate/delete-service-rate/"; //done
 //end Uploads list
 
 // warranty

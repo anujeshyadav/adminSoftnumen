@@ -5,5 +5,5 @@ export const config = {
   databaseURL: "https://vuesax-admin.firebaseio.com",
   projectId: "vuesax-admin",
   storageBucket: "vuesax-admin.appspot.com",
-  messagingSenderId: "914001522995"
-}
+  messagingSenderId: "914001522995",
+};
