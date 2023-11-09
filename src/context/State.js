@@ -22,7 +22,7 @@ const State = props => {
     let user = JSON.parse(localStorage.getItem("userData"));
     setUserlanguage(user?.locale);
     setUserInformatio(user);
-    console.log(user?.currency?.split("_")[0]);
+    // console.log(user?.currency?.split("_")[0]);
     let currency = user?.currency;
 
     if (currency == undefined) {

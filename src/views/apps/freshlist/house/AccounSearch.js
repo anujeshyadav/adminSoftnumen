@@ -20,10 +20,9 @@ import ExcelReader from "../parts/ExcelReader";
 import { ContextLayout } from "../../../../utility/context/Layout";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
-import EditAccount from "../../freshlist/accounts/EditAccount";
-import ViewAccount from "../../freshlist/accounts/ViewAccount";
+import EditAccount from "../accounts/EditAccount";
+import ViewAccount from "../accounts/ViewAccount";
 import jsPDF from "jspdf";
-// import db from "../../../../context/indexdb";
 import "jspdf-autotable";
 import Logo from "../../../../assets/img/profile/pages/logomain.png";
 import Papa from "papaparse";
@@ -54,7 +53,7 @@ import UserContext from "../../../../context/Context";
 
 const SelectedColums = [];
 
-class ProductType extends React.Component {
+class AccounSearch extends React.Component {
   static contextType = UserContext;
   constructor(props) {
     super(props);
@@ -101,10 +100,6 @@ class ProductType extends React.Component {
 
   async componentDidMount() {
     const UserInformation = this.context?.UserInformatio;
-
-    // db.myObjectStore.get(1).then((data) => {
-    //   console.log(data);
-    // });
     await CreateAccountView()
       .then(res => {
         var mydropdownArray = [];
@@ -130,7 +125,6 @@ class ProductType extends React.Component {
             filter: true,
             sortable: true,
             cellRendererFramework: params => {
-              // console.log(params?.data);
               return params.data?.Status === "Active" ? (
                 <div className="badge badge-pill badge-success">
                   {params.data.Status}
@@ -231,7 +225,6 @@ class ProductType extends React.Component {
             filter: true,
             sortable: true,
             cellRendererFramework: params => {
-              console.log(params?.data?.whatsapp);
               return params.data?.whatsapp === true ? (
                 <div className="badge badge-pill badge-success">YES</div>
               ) : params.data?.whatsapp === false ? (
@@ -247,7 +240,6 @@ class ProductType extends React.Component {
             filter: true,
             sortable: true,
             cellRendererFramework: params => {
-              console.log(params?.data?.sms);
               return params.data?.sms === true ? (
                 <div className="badge badge-pill badge-success">YES</div>
               ) : params.data?.sms === false ? (
@@ -263,7 +255,6 @@ class ProductType extends React.Component {
             filter: true,
             sortable: true,
             cellRendererFramework: params => {
-              console.log(params?.data?.gmail);
               return params.data?.gmail === true ? (
                 <div className="badge badge-pill badge-success">YES</div>
               ) : params.data?.gmail === false ? (
@@ -708,7 +699,7 @@ class ProductType extends React.Component {
                     <Card>
                       <Row className="m-2">
                         <Col>
-                          <h1 className="float-left">User List</h1>
+                          <h1 className="float-left">Account Search</h1>
                         </Col>
                         <Col>
                           <span className="mx-1">
@@ -1075,4 +1066,4 @@ class ProductType extends React.Component {
     );
   }
 }
-export default ProductType;
+export default AccounSearch;

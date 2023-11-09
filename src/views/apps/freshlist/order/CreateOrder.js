@@ -37,7 +37,6 @@ import Payment from "./payment/Payment";
 import OrderedList from "./OrderedList";
 import AuditHistory from "./audithistory/AuditHistory";
 const CreateOrder = (args) => {
-
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
@@ -52,25 +51,31 @@ const CreateOrder = (args) => {
   const [modal, setModal] = useState(false);
   const [items, setItems] = useState("");
   const [audit, setAudit] = useState(false);
-  const toggle = item => {
+  const toggle = (item) => {
     setItems(item);
     setModal(!modal);
   };
-  const audittoggle= ()=>{
-    setAudit(!audit)
+  const audittoggle = () => {
+    setAudit(!audit);
     // setModal(!modal);
-  }
-  const handleopentoggle = iteam => {
+  };
+  const handleopentoggle = (iteam) => {
     toggle(iteam);
   };
   const handleHistory = () => {
-    audittoggle()
-    
-  }
+    audittoggle();
+  };
   const [product, setProduct] = useState([
     {
-       product: "", productName: "", availableQty: "", rquiredQty: 1, price: "", totalprice: "",
-      discount: "",Shipping: "", tax: "",
+      product: "",
+      productName: "",
+      availableQty: "",
+      rquiredQty: 1,
+      price: "",
+      totalprice: "",
+      discount: "",
+      Shipping: "",
+      tax: "",
       grandTotal: "",
     },
   ]);
@@ -106,16 +111,14 @@ const CreateOrder = (args) => {
     time: new Date().toString(),
   };
 
- 
   let handleComment = (i, e) => {
     let newFormValues = [...Comments];
     newFormValues[i][e.target.name] = e.target.value;
     setComments(newFormValues);
   };
   const SubmitComment = () => {
-   debugger
     let user = JSON.parse(localStorage.getItem("userData"));
-setCommentshow(true);
+    setCommentshow(true);
     CommentOrder(user?.accountId, Comments)
       .then((res) => {
         console.log(res);
@@ -131,15 +134,28 @@ setCommentshow(true);
   let addFileInput = () => {
     setFormValues([...formValues, { files: [] }]);
   };
-  const handleProductChangeProduct =(e,index)=>{
-  setProduct([{rquiredQty:e.target.value}])
-    // setProduct([...product ,{rquiredQty:requredQty,totalprice:product.price*requredQty}])
-  }
+  const handleProductChangeProduct = (e, index) => {
+    const { name, value } = e.target;
+    const list = [...product];
+    list[index][name] = value;
 
-const handleProductChangePart =(e,index)=>{
-  console.log(e.target.value)
-  setPart([{rquiredQty:e.target.value}])
-}
+    let amt = 0;
+    if (list.length > 0) {
+      const x = list?.map((value) => {
+        list[index]["totalprice"] = value.rquiredQty * value.price;
+        return value.rquiredQty * value.price;
+      });
+      amt = x.reduce((a, b) => a + b);
+      console.log(amt);
+    }
+    setProduct(list);
+    // setAmount(amt);
+  };
+
+  // const handleProductChangePart = (e, index) => {
+  //   console.log(e.target.value);
+  //   setPart([{ rquiredQty: e.target.value }]);
+  // };
 
   let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
@@ -203,7 +219,7 @@ const handleProductChangePart =(e,index)=>{
     }
   };
   // handleInputChange;
-  useEffect(() => { }, [formData]);
+  useEffect(() => {}, [formData]);
   useEffect(() => {
     // console.log(part[0].Shipping);
   }, [part]);
@@ -215,7 +231,7 @@ const handleProductChangePart =(e,index)=>{
         const lastElement = res?.Order[res?.Order?.length - 1].id;
         const prefix = lastElement?.substring(0, 5);
         const number = parseInt(lastElement?.match(/\d+$/)[0], 10) + 1;
-         const concatenatedString = prefix + number;
+        const concatenatedString = prefix + number;
         setOrderID(concatenatedString);
       })
       .catch((err) => {
@@ -244,7 +260,7 @@ const handleProductChangePart =(e,index)=>{
         partName: "",
         Shipping: "",
         availableQty: "",
-        rquiredQty: "",
+        rquiredQty: 1,
         price: "",
         totalprice: "",
         discount: "",
@@ -258,11 +274,22 @@ const handleProductChangePart =(e,index)=>{
     newFormValues.splice(i, 1);
     setPart(newFormValues);
   };
-  
+
   let addMoreProduct = () => {
-    setProduct([...product, {  productName: "", availableQty: "", rquiredQty: "", price: "", totalprice: "",
-    discount: "",Shipping: "", tax: "",
-    grandTotal: "",}]);
+    setProduct([
+      ...product,
+      {
+        productName: "",
+        availableQty: "",
+        rquiredQty: 1,
+        price: "",
+        totalprice: "",
+        discount: "",
+        Shipping: "",
+        tax: "",
+        grandTotal: "",
+      },
+    ]);
   };
   let removeMoreProduct = (i) => {
     let newFormValues = [...product];
@@ -274,7 +301,7 @@ const handleProductChangePart =(e,index)=>{
     newFormValues[i][e.target.name] = e.target.value;
     setPart(newFormValues);
   };
-  
+
   const submitHandler = (e) => {
     e.preventDefault();
     console.log("previous", OrderID);
@@ -321,7 +348,13 @@ const handleProductChangePart =(e,index)=>{
                   <span className="orderId">
                     {OrderID ? `#${OrderID}` : `#ord00${OrderID}`}
                   </span>
-                  <span className="ml-2" onClick={handleHistory} style={{cursor:"pointer"}}><FaHistory size={15}   color="#055761" /></span>
+                  <span
+                    className="ml-2"
+                    onClick={handleHistory}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <FaHistory size={15} color="#055761" />
+                  </span>
                 </div>
                 <div>
                   <span className="orderId">Status:</span> <span>Draft</span>
@@ -556,7 +589,7 @@ const handleProductChangePart =(e,index)=>{
                                       [ele?.name?._text]: phone,
                                     });
                                   }}
-                                // onChange={handleInputChange}
+                                  // onChange={handleInputChange}
                                 />
                                 {index === i ? (
                                   <>
@@ -910,7 +943,6 @@ const handleProductChangePart =(e,index)=>{
                                       {ele.label?._text == "SMS" ? (
                                         <>
                                           <FcPhoneAndroid size={30} />
-
                                         </>
                                       ) : (
                                         <>
@@ -931,171 +963,171 @@ const handleProductChangePart =(e,index)=>{
               <hr />
 
               <h2 className="text-center">Product Details</h2>
-              {product.map((product, index) => (
-                <Row className="productRow" key={index}>
-                <div className="setInput lookUp" lg="2" md="2" sm="12">
-                 <div className="mainLook">
-                      <Label>Product#</Label>
-                      <InputGroup className="maininput">
-                        <Input
-                          className="form-control inputs"
-                          disabled
-                          type="text"
-                          name="productN"
-                          readOnly
-                          placeholder="Product"
-                        // value={element.productName || ""}
-                        />
-                        <Button
-                          onClick={() => handleopentoggle("Product")}
-                          color="primary"
-                          className="mybtn primary"
-                        >
-                          <AiOutlineSearch
-                            onClick={e => e.preventDefault()}
-                            fill="white"
+              {product &&
+                product?.map((product, index) => (
+                  <Row className="productRow" key={index}>
+                    <div className="setInput lookUp" lg="2" md="2" sm="12">
+                      <div className="mainLook">
+                        <Label>Product#</Label>
+                        <InputGroup className="maininput">
+                          <Input
+                            className="form-control inputs"
+                            disabled
+                            type="text"
+                            name="productN"
+                            readOnly
+                            placeholder="Product"
+                            // value={element.productName || ""}
                           />
-                        </Button>
-                      </InputGroup>
+                          <Button
+                            onClick={() => handleopentoggle("Product")}
+                            color="primary"
+                            className="mybtn primary"
+                          >
+                            <AiOutlineSearch
+                              onClick={(e) => e.preventDefault()}
+                              fill="white"
+                            />
+                          </Button>
+                        </InputGroup>
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>ProdName</Label>
-                      <Input
-                        type="text"
-                        name="ProdName"
-                        readOnly
-                        placeholder="ProdName"
-                        value={product.productName || ""}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>ProdName</Label>
+                        <Input
+                          type="text"
+                          name="ProdName"
+                          readOnly
+                          placeholder="ProdName"
+                          value={product.productName || ""}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="Qntywidth">
-                      <Label>Avl_Qty</Label>
-                      <Input
-                        type="number"
-                        name="availableQty"
-                        readOnly
-                        placeholder="Avl_Qty"
-                        value={product.availableQty}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="Qntywidth">
+                        <Label>Avl_Qty</Label>
+                        <Input
+                          type="number"
+                          name="availableQty"
+                          readOnly
+                          placeholder="Avl_Qty"
+                          value={product.availableQty}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="Qntywidth">
-                      <Label>Req_Qty</Label>
-                      <Input
-                        type="number"
-                        name="rquiredQty"
-                        // readOnly
-                        placeholder="Req_Qty"
-                        value={product.rquiredQty}
-                      onChange={e => handleProductChangeProduct(e)}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="Qntywidth">
+                        <Label>Req_Qty</Label>
+                        <Input
+                          type="number"
+                          name="rquiredQty"
+                          placeholder="Req_Qty"
+                          value={product?.rquiredQty}
+                          onChange={(e) => handleProductChangeProduct(e, index)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>Price</Label>
-                      <Input
-                        type="number"
-                        name="Price"
-                        readOnly
-                        placeholder="Price"
-                        value={product.price}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>Price</Label>
+                        <Input
+                          type="number"
+                          name="Price"
+                          readOnly
+                          placeholder="Price"
+                          value={product.price}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>TtlPrice</Label>
-                      <Input
-                        type="number"
-                        name="totalprice"
-                        readOnly
-                        placeholder="TtlPrice"
-                        // value={product.totalprice}
-                        value={product.price*product.rquiredQty}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>TtlPrice</Label>
+                        <Input
+                          type="number"
+                          name="totalprice"
+                          readOnly
+                          placeholder="TtlPrice"
+                          value={product.totalprice}
+                          // value={product.price * product.rquiredQty}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>Dissct</Label>
-                      <Input
-                        type="number"
-                        name="discount"
-                        readOnly
-                        placeholder="Dissct"
-                        value={product.discount}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>Dissct</Label>
+                        <Input
+                          type="number"
+                          name="discount"
+                          readOnly
+                          placeholder="Dissct"
+                          value={product.discount}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>Shipcst</Label>
-                      <Input
-                        type="number"
-                        name="Shipcst"
-                        readOnly
-                        placeholder="Shipcst"
-                        value={product.Shipping}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>Shipcst</Label>
+                        <Input
+                          type="number"
+                          name="Shipcst"
+                          readOnly
+                          placeholder="Shipcst"
+                          value={product.Shipping}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="Qntywidth">
-                      <Label>Tax</Label>
-                      <Input
-                        type="number"
-                        name="tax"
-                        readOnly
-                        placeholder="Tax"
-                        value={product.tax}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="Qntywidth">
+                        <Label>Tax</Label>
+                        <Input
+                          type="number"
+                          name="tax"
+                          readOnly
+                          placeholder="Tax"
+                          value={product.tax}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="Qntywidth">
-                      <Label>Grdttl</Label>
-                      <Input
-                        type="number"
-                        name="Grdttl"
-                        readOnly
-                        placeholder="Grdttl"
-                        value={product.grandTotal || ""}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="Qntywidth">
+                        <Label>Grdttl</Label>
+                        <Input
+                          type="number"
+                          name="Grdttl"
+                          readOnly
+                          placeholder="Grdttl"
+                          value={product.grandTotal || ""}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="d-flex mt-2 abb" lg="" md="2" sm="12">
-                    <div className="btnStyle">
-                      {index ? (
-                        <Button
-                          type="button"
-                          color="danger"
-                          className="button remove "
-                          onClick={() => removeMoreProduct(index)}
-                        >
-                          -
-                        </Button>
-                      ) : null}
-                    </div>
+                    <div className="d-flex mt-2 abb" lg="" md="2" sm="12">
+                      <div className="btnStyle">
+                        {index ? (
+                          <Button
+                            type="button"
+                            color="danger"
+                            className="button remove "
+                            onClick={() => removeMoreProduct(index)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
 
-                    <div className="btnStyle">
-                      <Button
-                        className="ml-1 "
-                        color="primary"
-                        type="button"
-                        onClick={() => addMoreProduct()}
-                      >
-                        +
-                      </Button>
+                      <div className="btnStyle">
+                        <Button
+                          className="ml-1 "
+                          color="primary"
+                          type="button"
+                          onClick={() => addMoreProduct()}
+                        >
+                          +
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </Row>
-              ))}
+                  </Row>
+                ))}
               <hr></hr>
               <h2 className="text-center">Part Details</h2>
               {part.map((part, index) => (
@@ -1112,7 +1144,7 @@ const handleProductChangePart =(e,index)=>{
                         name="part"
                         readOnly
                         placeholder="Part"
-                      // value={element.productName || ""}
+                        // value={element.productName || ""}
                       />
                       <Button
                         onClick={() => handleopentoggle("Part")}
@@ -1127,7 +1159,7 @@ const handleProductChangePart =(e,index)=>{
                     </InputGroup>
                   </div>
 
-                  <div className="setInput"  md="2" sm="12">
+                  <div className="setInput" md="2" sm="12">
                     <div className="">
                       <Label>PartName</Label>
                       <Input
@@ -1157,11 +1189,11 @@ const handleProductChangePart =(e,index)=>{
                       <Label>Req_Qty</Label>
                       <Input
                         type="number"
-                        name="rquiredQty"
+                        name="PartrquiredQty"
                         // readOnly
-                        placeholder="Req_Qty"
-                        value={part.rquiredQty}
-                      onChange={e => handleProductChangePart(e, index)}
+                        placeholder="Require Qty"
+                        value={part.PartrquiredQty}
+                        onChange={(e) => handleProductChangePart(e, index)}
                       />
                     </div>
                   </div>
@@ -1185,7 +1217,7 @@ const handleProductChangePart =(e,index)=>{
                         name="totalprice"
                         readOnly
                         placeholder="TtlPrice"
-                        value={part.price*part.rquiredQty}
+                        value={part.price * part.rquiredQty}
                       />
                     </div>
                   </div>
@@ -1400,7 +1432,14 @@ const handleProductChangePart =(e,index)=>{
         >
           <ModalHeader toggle={toggle}>Product List</ModalHeader>
           <ModalBody>
-            <OrderedList items={items} setPart={setPart} setProduct={setProduct} />
+            <OrderedList
+              items={items}
+              toggle={toggle}
+              setPart={setPart}
+              part={part}
+              setProduct={setProduct}
+              product={product}
+            />
           </ModalBody>
         </Modal>
         <Modal
@@ -1413,7 +1452,7 @@ const handleProductChangePart =(e,index)=>{
         >
           <ModalHeader toggle={audittoggle}>Audit History List</ModalHeader>
           <ModalBody>
-            <AuditHistory  />
+            <AuditHistory />
           </ModalBody>
         </Modal>
       </div>
