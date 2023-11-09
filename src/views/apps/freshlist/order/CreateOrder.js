@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import xmlJs from "xml-js";
+import swal from "sweetalert";
 import {
   Card,
   CardBody,
@@ -30,7 +31,6 @@ import {
   CreateOrder_ViewData,
   CommentOrder,
   CreateOrder_ID,
-  CommentProductWiki,
 } from "../../../../ApiEndPoint/ApiCalling";
 import "../../../../assets/scss/pages/users.scss";
 import Payment from "./payment/Payment";
@@ -89,10 +89,10 @@ const CreateOrder = (args) => {
     },
   ]);
 
-  const [Comments, setComments] = useState([
+  const [CommentsList, setCommentsList] = useState([
     {
-      name: JSON.parse(localStorage.getItem("userData")).UserName,
-      userRole: JSON.parse(localStorage.getItem("userData")).Role,
+      userName: JSON.parse(localStorage.getItem("userData")).UserName,
+      Role: JSON.parse(localStorage.getItem("userData")).Role,
       comment: "",
       time: new Date(),
     },
@@ -108,34 +108,53 @@ const CreateOrder = (args) => {
 
  
   let handleComment = (i, e) => {
-    let newFormValues = [...Comments];
+    let newFormValues = [...CommentsList];
     newFormValues[i][e.target.name] = e.target.value;
-    setComments(newFormValues);
+    setCommentsList(newFormValues);
   };
+
+
   const SubmitComment = () => {
-   debugger
-    let user = JSON.parse(localStorage.getItem("userData"));
-setCommentshow(true);
-    CommentOrder(user?.accountId, Comments)
+let OrderommentId = localStorage.getItem("OrderommentId");
+    setCommentshow(true);
+
+const CommentsAll={
+  Comments:CommentsList
+}
+    CommentOrder(OrderommentId, CommentsAll)
       .then((res) => {
-        console.log(res);
+        swal("Successful!", `${res.message}`, "success");
+        setCommentsList([{comment:""}])
       })
       .catch((err) => {
         console.log(err);
       });
   };
   let addFormFields = () => {
-    setComments([...Comments, newComment]);
+    setCommentsList([...CommentsList, newComment]);
   };
 
   let addFileInput = () => {
     setFormValues([...formValues, { files: [] }]);
   };
-  const handleProductChangeProduct =(e,index)=>{
-  setProduct([{rquiredQty:e.target.value}])
-    // setProduct([...product ,{rquiredQty:requredQty,totalprice:product.price*requredQty}])
+//   const handleProductChangeProduct =(e,qty)=>{
+//    if (e.target.validity.valid) {
+//    setProduct([{rquiredQty:qty+e.target.value}])
+//       }
+//  }
+const ReqQtyIncrement=(e,qty)=>{
+  console.log(qty)
+  // setResult(prevState => newNum1 + prevState.num2);
+  // setProduct(prevState => [{rquiredQty:prevState+1}]);
+ setProduct([{rquiredQty:qty+1}])
+console.log("increment",qty)
+}
+const ReqQtyDecrement=(e,qty)=>{
+  if(qty!==0){
+    setProduct([{rquiredQty:qty-1}])
   }
-
+console.log("increment",e.target.value,qty)
+}
 const handleProductChangePart =(e,index)=>{
   console.log(e.target.value)
   setPart([{rquiredQty:e.target.value}])
@@ -154,9 +173,9 @@ const handleProductChangePart =(e,index)=>{
     setFormValues(newFormValues);
   };
   let removeFormFields = (i) => {
-    let newFormValues = [...Comments];
+    let newFormValues = [...CommentsList];
     newFormValues.splice(i, 1);
-    setComments(newFormValues);
+    setCommentsList(newFormValues);
   };
   const handleInputChange = (e, type, i) => {
     const { name, value, checked } = e.target;
@@ -205,11 +224,10 @@ const handleProductChangePart =(e,index)=>{
   // handleInputChange;
   useEffect(() => { }, [formData]);
   useEffect(() => {
-    // console.log(part[0].Shipping);
   }, [part]);
   useEffect(() => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
-    setUserInfo(userInfo);
+  setUserInfo(userInfo);
     CreateOrder_ID()
       .then((res) => {
         const lastElement = res?.Order[res?.Order?.length - 1].id;
@@ -277,7 +295,7 @@ const handleProductChangePart =(e,index)=>{
   
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log("previous", OrderID);
+    // console.log("previous", OrderID);
     const prefixStr = OrderID.substring(0, 5);
     const updateNumber = parseInt(OrderID.match(/\d+$/)[0], 10) + 1;
     const newOrderID = prefixStr + updateNumber;
@@ -321,7 +339,7 @@ const handleProductChangePart =(e,index)=>{
                   <span className="orderId">
                     {OrderID ? `#${OrderID}` : `#ord00${OrderID}`}
                   </span>
-                  <span className="ml-2" onClick={handleHistory} style={{cursor:"pointer"}}><FaHistory size={15}   color="#055761" /></span>
+                  <span title="Audit History" className="ml-2" onClick={handleHistory} style={{cursor:"pointer"}}><FaHistory size={15}   color="#055761" /></span>
                 </div>
                 <div>
                   <span className="orderId">Status:</span> <span>Draft</span>
@@ -967,7 +985,7 @@ const handleProductChangePart =(e,index)=>{
                         name="ProdName"
                         readOnly
                         placeholder="ProdName"
-                        value={product.productName || ""}
+                        value={product.productName}
                       />
                     </div>
                   </div>
@@ -984,16 +1002,19 @@ const handleProductChangePart =(e,index)=>{
                     </div>
                   </div>
                   <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="Qntywidth">
-                      <Label>Req_Qty</Label>
-                      <Input
+                    <div className="QntBtn">
+                   
+                     <div> <Label>Req_Qty</Label> <Button onClick={(e)=>ReqQtyIncrement(e,product.rquiredQty)}>+</Button></div>
+                      <div><Label></Label><Input
                         type="number"
                         name="rquiredQty"
-                        // readOnly
+                        readOnly
                         placeholder="Req_Qty"
                         value={product.rquiredQty}
-                      onChange={e => handleProductChangeProduct(e)}
-                      />
+                        step="any"
+                        // onChange={e => handleProductChangeProduct(e,product.rquiredQty)}
+                      /></div>
+                      <div><Label></Label> <Button onClick={(e)=>ReqQtyDecrement(e,product.rquiredQty)}>-</Button></div>
                     </div>
                   </div>
                   <div className="setInput" lg="2" md="2" sm="12">
@@ -1016,8 +1037,8 @@ const handleProductChangePart =(e,index)=>{
                         name="totalprice"
                         readOnly
                         placeholder="TtlPrice"
-                        // value={product.totalprice}
-                        value={product.price*product.rquiredQty}
+                        value={product.totalprice}
+                        // value={product.price*product.rquiredQty}
                       />
                     </div>
                   </div>
@@ -1270,10 +1291,10 @@ const handleProductChangePart =(e,index)=>{
                 </Button.Ripple>
               </Row>
             </Form>
-            {Commentshow && Commentshow ? (
+            {/* {Commentshow && Commentshow ? (
               <>
-                {Comments.length &&
-                  Comments?.map((ele, i) => (
+                {CommentsList?.length &&
+                  CommentsList?.map((ele, i) => (
                     <Row key={i}>
                       <Col>
                         <div
@@ -1297,9 +1318,9 @@ const handleProductChangePart =(e,index)=>{
                     </Row>
                   ))}
               </>
-            ) : null}
-            {Comments &&
-              Comments?.map((element, index) => (
+            ) : null} */}
+            {CommentsList &&
+              CommentsList?.map((element, index) => (
                 <>
                   <Row key={index} className="my-2">
                     <Col lg="6" md="6" sm="12">
@@ -1400,7 +1421,7 @@ const handleProductChangePart =(e,index)=>{
         >
           <ModalHeader toggle={toggle}>Product List</ModalHeader>
           <ModalBody>
-            <OrderedList items={items} setPart={setPart} setProduct={setProduct} />
+            <OrderedList items={items} setPart={setPart} setProduct={setProduct}   toggle={toggle} />
           </ModalBody>
         </Modal>
         <Modal

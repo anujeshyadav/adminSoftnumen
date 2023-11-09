@@ -617,8 +617,10 @@ export const OrderViewList = async () => {
   return response;
 };
 export const CommentOrder= async (id, data) => {
+ 
   let response = await axiosConfig
-    .post(`${AddOrderComment}`+ id,data)
+    // .post(`${AddOrderComment}`+ id,data)
+    .post(`${AddOrderComment}`+ `${id}`,data)
     .then((res) => res.data);
   return response;
 };
