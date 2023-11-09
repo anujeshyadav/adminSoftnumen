@@ -24,6 +24,7 @@ import {
   Warehouse_Upload,
   Service_Upload,
   Part_catelougue,
+  Service_Rate_Upload,
   Products_Upload,
   Delete_CartItem_PartsCat,
   Spare_Parts,
@@ -271,8 +272,15 @@ export const CampaignUpload = async (formdata) => {
     .then((res) => res.data);
   return response;
 };
+export const ServiceRate = async (formdata) => {
+  console.log(formdata);
+  let response = await axiosConfig
+    .post(`${Service_Rate_Upload}`, formdata)
+    .then((res) => res.data);
+  return response;
+};
 
-// End import
+// End import xls file
 
 export const PartCatalogueView = async () => {
   let response = await axiosConfig
@@ -616,9 +624,9 @@ export const OrderViewList = async () => {
     .then((res) => res.data);
   return response;
 };
-export const CommentOrder= async (id, data) => {
+export const CommentOrder = async (id, data) => {
   let response = await axiosConfig
-    .post(`${AddOrderComment}`+ id,data)
+    .post(`${AddOrderComment}` + id, data)
     .then((res) => res.data);
   return response;
 };
