@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
 import xmlJs from "xml-js";
-import swal from "sweetalert";
 import {
   Card,
   CardBody,
@@ -31,13 +30,13 @@ import {
   CreateOrder_ViewData,
   CommentOrder,
   CreateOrder_ID,
+  CommentProductWiki,
 } from "../../../../ApiEndPoint/ApiCalling";
 import "../../../../assets/scss/pages/users.scss";
 import Payment from "./payment/Payment";
 import OrderedList from "./OrderedList";
 import AuditHistory from "./audithistory/AuditHistory";
 const CreateOrder = (args) => {
-
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
   const [dropdownValue, setdropdownValue] = useState({});
@@ -52,25 +51,31 @@ const CreateOrder = (args) => {
   const [modal, setModal] = useState(false);
   const [items, setItems] = useState("");
   const [audit, setAudit] = useState(false);
-  const toggle = item => {
+  const toggle = (item) => {
     setItems(item);
     setModal(!modal);
   };
-  const audittoggle= ()=>{
-    setAudit(!audit)
+  const audittoggle = () => {
+    setAudit(!audit);
     // setModal(!modal);
-  }
-  const handleopentoggle = iteam => {
+  };
+  const handleopentoggle = (iteam) => {
     toggle(iteam);
   };
   const handleHistory = () => {
-    audittoggle()
-    
-  }
+    audittoggle();
+  };
   const [product, setProduct] = useState([
     {
-       product: "", productName: "", availableQty: "", rquiredQty: 1, price: "", totalprice: "",
-      discount: "",Shipping: "", tax: "",
+      product: "",
+      productName: "",
+      availableQty: "",
+      rquiredQty: 1,
+      price: "",
+      totalprice: "",
+      discount: "",
+      Shipping: "",
+      tax: "",
       grandTotal: "",
     },
   ]);
@@ -89,10 +94,10 @@ const CreateOrder = (args) => {
     },
   ]);
 
-  const [CommentsList, setCommentsList] = useState([
+  const [Comments, setComments] = useState([
     {
-      userName: JSON.parse(localStorage.getItem("userData")).UserName,
-      Role: JSON.parse(localStorage.getItem("userData")).Role,
+      name: JSON.parse(localStorage.getItem("userData")).UserName,
+      userRole: JSON.parse(localStorage.getItem("userData")).Role,
       comment: "",
       time: new Date(),
     },
@@ -106,59 +111,51 @@ const CreateOrder = (args) => {
     time: new Date().toString(),
   };
 
- 
   let handleComment = (i, e) => {
-    let newFormValues = [...CommentsList];
+    let newFormValues = [...Comments];
     newFormValues[i][e.target.name] = e.target.value;
-    setCommentsList(newFormValues);
+    setComments(newFormValues);
   };
-
-
   const SubmitComment = () => {
-let OrderommentId = localStorage.getItem("OrderommentId");
+    let user = JSON.parse(localStorage.getItem("userData"));
     setCommentshow(true);
-
-const CommentsAll={
-  Comments:CommentsList
-}
-    CommentOrder(OrderommentId, CommentsAll)
+    CommentOrder(user?.accountId, Comments)
       .then((res) => {
-        swal("Successful!", `${res.message}`, "success");
-        setCommentsList([{comment:""}])
+        console.log(res);
       })
       .catch((err) => {
         console.log(err);
       });
   };
   let addFormFields = () => {
-    setCommentsList([...CommentsList, newComment]);
+    setComments([...Comments, newComment]);
   };
 
   let addFileInput = () => {
     setFormValues([...formValues, { files: [] }]);
   };
-//   const handleProductChangeProduct =(e,qty)=>{
-//    if (e.target.validity.valid) {
-//    setProduct([{rquiredQty:qty+e.target.value}])
-//       }
-//  }
-const ReqQtyIncrement=(e,qty)=>{
-  console.log(qty)
-  // setResult(prevState => newNum1 + prevState.num2);
-  // setProduct(prevState => [{rquiredQty:prevState+1}]);
- setProduct([{rquiredQty:qty+1}])
-console.log("increment",qty)
-}
-const ReqQtyDecrement=(e,qty)=>{
-  if(qty!==0){
-    setProduct([{rquiredQty:qty-1}])
-  }
-console.log("increment",e.target.value,qty)
-}
-const handleProductChangePart =(e,index)=>{
-  console.log(e.target.value)
-  setPart([{rquiredQty:e.target.value}])
-}
+  const handleProductChangeProduct = (e, index) => {
+    const { name, value } = e.target;
+    const list = [...product];
+    list[index][name] = value;
+
+    let amt = 0;
+    if (list.length > 0) {
+      const x = list?.map((value) => {
+        list[index]["totalprice"] = value.rquiredQty * value.price;
+        return value.rquiredQty * value.price;
+      });
+      amt = x.reduce((a, b) => a + b);
+      console.log(amt);
+    }
+    setProduct(list);
+    // setAmount(amt);
+  };
+
+  // const handleProductChangePart = (e, index) => {
+  //   console.log(e.target.value);
+  //   setPart([{ rquiredQty: e.target.value }]);
+  // };
 
   let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
@@ -173,9 +170,9 @@ const handleProductChangePart =(e,index)=>{
     setFormValues(newFormValues);
   };
   let removeFormFields = (i) => {
-    let newFormValues = [...CommentsList];
+    let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
-    setCommentsList(newFormValues);
+    setComments(newFormValues);
   };
   const handleInputChange = (e, type, i) => {
     const { name, value, checked } = e.target;
@@ -222,18 +219,19 @@ const handleProductChangePart =(e,index)=>{
     }
   };
   // handleInputChange;
-  useEffect(() => { }, [formData]);
+  useEffect(() => {}, [formData]);
   useEffect(() => {
+    // console.log(part[0].Shipping);
   }, [part]);
   useEffect(() => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
-  setUserInfo(userInfo);
+    setUserInfo(userInfo);
     CreateOrder_ID()
       .then((res) => {
         const lastElement = res?.Order[res?.Order?.length - 1].id;
         const prefix = lastElement?.substring(0, 5);
         const number = parseInt(lastElement?.match(/\d+$/)[0], 10) + 1;
-         const concatenatedString = prefix + number;
+        const concatenatedString = prefix + number;
         setOrderID(concatenatedString);
       })
       .catch((err) => {
@@ -262,7 +260,7 @@ const handleProductChangePart =(e,index)=>{
         partName: "",
         Shipping: "",
         availableQty: "",
-        rquiredQty: "",
+        rquiredQty: 1,
         price: "",
         totalprice: "",
         discount: "",
@@ -276,11 +274,22 @@ const handleProductChangePart =(e,index)=>{
     newFormValues.splice(i, 1);
     setPart(newFormValues);
   };
-  
+
   let addMoreProduct = () => {
-    setProduct([...product, {  productName: "", availableQty: "", rquiredQty: "", price: "", totalprice: "",
-    discount: "",Shipping: "", tax: "",
-    grandTotal: "",}]);
+    setProduct([
+      ...product,
+      {
+        productName: "",
+        availableQty: "",
+        rquiredQty: 1,
+        price: "",
+        totalprice: "",
+        discount: "",
+        Shipping: "",
+        tax: "",
+        grandTotal: "",
+      },
+    ]);
   };
   let removeMoreProduct = (i) => {
     let newFormValues = [...product];
@@ -292,10 +301,10 @@ const handleProductChangePart =(e,index)=>{
     newFormValues[i][e.target.name] = e.target.value;
     setPart(newFormValues);
   };
-  
+
   const submitHandler = (e) => {
     e.preventDefault();
-    // console.log("previous", OrderID);
+    console.log("previous", OrderID);
     const prefixStr = OrderID.substring(0, 5);
     const updateNumber = parseInt(OrderID.match(/\d+$/)[0], 10) + 1;
     const newOrderID = prefixStr + updateNumber;
@@ -339,7 +348,13 @@ const handleProductChangePart =(e,index)=>{
                   <span className="orderId">
                     {OrderID ? `#${OrderID}` : `#ord00${OrderID}`}
                   </span>
-                  <span title="Audit History" className="ml-2" onClick={handleHistory} style={{cursor:"pointer"}}><FaHistory size={15}   color="#055761" /></span>
+                  <span
+                    className="ml-2"
+                    onClick={handleHistory}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <FaHistory size={15} color="#055761" />
+                  </span>
                 </div>
                 <div>
                   <span className="orderId">Status:</span> <span>Draft</span>
@@ -574,7 +589,7 @@ const handleProductChangePart =(e,index)=>{
                                       [ele?.name?._text]: phone,
                                     });
                                   }}
-                                // onChange={handleInputChange}
+                                  // onChange={handleInputChange}
                                 />
                                 {index === i ? (
                                   <>
@@ -928,7 +943,6 @@ const handleProductChangePart =(e,index)=>{
                                       {ele.label?._text == "SMS" ? (
                                         <>
                                           <FcPhoneAndroid size={30} />
-
                                         </>
                                       ) : (
                                         <>
@@ -949,174 +963,171 @@ const handleProductChangePart =(e,index)=>{
               <hr />
 
               <h2 className="text-center">Product Details</h2>
-              {product.map((product, index) => (
-                <Row className="productRow" key={index}>
-                <div className="setInput lookUp" lg="2" md="2" sm="12">
-                 <div className="mainLook">
-                      <Label>Product#</Label>
-                      <InputGroup className="maininput">
-                        <Input
-                          className="form-control inputs"
-                          disabled
-                          type="text"
-                          name="productN"
-                          readOnly
-                          placeholder="Product"
-                        // value={element.productName || ""}
-                        />
-                        <Button
-                          onClick={() => handleopentoggle("Product")}
-                          color="primary"
-                          className="mybtn primary"
-                        >
-                          <AiOutlineSearch
-                            onClick={e => e.preventDefault()}
-                            fill="white"
+              {product &&
+                product?.map((product, index) => (
+                  <Row className="productRow" key={index}>
+                    <div className="setInput lookUp" lg="2" md="2" sm="12">
+                      <div className="mainLook">
+                        <Label>Product#</Label>
+                        <InputGroup className="maininput">
+                          <Input
+                            className="form-control inputs"
+                            disabled
+                            type="text"
+                            name="productN"
+                            readOnly
+                            placeholder="Product"
+                            // value={element.productName || ""}
                           />
-                        </Button>
-                      </InputGroup>
+                          <Button
+                            onClick={() => handleopentoggle("Product")}
+                            color="primary"
+                            className="mybtn primary"
+                          >
+                            <AiOutlineSearch
+                              onClick={(e) => e.preventDefault()}
+                              fill="white"
+                            />
+                          </Button>
+                        </InputGroup>
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>ProdName</Label>
-                      <Input
-                        type="text"
-                        name="ProdName"
-                        readOnly
-                        placeholder="ProdName"
-                        value={product.productName}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>ProdName</Label>
+                        <Input
+                          type="text"
+                          name="ProdName"
+                          readOnly
+                          placeholder="ProdName"
+                          value={product.productName || ""}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="Qntywidth">
-                      <Label>Avl_Qty</Label>
-                      <Input
-                        type="number"
-                        name="availableQty"
-                        readOnly
-                        placeholder="Avl_Qty"
-                        value={product.availableQty}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="Qntywidth">
+                        <Label>Avl_Qty</Label>
+                        <Input
+                          type="number"
+                          name="availableQty"
+                          readOnly
+                          placeholder="Avl_Qty"
+                          value={product.availableQty}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="QntBtn">
-                   
-                     <div> <Label>Req_Qty</Label> <Button onClick={(e)=>ReqQtyIncrement(e,product.rquiredQty)}>+</Button></div>
-                      <div><Label></Label><Input
-                        type="number"
-                        name="rquiredQty"
-                        readOnly
-                        placeholder="Req_Qty"
-                        value={product.rquiredQty}
-                        step="any"
-                        // onChange={e => handleProductChangeProduct(e,product.rquiredQty)}
-                      /></div>
-                      <div><Label></Label> <Button onClick={(e)=>ReqQtyDecrement(e,product.rquiredQty)}>-</Button></div>
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="Qntywidth">
+                        <Label>Req_Qty</Label>
+                        <Input
+                          type="number"
+                          name="rquiredQty"
+                          placeholder="Req_Qty"
+                          value={product?.rquiredQty}
+                          onChange={(e) => handleProductChangeProduct(e, index)}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>Price</Label>
-                      <Input
-                        type="number"
-                        name="Price"
-                        readOnly
-                        placeholder="Price"
-                        value={product.price}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>Price</Label>
+                        <Input
+                          type="number"
+                          name="Price"
+                          readOnly
+                          placeholder="Price"
+                          value={product.price}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>TtlPrice</Label>
-                      <Input
-                        type="number"
-                        name="totalprice"
-                        readOnly
-                        placeholder="TtlPrice"
-                        value={product.totalprice}
-                        // value={product.price*product.rquiredQty}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>TtlPrice</Label>
+                        <Input
+                          type="number"
+                          name="totalprice"
+                          readOnly
+                          placeholder="TtlPrice"
+                          value={product.totalprice}
+                          // value={product.price * product.rquiredQty}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>Dissct</Label>
-                      <Input
-                        type="number"
-                        name="discount"
-                        readOnly
-                        placeholder="Dissct"
-                        value={product.discount}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>Dissct</Label>
+                        <Input
+                          type="number"
+                          name="discount"
+                          readOnly
+                          placeholder="Dissct"
+                          value={product.discount}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="">
-                      <Label>Shipcst</Label>
-                      <Input
-                        type="number"
-                        name="Shipcst"
-                        readOnly
-                        placeholder="Shipcst"
-                        value={product.Shipping}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="">
+                        <Label>Shipcst</Label>
+                        <Input
+                          type="number"
+                          name="Shipcst"
+                          readOnly
+                          placeholder="Shipcst"
+                          value={product.Shipping}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="Qntywidth">
-                      <Label>Tax</Label>
-                      <Input
-                        type="number"
-                        name="tax"
-                        readOnly
-                        placeholder="Tax"
-                        value={product.tax}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="Qntywidth">
+                        <Label>Tax</Label>
+                        <Input
+                          type="number"
+                          name="tax"
+                          readOnly
+                          placeholder="Tax"
+                          value={product.tax}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
-                    <div className="Qntywidth">
-                      <Label>Grdttl</Label>
-                      <Input
-                        type="number"
-                        name="Grdttl"
-                        readOnly
-                        placeholder="Grdttl"
-                        value={product.grandTotal || ""}
-                      />
+                    <div className="setInput" lg="2" md="2" sm="12">
+                      <div className="Qntywidth">
+                        <Label>Grdttl</Label>
+                        <Input
+                          type="number"
+                          name="Grdttl"
+                          readOnly
+                          placeholder="Grdttl"
+                          value={product.grandTotal || ""}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="d-flex mt-2 abb" lg="" md="2" sm="12">
-                    <div className="btnStyle">
-                      {index ? (
-                        <Button
-                          type="button"
-                          color="danger"
-                          className="button remove "
-                          onClick={() => removeMoreProduct(index)}
-                        >
-                          -
-                        </Button>
-                      ) : null}
-                    </div>
+                    <div className="d-flex mt-2 abb" lg="" md="2" sm="12">
+                      <div className="btnStyle">
+                        {index ? (
+                          <Button
+                            type="button"
+                            color="danger"
+                            className="button remove "
+                            onClick={() => removeMoreProduct(index)}
+                          >
+                            -
+                          </Button>
+                        ) : null}
+                      </div>
 
-                    <div className="btnStyle">
-                      <Button
-                        className="ml-1 "
-                        color="primary"
-                        type="button"
-                        onClick={() => addMoreProduct()}
-                      >
-                        +
-                      </Button>
+                      <div className="btnStyle">
+                        <Button
+                          className="ml-1 "
+                          color="primary"
+                          type="button"
+                          onClick={() => addMoreProduct()}
+                        >
+                          +
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </Row>
-              ))}
+                  </Row>
+                ))}
               <hr></hr>
               <h2 className="text-center">Part Details</h2>
               {part.map((part, index) => (
@@ -1133,7 +1144,7 @@ const handleProductChangePart =(e,index)=>{
                         name="part"
                         readOnly
                         placeholder="Part"
-                      // value={element.productName || ""}
+                        // value={element.productName || ""}
                       />
                       <Button
                         onClick={() => handleopentoggle("Part")}
@@ -1148,7 +1159,7 @@ const handleProductChangePart =(e,index)=>{
                     </InputGroup>
                   </div>
 
-                  <div className="setInput"  md="2" sm="12">
+                  <div className="setInput" md="2" sm="12">
                     <div className="">
                       <Label>PartName</Label>
                       <Input
@@ -1178,11 +1189,11 @@ const handleProductChangePart =(e,index)=>{
                       <Label>Req_Qty</Label>
                       <Input
                         type="number"
-                        name="rquiredQty"
+                        name="PartrquiredQty"
                         // readOnly
-                        placeholder="Req_Qty"
-                        value={part.rquiredQty}
-                      onChange={e => handleProductChangePart(e, index)}
+                        placeholder="Require Qty"
+                        value={part.PartrquiredQty}
+                        onChange={(e) => handleProductChangePart(e, index)}
                       />
                     </div>
                   </div>
@@ -1206,7 +1217,7 @@ const handleProductChangePart =(e,index)=>{
                         name="totalprice"
                         readOnly
                         placeholder="TtlPrice"
-                        value={part.price*part.rquiredQty}
+                        value={part.price * part.rquiredQty}
                       />
                     </div>
                   </div>
@@ -1291,10 +1302,10 @@ const handleProductChangePart =(e,index)=>{
                 </Button.Ripple>
               </Row>
             </Form>
-            {/* {Commentshow && Commentshow ? (
+            {Commentshow && Commentshow ? (
               <>
-                {CommentsList?.length &&
-                  CommentsList?.map((ele, i) => (
+                {Comments.length &&
+                  Comments?.map((ele, i) => (
                     <Row key={i}>
                       <Col>
                         <div
@@ -1318,9 +1329,9 @@ const handleProductChangePart =(e,index)=>{
                     </Row>
                   ))}
               </>
-            ) : null} */}
-            {CommentsList &&
-              CommentsList?.map((element, index) => (
+            ) : null}
+            {Comments &&
+              Comments?.map((element, index) => (
                 <>
                   <Row key={index} className="my-2">
                     <Col lg="6" md="6" sm="12">
@@ -1421,7 +1432,11 @@ const handleProductChangePart =(e,index)=>{
         >
           <ModalHeader toggle={toggle}>Product List</ModalHeader>
           <ModalBody>
-            <OrderedList items={items} setPart={setPart} setProduct={setProduct}   toggle={toggle} />
+            <OrderedList
+              items={items}
+              setPart={setPart}
+              setProduct={setProduct}
+            />
           </ModalBody>
         </Modal>
         <Modal
@@ -1434,7 +1449,7 @@ const handleProductChangePart =(e,index)=>{
         >
           <ModalHeader toggle={audittoggle}>Audit History List</ModalHeader>
           <ModalBody>
-            <AuditHistory  />
+            <AuditHistory />
           </ModalBody>
         </Modal>
       </div>

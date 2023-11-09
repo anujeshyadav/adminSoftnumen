@@ -23,7 +23,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Logo from "../../../../assets/img/profile/pages/logomain.png";
 import Papa from "papaparse";
-import { Eye, Trash2, ChevronDown, Edit,HelpCircle } from "react-feather";
+import { Eye, Trash2, ChevronDown, Edit, HelpCircle } from "react-feather";
 import { IoMdRemoveCircleOutline } from "react-icons/io";
 import "../../../../assets/scss/plugins/tables/_agGridStyleOverride.scss";
 import "../../../../assets/scss/pages/users.scss";
@@ -55,7 +55,7 @@ class OrderedList extends React.Component {
   static contextType = UserContext;
   constructor(props) {
     super(props);
-    // console.log(props)
+    console.log(props);
     this.gridRef = React.createRef();
     this.gridApi = null;
     // console.log(props.setPart);
@@ -82,38 +82,11 @@ class OrderedList extends React.Component {
   }
 
   LookupviewStart = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       modal: !prevState.modal,
     }));
   };
-   ProductCalling = (selectedRow)=>{
-    this.props.setProduct([
-      {
-      Shipping: selectedRow.ShippingCost,
-      productName: selectedRow['Part Name'],
-      availableQty: selectedRow['Part Quantity'],
-       price: selectedRow.Price,
-       discount: selectedRow.Discount,
-      tax: selectedRow.Tax,
-      },
-    ])
-    this.props.toggle()
-  }
 
-  PartCalling =()=>{
-    this.props.setPart([
-      {
-        Shipping: selectedRow.ShippingCost,
-        // part: "",
-        partName:selectedRow['Part Name'],
-        availableQty: selectedRow['Part Quantity'],
-        price: selectedRow.Price,
-        discount: selectedRow.Discount,
-        tax: selectedRow.Tax,
-      },
-    ]);
-    this.props.toggle()
-  }
   handleChangeEdit = (data, types) => {
     let type = types;
     if (type == "readonly") {
@@ -132,11 +105,11 @@ class OrderedList extends React.Component {
     let elementWithMaxKeys = null;
     const UserInformation = this.context?.UserInformatio;
     await SparesPartsView()
-      .then(res => {
+      .then((res) => {
         const rowData = res?.SparePart.filter(
-          value => value.Type == this.props.items
+          (value) => value.Type == this.props.items
         );
-        console.log(rowData[0])
+        console.log(rowData[0]);
         this.setState({ rowData: rowData });
         for (const element of res?.SparePart) {
           const numKeys = Object.keys(element).length;
@@ -145,7 +118,7 @@ class OrderedList extends React.Component {
             elementWithMaxKeys = element;
           }
         }
-        // console.log(maxKeys);
+        console.log(maxKeys);
         let findheading = Object.keys(elementWithMaxKeys);
         let index = findheading.indexOf("_id");
         if (index > -1) {
@@ -155,7 +128,7 @@ class OrderedList extends React.Component {
         if (index1 > -1) {
           findheading.splice(index1, 1);
         }
-        headings = findheading?.map(ele => {
+        headings = findheading?.map((ele) => {
           return {
             headerName: ele,
             field: ele,
@@ -376,27 +349,51 @@ class OrderedList extends React.Component {
         }
         this.setState({ SelectedCols: Product });
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         swal("Error", "something went wrong try again");
       });
   }
   toggleDropdown = () => {
-    this.setState(prevState => ({ isOpen: !prevState.isOpen }));
+    this.setState((prevState) => ({ isOpen: !prevState.isOpen }));
   };
 
-  onGridReady = params => {
+  onGridReady = (params) => {
     // console.log(params.api);
     this.gridApi = params.api;
     this.gridColumnApi = params.columnApi;
     this.gridRef.current = params.api;
-    this.gridApi.addEventListener("rowClicked", event => {
+    this.gridApi.addEventListener("rowClicked", (event) => {
       const selectedRow = event.data;
-      console.log(selectedRow)
-      selectedRow.Type==="Product"? 
-      this.ProductCalling(selectedRow)
-     :this.PartCalling(selectedRow)
-      
+      console.log(selectedRow);
+      selectedRow.Type === "Product"
+        ? this.props.setProduct([
+            {
+              Shipping: selectedRow.ShippingCost,
+              productName: selectedRow["Part Name"],
+              availableQty: selectedRow["Part Quantity"],
+              // rquiredQty: 1,
+              price: selectedRow.Price,
+              totalprice: "",
+              discount: selectedRow.Discount,
+              tax: selectedRow.Tax,
+              grandTotal: "",
+            },
+          ])
+        : this.props.setPart([
+            {
+              Shipping: selectedRow.ShippingCost,
+              part: "",
+              partName: selectedRow["Part Name"],
+              availableQty: selectedRow["Part Quantity"],
+              // rquiredQty: 1,
+              price: selectedRow.Price,
+              totalprice: "",
+              discount: selectedRow.Discount,
+              tax: selectedRow.Tax,
+              grandTotal: "",
+            },
+          ]);
     });
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
@@ -405,11 +402,11 @@ class OrderedList extends React.Component {
     });
   };
 
-  updateSearchQuery = val => {
+  updateSearchQuery = (val) => {
     this.gridApi.setQuickFilter(val);
   };
 
-  filterSize = val => {
+  filterSize = (val) => {
     if (this.gridApi) {
       this.gridApi.paginationSetPageSize(Number(val));
       this.setState({
@@ -424,7 +421,7 @@ class OrderedList extends React.Component {
       SelectedColums?.push(value);
     } else {
       const delindex = SelectedColums?.findIndex(
-        ele => ele?.headerName === value?.headerName
+        (ele) => ele?.headerName === value?.headerName
       );
 
       SelectedColums?.splice(delindex, 1);
@@ -435,14 +432,14 @@ class OrderedList extends React.Component {
       Papa.parse(csvData, {
         header: true,
         skipEmptyLines: true,
-        complete: result => {
+        complete: (result) => {
           if (result.data && result.data.length > 0) {
             resolve(result.data);
           } else {
             reject(new Error("No data found in the CSV"));
           }
         },
-        error: error => {
+        error: (error) => {
           reject(error);
         },
       });
@@ -454,7 +451,7 @@ class OrderedList extends React.Component {
 
     const doc = new jsPDF("landscape", "mm", size, false);
     doc.setTextColor(5, 87, 97);
-    const tableData = parsedData.map(row => Object.values(row));
+    const tableData = parsedData.map((row) => Object.values(row));
     doc.addImage(Logo, "JPEG", 10, 10, 50, 30);
     let date = new Date();
     doc.setCreationDate(date);
@@ -479,14 +476,14 @@ class OrderedList extends React.Component {
       console.error("Error parsing CSV:", error);
     }
   };
-  processCell = params => {
+  processCell = (params) => {
     // console.log(params);
     // Customize cell content as needed
     return params.value;
   };
 
   convertCsvToExcel(csvData) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       Papa.parse(csvData, {
         header: true,
         dynamicTyping: true,
@@ -517,7 +514,7 @@ class OrderedList extends React.Component {
     window.URL.revokeObjectURL(url);
   }
 
-  exportToExcel = async e => {
+  exportToExcel = async (e) => {
     const CsvData = this.gridApi.getDataAsCsv({
       processCellCallback: this.processCell,
     });
@@ -530,7 +527,7 @@ class OrderedList extends React.Component {
       processCellCallback: this.processCell,
     });
     Papa.parse(CsvData, {
-      complete: result => {
+      complete: (result) => {
         const ws = XLSX.utils.json_to_sheet(result.data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -566,12 +563,12 @@ class OrderedList extends React.Component {
       processCellCallback: this.processCell,
     });
     Papa.parse(CsvData, {
-      complete: result => {
+      complete: (result) => {
         const rows = result.data;
         // Create XML
         let xmlString = "<root>\n";
 
-        rows.forEach(row => {
+        rows.forEach((row) => {
           xmlString += "  <row>\n";
           row.forEach((cell, index) => {
             xmlString += `    <field${index + 1}>${cell}</field${index + 1}>\n`;
@@ -593,7 +590,7 @@ class OrderedList extends React.Component {
     });
   };
 
-  HandleSetVisibleField = e => {
+  HandleSetVisibleField = (e) => {
     e.preventDefault();
     this.gridApi.setColumnDefs(this.state.SelectedcolumnDefs);
     this.setState({ columnDefs: this.state.SelectedcolumnDefs });
@@ -609,10 +606,10 @@ class OrderedList extends React.Component {
   HeadingRightShift = () => {
     const updatedSelectedColumnDefs = [
       ...new Set([
-        ...this.state.SelectedcolumnDefs.map(item => JSON.stringify(item)),
-        ...SelectedColums.map(item => JSON.stringify(item)),
+        ...this.state.SelectedcolumnDefs.map((item) => JSON.stringify(item)),
+        ...SelectedColums.map((item) => JSON.stringify(item)),
       ]),
-    ].map(item => JSON.parse(item));
+    ].map((item) => JSON.parse(item));
     this.setState({
       SelectedcolumnDefs: [...new Set(updatedSelectedColumnDefs)],
     });
@@ -620,7 +617,7 @@ class OrderedList extends React.Component {
   handleLeftShift = () => {
     let SelectedCols = this.state.SelectedcolumnDefs.slice();
     let delindex = this.state.Arrindex;
-  if (SelectedCols && delindex >= 0) {
+    if (SelectedCols && delindex >= 0) {
       SelectedCols.splice(delindex, 1);
       this.setState({
         SelectedcolumnDefs: SelectedCols, // Update the state with the modified array
@@ -645,7 +642,7 @@ class OrderedList extends React.Component {
               <Col>
                 <div className="d-flex justify-content-end p-1">
                   <Button
-                    onClick={e => {
+                    onClick={(e) => {
                       e.preventDefault();
                       this.setState({ EditOneUserView: false });
                     }}
@@ -666,7 +663,7 @@ class OrderedList extends React.Component {
                     <Col>
                       <div className="d-flex justify-content-end p-1">
                         <Button
-                          onClick={e => {
+                          onClick={(e) => {
                             e.preventDefault();
                             this.setState({ ViewOneUserView: false });
                           }}
@@ -819,7 +816,7 @@ class OrderedList extends React.Component {
                                 <div className="table-input mr-1">
                                   <Input
                                     placeholder="search Item here..."
-                                    onChange={e =>
+                                    onChange={(e) =>
                                       this.updateSearchQuery(e.target.value)
                                     }
                                     value={this.state.value}
@@ -828,7 +825,7 @@ class OrderedList extends React.Component {
                               </div>
                             </div>
                             <ContextLayout.Consumer className="ag-theme-alpine">
-                              {context => (
+                              {(context) => (
                                 <AgGridReact
                                   id="myAgGrid"
                                   gridOptions={this.gridOptions}
@@ -880,7 +877,9 @@ class OrderedList extends React.Component {
                         return (
                           <>
                             <div
-                              onClick={e => this.handleChangeHeader(e, ele, i)}
+                              onClick={(e) =>
+                                this.handleChangeHeader(e, ele, i)
+                              }
                               key={i}
                               className="mycustomtag mt-1"
                             >
@@ -955,7 +954,7 @@ class OrderedList extends React.Component {
                                             this.state.SelectedcolumnDefs.slice();
                                           const delindex =
                                             SelectedCols.findIndex(
-                                              element =>
+                                              (element) =>
                                                 element?.headerName ==
                                                 ele?.headerName
                                             );
