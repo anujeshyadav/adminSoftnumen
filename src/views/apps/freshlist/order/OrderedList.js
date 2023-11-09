@@ -97,7 +97,37 @@ class OrderedList extends React.Component {
       this.setState({ EditOneData: data });
     }
   };
-
+ProductOfTable=(selectedRow)=>{
+  this.props.setProduct([
+    {
+      Shipping: selectedRow.ShippingCost,
+      productName: selectedRow["Part Name"],
+      availableQty: selectedRow["Part Quantity"],
+      price: selectedRow.Price,
+      totalprice: "",
+      discount: selectedRow.Discount,
+      tax: selectedRow.Tax,
+      grandTotal: "",
+    },
+  ])
+  this.props.toggle()
+}
+PartOfTable=(selectedRow)=>{
+  this.props.setPart([
+    {
+      Shipping: selectedRow.ShippingCost,
+      part: "",
+      partName: selectedRow["Part Name"],
+      availableQty: selectedRow["Part Quantity"],
+      price: selectedRow.Price,
+      totalprice: "",
+      discount: selectedRow.Discount,
+      tax: selectedRow.Tax,
+      grandTotal: "",
+    },
+  ]);
+  this.props.toggle()
+}
   async componentDidMount() {
     let headings;
     // let inputs;
@@ -367,33 +397,8 @@ class OrderedList extends React.Component {
       const selectedRow = event.data;
       console.log(selectedRow);
       selectedRow.Type === "Product"
-        ? this.props.setProduct([
-            {
-              Shipping: selectedRow.ShippingCost,
-              productName: selectedRow["Part Name"],
-              availableQty: selectedRow["Part Quantity"],
-              // rquiredQty: 1,
-              price: selectedRow.Price,
-              totalprice: "",
-              discount: selectedRow.Discount,
-              tax: selectedRow.Tax,
-              grandTotal: "",
-            },
-          ])
-        : this.props.setPart([
-            {
-              Shipping: selectedRow.ShippingCost,
-              part: "",
-              partName: selectedRow["Part Name"],
-              availableQty: selectedRow["Part Quantity"],
-              // rquiredQty: 1,
-              price: selectedRow.Price,
-              totalprice: "",
-              discount: selectedRow.Discount,
-              tax: selectedRow.Tax,
-              grandTotal: "",
-            },
-          ]);
+        ? this.ProductOfTable(selectedRow)
+        : thisPartOfTable(selectedRow)
     });
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
