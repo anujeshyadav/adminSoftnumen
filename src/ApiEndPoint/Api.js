@@ -24,6 +24,7 @@ export const Supplier_Upload = "/suppliers/save-supplier";
 export const ServiceCenter_Upload = "/service-centers/save-service-center";
 export const Customer_Upload = "/customer/save-customer-data";
 export const Campaign_Upload = "/campaign/save-campaign";
+export const Service_Rate_Upload = "/service-rate/save-service-rate";
 export const Warrenty_Upload = "/warranty/save-warranty";
 
 // end
@@ -56,8 +57,7 @@ export const WarrantyList_View = "/warranty/view-warranty";
 export const Warranty_Delete = "/warranty/delete-warranty/";
 export const Warranty_Update = "/warranty/update-warranty/";
 
-
-// Order 
+// Order
 export const CreaterOrder_View = "/orders/get-xml"; //done
 export const Order_ViewList = "/create-orders/view-create-order"; //done
 export const AddOrderComment = "/create-orders/comment-add"; //done
