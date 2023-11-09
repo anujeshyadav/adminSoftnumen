@@ -721,8 +721,8 @@ const Inventory = lazy(() => import("./views/apps/freshlist/house/Inventory"));
 const ServiceMaster = lazy(() =>
   import("./views/apps/freshlist/house/ServiceMaster")
 );
-const ProductType = lazy(() =>
-  import("./views/apps/freshlist/house/ProductType")
+const AccounSearch = lazy(() =>
+  import("./views/apps/freshlist/house/AccounSearch")
 );
 const SupplierList = lazy(() =>
   import("./views/apps/freshlist/house/SupplierList")
@@ -1955,7 +1955,7 @@ class AppRouter extends React.Component {
             path="/app/freshlist/house/serviceMaster"
             component={ServiceMaster}
           />
-          <AppRoute path="/app/SoftNumen/userlist" component={ProductType} />
+          <AppRoute path="/app/SoftNumen/accounSearch" component={AccounSearch} />
           <AppRoute
             path="/app/freshlist/house/SupplierList"
             component={SupplierList}

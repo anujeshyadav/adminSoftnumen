@@ -67,7 +67,7 @@ const navigationConfig = [
         type: "item",
         icon: <FaList size={8} />,
         permissions: ["admin", "editor"],
-        navLink: "/app/SoftNumen/userlist",
+        navLink: "/app/SoftNumen/accounSearch",
       },
     ],
   },
