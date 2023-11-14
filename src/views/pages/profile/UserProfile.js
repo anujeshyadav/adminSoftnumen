@@ -175,7 +175,7 @@ class UserProfile extends React.Component {
                   {this.state.LoginData?.profileImage ? (
                     <>
                       <img
-                        src={`http://3.7.55.231:5000/Images/${this.context?.UserInformatio?.profileImage}`}
+                        src={`http://65.0.96.247:8000//Images/${this.context?.UserInformatio?.profileImage}`}
                         alt="adminimg"
                         className="img-fluid img-border rounded-circle box-shadow-1 mt-1"
                         width="250px"
@@ -185,7 +185,7 @@ class UserProfile extends React.Component {
                   ) : (
                     <>
                       <img
-                        src={`http://3.7.55.231:5000/Images/${this.context?.UserInformatio?.profileImage}`}
+                        src={`http://65.0.96.247:8000//Images/${this.context?.UserInformatio?.profileImage}`}
                         alt="adminimg"
                         className="img-fluid img-border rounded-circle box-shadow-1 mt-1"
                         width="210px"

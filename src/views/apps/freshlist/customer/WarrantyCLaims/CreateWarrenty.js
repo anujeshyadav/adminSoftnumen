@@ -21,19 +21,27 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Country, State, City } from "country-state-city";
 import Select from "react-select";
-
+import { FaBackward, FaHistory } from "react-icons/fa";
 import "../../../../../../src/layouts/assets/scss/pages/users.scss";
 import {
   GetPartsCatalogue,
+  WarrantyAuditHistoryList,
+  WarrantyAuditHistoryViewOne,
   WarrantyListView,
   WarrantySave,
   Warranty_ViewData,
 } from "../../../../../ApiEndPoint/ApiCalling";
 import { BiEnvelope } from "react-icons/bi";
 import { FcPhoneAndroid } from "react-icons/fc";
-import { BsFillChatDotsFill, BsWhatsapp } from "react-icons/bs";
+import {
+  BsFillArrowLeftSquareFill,
+  BsFillChatDotsFill,
+  BsWhatsapp,
+} from "react-icons/bs";
 import "../../../../../assets/scss/pages/users.scss";
 import { AiOutlineSearch } from "react-icons/ai";
+import AuditHistory from "../../order/audithistory/AuditHistory";
+import swal from "sweetalert";
 
 const CreateWarrenty = (args) => {
   const [CreatAccountView, setCreatAccountView] = useState({});
@@ -49,6 +57,9 @@ const CreateWarrenty = (args) => {
   const toggle = () => setModal(!modal);
   const [modalone, setModalone] = useState(false);
   const toggleone = () => setModalone(!modalone);
+  const [Audithistory, setAudithistory] = useState([]);
+  const [Allhistory, setAllhistory] = useState([]);
+  const [audit, setAudit] = useState(false);
   const [Comments, setComments] = useState([
     {
       userName: "",
@@ -184,7 +195,33 @@ const CreateWarrenty = (args) => {
       }
     }
   };
+  const handleHistory = () => {
+    audittoggle();
+  };
+  const audittoggle = () => {
+    setAudit(!audit);
+    WarrantyAuditHistoryList()
+      .then((res) => {
+        console.log(res?.AuditHistory);
+        const uniqueArray = Array.from(
+          new Set(res?.AuditHistory?.map((obj) => obj.id))
+        ).map((id) => {
+          return res?.AuditHistory?.find((obj) => obj?.id === id);
+        });
 
+        console.log(uniqueArray);
+        setAudithistory(uniqueArray);
+        setAllhistory(uniqueArray);
+      })
+      .catch((err) => {
+        console.log(err);
+        swal("Error", "Something Went Wrong");
+      });
+    // setModal(!modal);
+  };
+  const handleOrigionalAudithistory = () => {
+    setAudithistory(Allhistory);
+  };
   useEffect(() => {
     const handlePopstate = (event) => {
       if (event.state === null) {
@@ -230,6 +267,19 @@ const CreateWarrenty = (args) => {
         console.log(err);
       });
   }, []);
+  const handleViewone = async (e, ele) => {
+    e.preventDefault();
+    console.log(ele?.id);
+    debugger;
+    await WarrantyAuditHistoryViewOne(ele?.id)
+      .then((res) => {
+        console.log(res?.AuditHistory);
+        setAudithistory(res?.AuditHistory);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const submitHandlerAfterback = () => {
     let formdata = new FormData();
@@ -456,6 +506,13 @@ const CreateWarrenty = (args) => {
               </div>
               <div>
                 <span>Warranty Id</span> <span># :{randomNumber}</span>
+                <span
+                  className="ml-2"
+                  onClick={handleHistory}
+                  style={{ cursor: "pointer" }}
+                >
+                  <FaHistory size={15} color="#055761" />
+                </span>
               </div>
             </Col>
           </Row>
@@ -1723,6 +1780,79 @@ const CreateWarrenty = (args) => {
                 <tbody></tbody>
               </Table>
             </div>
+          </ModalBody>
+        </Modal>
+        <Modal
+          className="modal-dialog modal-xl"
+          // className="modal-dialog modal-lg"
+          size="lg"
+          backdrop={false}
+          isOpen={audit}
+          toggle={audittoggle}
+          {...args}
+        >
+          <ModalHeader toggle={audittoggle}>Audit History List</ModalHeader>
+          <ModalBody>
+            <div className="d-flex justify-content-center">
+              <h2>Choose Audit Number </h2>
+            </div>
+            <div className="container p-1">
+              <div
+                style={{ justifyContent: "space-between" }}
+                className="d-flex "
+              >
+                <BsFillArrowLeftSquareFill
+                  className="mb-1"
+                  style={{ cursor: "pointer" }}
+                  size={30}
+                  color="primary"
+                  onClick={handleOrigionalAudithistory}
+                />{" "}
+                <input type="text" name="filter" className="" />
+              </div>
+              <Table striped>
+                <thead>
+                  <tr>
+                    <th>#ID</th>
+                    <th>Status</th>
+                    <th>userName</th>
+                    <th>Role</th>
+                    <th>timestamp</th>
+                    <th>timelag</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Audithistory && Audithistory ? (
+                    <>
+                      {Audithistory &&
+                        Audithistory?.map((ele, i) => {
+                          return (
+                            <>
+                              <tr
+                                onClick={(e) => handleViewone(e, ele)}
+                                style={{ cursor: "pointer" }}
+                                key={i}
+                              >
+                                <th scope="row">{ele?.id}</th>
+                                <td>{ele?.status}</td>
+                                <td>{ele?.userName}</td>
+                                <td>{ele?.Role}</td>
+                                <td>{ele?.timestamp}</td>
+                                <td>{ele?.timeLag}</td>
+                              </tr>
+                            </>
+                          );
+                        })}
+                    </>
+                  ) : (
+                    <>
+                      <h2>No Audit history Found</h2>
+                    </>
+                  )}
+                </tbody>
+              </Table>
+            </div>
+            {/* <AuditHistory /> */}
           </ModalBody>
         </Modal>
       </div>
