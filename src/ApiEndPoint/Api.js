@@ -58,11 +58,18 @@ export const Warranty_Save = "/warranty/save-warranty"; //done
 export const WarrantyList_View = "/warranty/view-warranty";
 export const Warranty_Delete = "/warranty/delete-warranty/";
 export const Warranty_Update = "/warranty/update-warranty/";
+export const Warranty_AuditHistory =
+  "/audit-history/save-warranty-audit-history"; //post
+export const Warranty_AuditHistoryList =
+  "/audit-history/view-warranty-audit-history"; //get
+export const Warranty_AuditHistoryViewone =
+  "/audit-history/view-warranty-audit-history-by-id/"; //get
 
 // Order
 export const CreaterOrder_View = "/orders/get-xml"; //done
 export const Order_ViewList = "/create-orders/view-create-order"; //done
 export const AddOrderComment = "/create-orders/comment-add/"; //done
+export const PlaceOrder_post = "/orders/place-order/"; //done
 
 // Inspection
 export const Inspection_XMLView = "/inspection/get-xml"; //done

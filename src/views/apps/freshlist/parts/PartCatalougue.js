@@ -132,7 +132,7 @@ function PartCatalougue() {
         );
 
         let value = {
-          userId: userData?._id,
+          userId: userData?.accountId,
           productId: ele?._id,
           quantity: quantities[index],
         };
