@@ -29,8 +29,9 @@ import "../../../../assets/scss/pages/users.scss";
 import {
   CreateOrder_ViewData,
   CommentOrder,
+  OrderDataSave,
   CreateOrder_ID,
-  CommentProductWiki,
+  GetCommentListView
 } from "../../../../ApiEndPoint/ApiCalling";
 import "../../../../assets/scss/pages/users.scss";
 import Payment from "./payment/Payment";
@@ -43,9 +44,12 @@ const CreateOrder = (args) => {
   const [StatusDropDown, setStatusDropDown] = useState({});
   const [partdetails, setPartDetails] = useState({});
   const [index, setindex] = useState("");
+  const [userDetails, setUserDetails] = useState("");
+  const [partIndex, setpartIndex] = useState(0);
+  const [productIndex, setProductIndex] = useState(0);
   const [error, setError] = useState("");
   const [permissions, setpermissions] = useState({});
-  const [Commentshow, setCommentshow] = useState(false);
+  const [Commentshow, setCommentshow] = useState([]);
   const [OrderID, setOrderID] = useState();
   const [UserInfo, setUserInfo] = useState({});
   const [modal, setModal] = useState(false);
@@ -57,10 +61,9 @@ const CreateOrder = (args) => {
   };
   const audittoggle = () => {
     setAudit(!audit);
-    // setModal(!modal);
   };
-  const handleopentoggle = (iteam) => {
-    toggle(iteam);
+  const handleopentoggle = (iteam,index) => {
+    toggle(iteam,index);
   };
   const handleHistory = () => {
     audittoggle();
@@ -96,37 +99,42 @@ const CreateOrder = (args) => {
 
   const [Comments, setComments] = useState([
     {
-      name: JSON.parse(localStorage.getItem("userData")).UserName,
-      userRole: JSON.parse(localStorage.getItem("userData")).Role,
+      // name: JSON.parse(localStorage.getItem("userData")).UserName,
+      name: "Sadik",
+      // userRole: JSON.parse(localStorage.getItem("userData")).Role,
+      userRole: "admin",
       comment: "",
-      time: new Date(),
+      time: new Date().toString(),
     },
   ]);
   const [formValues, setFormValues] = useState([{ files: [] }]);
 
   const newComment = {
-    userName: JSON.parse(localStorage.getItem("userData")).UserName,
-    Role: JSON.parse(localStorage.getItem("userData")).Role,
+    name: JSON.parse(localStorage.getItem("userData")).UserName,
+    userRole: JSON.parse(localStorage.getItem("userData")).Role,
     comment: "",
     time: new Date().toString(),
   };
 
   let handleComment = (i, e) => {
+    console.log(i,e.target.value)
     let newFormValues = [...Comments];
+  //  const {name,value} =e.target
+  //  newFormValues[i][name]=value
     newFormValues[i][e.target.name] = e.target.value;
     setComments(newFormValues);
   };
-  const SubmitComment = () => {
-    let user = JSON.parse(localStorage.getItem("userData"));
-    setCommentshow(true);
-    CommentOrder(user?.accountId, Comments)
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  // const SubmitComment = () => {
+  //   let user = JSON.parse(localStorage.getItem("userData"));
+  //   console.log(user._id)
+  //  CommentOrder(user?.accountId, Comments)
+  //     .then((res) => {
+  //       console.log(res);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
   let addFormFields = () => {
     setComments([...Comments, newComment]);
   };
@@ -134,28 +142,37 @@ const CreateOrder = (args) => {
   let addFileInput = () => {
     setFormValues([...formValues, { files: [] }]);
   };
-  const handleProductChangeProduct = (e, index) => {
-    const { name, value } = e.target;
-    const list = [...product];
-    list[index][name] = value;
-
+  const handleProductChangeQty = (e, index) => {
+    // console.log(index)
+  const { name, value } = e.target;
+    const productList = [...product];
+    productList[index][name] = value;
     let amt = 0;
-    if (list.length > 0) {
-      const x = list?.map((value) => {
-        list[index]["totalprice"] = value.rquiredQty * value.price;
+    if (productList.length > 0) {
+      const x = productList?.map((value) => {
+        productList[index]["totalprice"] = value.rquiredQty * value.price;
         return value.rquiredQty * value.price;
       });
       amt = x.reduce((a, b) => a + b);
-      console.log(amt);
     }
-    setProduct(list);
-    // setAmount(amt);
+    setProduct(productList);
   };
 
-  // const handleProductChangePart = (e, index) => {
-  //   console.log(e.target.value);
-  //   setPart([{ rquiredQty: e.target.value }]);
-  // };
+  const handlePartChangeQty = (e, partindx) => {
+ const { name, value } = e.target;
+    const partList = [...part];
+    partList[partindx][name] = value;
+    let amt = 0;
+    if (partList.length > 0) {
+      const x = partList?.map((value) => {
+        partList[partindx]["totalprice"] = value.rquiredQty * value.price;
+        return value.rquiredQty * value.price;
+      });
+      amt = x.reduce((a, b) => a + b);
+     }
+    setPart(partList);
+  };
+
 
   let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
@@ -167,6 +184,7 @@ const CreateOrder = (args) => {
     const newFormValues = [...formValues];
     const selectedFiles = e.target.files;
     newFormValues[i].files = selectedFiles;
+    // console.log(object)
     setFormValues(newFormValues);
   };
   let removeFormFields = (i) => {
@@ -176,20 +194,22 @@ const CreateOrder = (args) => {
   };
   const handleInputChange = (e, type, i) => {
     const { name, value, checked } = e.target;
+    // console.log(value)
     setindex(i);
-    if (type == "checkbox") {
-      if (checked) {
-        setFormData({
-          ...formData,
-          [name]: checked,
-        });
-      } else {
-        setFormData({
-          ...formData,
-          [name]: checked,
-        });
-      }
-    } else {
+    // if (type == "checkbox") {
+    //   if (checked) {
+    //     setFormData({
+    //       ...formData,
+    //       [name]: checked,
+    //     });
+    //   } else {
+    //     setFormData({
+    //       ...formData,
+    //       [name]: checked,
+    //     });
+    //   }
+    // } 
+    // else {
       if (type == "number") {
         if (/^\d{0,10}$/.test(value)) {
           setFormData({
@@ -216,16 +236,23 @@ const CreateOrder = (args) => {
           });
         }
       }
-    }
+    // }
   };
-  // handleInputChange;
-  useEffect(() => {}, [formData]);
+  // useEffect(()=>{
+  //   // console.log(product)
+  //     },[product])
   useEffect(() => {
-    // console.log(part[0].Shipping);
-  }, [part]);
+   const userDetails= JSON.parse(localStorage.getItem("userData"))
+   setUserDetails(userDetails)
+   console.log(userDetails._id)
+  }, [formData]);
+  useEffect(() => {
+    console.log(part,product)
+  }, [part,product]);
+  
   useEffect(() => {
     let userInfo = JSON.parse(localStorage.getItem("userData"));
-    setUserInfo(userInfo);
+     setUserInfo(userInfo);
     CreateOrder_ID()
       .then((res) => {
         const lastElement = res?.Order[res?.Order?.length - 1].id;
@@ -237,6 +264,7 @@ const CreateOrder = (args) => {
       .catch((err) => {
         console.log(err);
       });
+
     CreateOrder_ViewData()
       .then((res) => {
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
@@ -250,9 +278,20 @@ const CreateOrder = (args) => {
       .catch((err) => {
         console.log(err);
       });
+      
+      GetCommentListView(userInfo._id)
+      .then((res) => {
+        console.log(res)
+      setCommentshow(res)
+
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
   }, []);
 
-  let addMorePart = () => {
+  let addMorePart = (partindx) => {
     setPart([
       ...part,
       {
@@ -267,7 +306,9 @@ const CreateOrder = (args) => {
         tax: "",
         grandTotal: "",
       },
+      
     ]);
+    setpartIndex(partindx+1)
   };
   let removeMorePart = (i) => {
     let newFormValues = [...part];
@@ -275,8 +316,9 @@ const CreateOrder = (args) => {
     setPart(newFormValues);
   };
 
-  let addMoreProduct = () => {
-    setProduct([
+  let addMoreProduct = (newIndex) => {
+  // console.log(newIndex)
+  setProduct((product)=>[
       ...product,
       {
         productName: "",
@@ -290,7 +332,8 @@ const CreateOrder = (args) => {
         grandTotal: "",
       },
     ]);
-  };
+   setProductIndex(newIndex+1);
+ };
   let removeMoreProduct = (i) => {
     let newFormValues = [...product];
     newFormValues.splice(i, 1);
@@ -304,33 +347,79 @@ const CreateOrder = (args) => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log("previous", OrderID);
-    const prefixStr = OrderID.substring(0, 5);
-    const updateNumber = parseInt(OrderID.match(/\d+$/)[0], 10) + 1;
-    const newOrderID = prefixStr + updateNumber;
-    setOrderID(newOrderID);
-    // let formdata = new FormData();
+    // const prefixStr = OrderID.substring(0, 5);
+    // const updateNumber = parseInt(OrderID.match(/\d+$/)[0], 10) + 1;
+    // const newOrderID = prefixStr + updateNumber;
+    // setOrderID(newOrderID);
+    let formdata = new FormData();
+    // console.log("comentsList",Comments)
+    console.log("product",product)
+    console.log("part",part)
+  // console.log("abc",formData)
+    // formdata.append(`WtpOnecode`, "WTP001");
 
-    // formdata.append(`Status`, Status);
+    // CreatAccountView?.createOrder?.input?.map((ele, i)  => {
+    //   formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
+    // });
+
+    // for (var value of formdata.values()) {
+    //   console.log(value);
+    // }
+    formdata.append(`WtpOnecode`, "WTP001");
+    formdata.append(`PartnerCode`, "PRT789");
+    formdata.append(`OrderedBy`, "JaneDoe");
+    formdata.append(`SuppliedBy`, "SupplierXYZ");
+    formdata.append(`OEMPartPrice`, "150");
+    formdata.append(`Wtponeadress`, "WTP Address, City");
+    formdata.append(`SupplierLocation`, "Supplier City");
+    formdata.append(`SupplierName`, "SupplierXYZ");
+    formdata.append(`WTPname`, "WTP XYZ");
+    formdata.append(`OrderId`, "ORD789");
+    formdata.append(`NewOrder`, "Yes");
+    formdata.append(`partorderId`, "PO123456");
+    formdata.append(`Tracking`, "ABC123456");
+    formdata.append(`ShippingCost`, "$15.00");
+    formdata.append(`ShippingAddress`, "456 Shipping Lane, City");
+    formdata.append(`BillingAddress`, "789 Billing Street, City");
+    formdata.append(`CreatedDate`, "2023-11-26T08:00:00Z");
+    formdata.append(`ModifiedDate`, "2023-11-26T10:30:00Z");
+    formdata.append(`OrderDate`, "2023-11-26T09:45:00Z");
+    formdata.append(`SupplierCode`, "SUP123");
+    formdata.append(`CourierBy`, "FastCourier");
+    formdata.append(`whatsapp`, "+1234567890");
+    formdata.append(`sms`, "+918889407856");
+    formdata.append(`gmail`, "test@example.com");
+    formdata.append(`DealerPartPrice`, "20");
+    formdata.append(`Warehouselocationname`, "Warehouse A");
+    formdata.append(`Warrantycovered`, "2");
+    formdata.append(`Tiedto`, "Some Information");
+    formdata.append(`Status`, "Pending");
+    formdata.append(`startDate`, "2023-11-26");
+    formdata.append(`EndDate`, "2024-11-26");
+    formdata.append(`Discount`, "10");
+    // formdata.append(`PartDetail`,part);
+    // formdata.append(`ProductDetail`, product);
+    // formdata.append(`Comments`,Comments );
     // formdata.append("id", JSON.stringify("wrn" + { randomNumber }));
     // if (Comments.length > 0) {
     //   formdata.append(`Comments`, JSON.stringify(Comments));
     // }
-    // if (error) {
-    //   swal("Error occured while Entering Details");
-    // } else {
-    //   CreateAccountSave(formData)
-    //     .then(res => {
-    //       if (res.status) {
-    //         setFormData({});
-    //         window.location.reload();
-    //         swal("Acccont Created Successfully");
-    //       }
-    //     })
-    //     .catch(err => {
-    //       console.log(err);
-    //     });
-    // }
+    if (error) {
+      swal("Error occured while Entering Details");
+    } else {
+      OrderDataSave(formdata)
+        .then(res => {
+          console.log(res)
+          if (res.status) {
+            setFormData({});
+            // window.location.reload();
+            swal("Order Created Successfully");
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
   };
   return (
     <div>
@@ -363,7 +452,7 @@ const CreateOrder = (args) => {
                   <div>
                     {!!StatusDropDown && !!StatusDropDown ? (
                       <>
-                        <Label>{StatusDropDown?.label?._text}</Label>
+                       <Label>{StatusDropDown?.label?._text}</Label>
                         <CustomInput
                           required
                           type="select"
@@ -405,17 +494,23 @@ const CreateOrder = (args) => {
             <Form className="m-1" onSubmit={submitHandler}>
               <Row className="mb-2">
                 {dropdownValue?.createOrder?.MyDropDown.map((drop, i) => {
+                  // console.log(formData[drop?.dropdown?.dropdown?.name?._text])
                   return (
                     <Col lg="6" md="6" key={i}>
                       <FormGroup>
                         <Label>{drop?.dropdown?.label?._text}</Label>
                         <CustomInput
-                          // required
                           type="select"
                           name={drop?.dropdown?.name?._text}
                           value={
                             formData[drop?.dropdown?.dropdown?.name?._text]
                           }
+                          // onChange={(phone) => {
+                          //                     setFormData({
+                          //                       ...formData,
+                          //                       [ele?.name?._text]: phone,
+                          //                     });
+                          //                   }}
                           onChange={handleInputChange}
                         >
                           <option value="">
@@ -526,10 +621,17 @@ const CreateOrder = (args) => {
                                   <Input
                                     className="form-control inputs"
                                     type="text"
+                                    readOnly
                                     name={ele?.name?._text}
                                     placeholder={ele?.name._text}
                                     value={formData[ele?.name?._text]}
-                                    readOnly
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        e,
+                                        ele?.type?._attributes?.type,
+                                        i
+                                      )
+                                    }
                                   />
                                   <Button
                                     color="primary"
@@ -964,8 +1066,8 @@ const CreateOrder = (args) => {
 
               <h2 className="text-center">Product Details</h2>
               {product &&
-                product?.map((product, index) => (
-                  <Row className="productRow" key={index}>
+                product?.map((product, productIndex) => (
+                 <Row className="productRow" key={productIndex}>
                     <div className="setInput lookUp" lg="2" md="2" sm="12">
                       <div className="mainLook">
                         <Label>Product#</Label>
@@ -980,7 +1082,7 @@ const CreateOrder = (args) => {
                             // value={element.productName || ""}
                           />
                           <Button
-                            onClick={() => handleopentoggle("Product")}
+                            onClick={() => handleopentoggle("Product",productIndex)}
                             color="primary"
                             className="mybtn primary"
                           >
@@ -1024,7 +1126,7 @@ const CreateOrder = (args) => {
                           name="rquiredQty"
                           placeholder="Req_Qty"
                           value={product?.rquiredQty}
-                          onChange={(e) => handleProductChangeProduct(e, index)}
+                          onChange={(e) => handleProductChangeQty(e, productIndex)}
                         />
                       </div>
                     </div>
@@ -1049,7 +1151,6 @@ const CreateOrder = (args) => {
                           readOnly
                           placeholder="TtlPrice"
                           value={product.totalprice}
-                          // value={product.price * product.rquiredQty}
                         />
                       </div>
                     </div>
@@ -1097,18 +1198,18 @@ const CreateOrder = (args) => {
                           name="Grdttl"
                           readOnly
                           placeholder="Grdttl"
-                          value={product.grandTotal || ""}
+                          value={product.grandTotal}
                         />
                       </div>
                     </div>
                     <div className="d-flex mt-2 abb" lg="" md="2" sm="12">
                       <div className="btnStyle">
-                        {index ? (
+                        {productIndex ? (
                           <Button
                             type="button"
                             color="danger"
                             className="button remove "
-                            onClick={() => removeMoreProduct(index)}
+                            onClick={() => removeMoreProduct(productIndex)}
                           >
                             -
                           </Button>
@@ -1120,7 +1221,7 @@ const CreateOrder = (args) => {
                           className="ml-1 "
                           color="primary"
                           type="button"
-                          onClick={() => addMoreProduct()}
+                          onClick={() => addMoreProduct(productIndex)}
                         >
                           +
                         </Button>
@@ -1130,20 +1231,19 @@ const CreateOrder = (args) => {
                 ))}
               <hr></hr>
               <h2 className="text-center">Part Details</h2>
-              {part.map((part, index) => (
-                <Row className="" key={index}>
-                  <div className="setInput" lg="2" md="2" sm="12">
+              {part.map((part, partindx) => (
+                  <Row className="" key={partindx}>
+                   <div className="setInput" lg="2" md="2" sm="12">
                     <Label>Part#</Label>
                     <InputGroup className="maininput">
                       <Input
-                        // value={Role}
-                        // onChange={e => handleInputChange(e)}
                         className="form-control inputs"
                         disabled
                         type="text"
                         name="part"
                         readOnly
                         placeholder="Part"
+                        // onChange={e => handleInputChange(e)}
                         // value={element.productName || ""}
                       />
                       <Button
@@ -1167,8 +1267,8 @@ const CreateOrder = (args) => {
                         name="partName"
                         readOnly
                         placeholder="PartName"
-                        value={part.partName || ""}
-                        onChange={(e) => handlePartChange(index, e)}
+                        value={part.partName}
+                        // onChange={(e) => handlePartChange(partindx, e)}
                       />
                     </div>
                   </div>
@@ -1189,11 +1289,10 @@ const CreateOrder = (args) => {
                       <Label>Req_Qty</Label>
                       <Input
                         type="number"
-                        name="PartrquiredQty"
-                        // readOnly
+                        name="rquiredQty"
                         placeholder="Require Qty"
-                        value={part.PartrquiredQty}
-                        onChange={(e) => handleProductChangePart(e, index)}
+                        value={part?.rquiredQty}
+                        onChange={(e) => handlePartChangeQty(e, partindx)}
                       />
                     </div>
                   </div>
@@ -1217,7 +1316,7 @@ const CreateOrder = (args) => {
                         name="totalprice"
                         readOnly
                         placeholder="TtlPrice"
-                        value={part.price * part.rquiredQty}
+                        value={part.totalprice}
                       />
                     </div>
                   </div>
@@ -1271,12 +1370,12 @@ const CreateOrder = (args) => {
                   </div>
                   <Col className="d-flex mt-2" lg="2" md="2" sm="12">
                     <div className="btnStyle">
-                      {index ? (
+                      {partindx ? (
                         <Button
                           type="button"
                           color="danger"
                           className="button remove "
-                          onClick={() => removeMorePart(index)}
+                          onClick={() => removeMorePart(partindx)}
                         >
                           -
                         </Button>
@@ -1288,7 +1387,7 @@ const CreateOrder = (args) => {
                         className="ml-1 "
                         color="primary"
                         type="button"
-                        onClick={() => addMorePart()}
+                        onClick={() => addMorePart(partindx)}
                       >
                         +
                       </Button>
@@ -1302,11 +1401,11 @@ const CreateOrder = (args) => {
                 </Button.Ripple>
               </Row>
             </Form>
-            {Commentshow && Commentshow ? (
-              <>
-                {Comments.length &&
-                  Comments?.map((ele, i) => (
+         
+                {/* {Commentshow.length &&
+                  Commentshow?.map((ele, i) => (
                     <Row key={i}>
+                      {console.log(ele)}
                       <Col>
                         <div
                           style={{
@@ -1320,16 +1419,15 @@ const CreateOrder = (args) => {
                           <div className="py-1 mx-2">
                             <strong>
                               <BsFillChatDotsFill size={25} fill="#055761" />
-                            </strong>{" "}
-                            &nbsp;{ele?.comment} {ele?.userName} ({ele?.Role}){" "}
+                            </strong>
+                            &nbsp;{ele?.comment} {ele?.userName} ({ele?.Role})
                             {ele?.time}
                           </div>
                         </div>
                       </Col>
                     </Row>
-                  ))}
-              </>
-            ) : null}
+                  ))} */}
+          
             {Comments &&
               Comments?.map((element, index) => (
                 <>
@@ -1372,7 +1470,8 @@ const CreateOrder = (args) => {
                   </Row>
                 </>
               ))}
-            <Button
+
+            {/* <Button
               className=""
               color="primary"
               onClick={(e) => {
@@ -1381,7 +1480,7 @@ const CreateOrder = (args) => {
             >
               <span className="pr-1">Submit</span>
               <FiSend fill="white" size={18} />
-            </Button>
+            </Button> */}
             <div className="attachment">
               <h2 className="attachSection">Attachment</h2>
               {formValues.map((index, i) => (
@@ -1433,12 +1532,16 @@ const CreateOrder = (args) => {
           <ModalHeader toggle={toggle}>Product List</ModalHeader>
           <ModalBody>
             <OrderedList
-              items={items}
+             items={items}
               setProduct={setProduct}
-              toggle={toggle}
+              product={product}
+              productIndex={productIndex}
+
               setPart={setPart}
               part={part}
-              product={product}
+              partIndex={partIndex}
+
+              toggle={toggle}
             />
           </ModalBody>
         </Modal>
