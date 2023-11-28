@@ -3,6 +3,9 @@ import {
   Create_Parts,
   customerRegistration,
   Product_Registration,
+  Warranty_AuditHistory,
+  Warranty_AuditHistoryList,
+  Warranty_AuditHistoryViewone,
   Sevice_Card_List,
   ticketTool_deleteList,
   Warranty_Delete,
@@ -19,6 +22,7 @@ import {
   Supplier_Upload,
   Supports_Upload,
   Customer_Upload,
+  PlaceOrder_post,
   Campaign_Upload,
   Dealer_Upload,
   Distributor_Upload,
@@ -409,6 +413,24 @@ export const WarrentyUploadView = async () => {
     .then((res) => res.data);
   return response;
 };
+export const WarrantyAuditHistory = async () => {
+  let response = await axiosConfig
+    .get(`${Warranty_AuditHistory}`)
+    .then((res) => res.data);
+  return response;
+};
+export const WarrantyAuditHistoryViewOne = async (id) => {
+  let response = await axiosConfig
+    .get(`${Warranty_AuditHistoryViewone}` + id)
+    .then((res) => res.data);
+  return response;
+};
+export const WarrantyAuditHistoryList = async () => {
+  let response = await axiosConfig
+    .get(`${Warranty_AuditHistoryList}`)
+    .then((res) => res.data);
+  return response;
+};
 
 export const PartsCatalogueList = async () => {
   let response = await axiosConfig
@@ -637,6 +659,12 @@ export const CreateOrder_ViewData = async () => {
 export const OrderViewList = async () => {
   let response = await axiosConfig
     .get(`${Order_ViewList}`)
+    .then((res) => res.data);
+  return response;
+};
+export const PlaceOrderpost = async (payload) => {
+  let response = await axiosConfig
+    .post(`${PlaceOrder_post}`, payload)
     .then((res) => res.data);
   return response;
 };

@@ -31,7 +31,8 @@ import "../../assets/scss/pages/users.scss";
 import Autocomplete from "../../../components/@vuexy/autoComplete/AutoCompleteComponent";
 //import { useAuth0 } from "../../../authServices/auth0/auth0Service"
 import { history } from "../../../history";
-
+import { Razorpay } from "react-razorpay";
+import image from "../../assets/img/logo/logo-primary.png";
 import { IntlContext } from "../../../utility/context/Internationalization";
 import { Route, useHistory } from "react-router-dom";
 import ToggleMode from "./ToggleMode";
@@ -43,6 +44,7 @@ import {
   AddToCartGet,
   DeleteCartItemPartsCatelogue,
   GetDeliveryAddress,
+  PlaceOrderpost,
   SaveDeliveryAddress,
 } from "../../../ApiEndPoint/ApiCalling";
 import swal from "sweetalert";
@@ -188,7 +190,10 @@ class NavbarUser extends React.PureComponent {
     selectedCity: null,
     MobileNo: "",
     TaxPercentage: 5,
+    Grand: "",
     Shippingfee: 5,
+    Shipping: "",
+    Taxamount: "",
     Total: Number,
     Update_User_details: {},
     Quantity: [],
@@ -261,24 +266,10 @@ class NavbarUser extends React.PureComponent {
   handleSubmit = (e) => {
     e.preventDefault();
     let user = JSON.parse(localStorage.getItem("userData"));
-    console.log(this.state);
-    const {
-      fullname,
-      Landmark,
-      address,
-      pincode,
-      Alternateno,
-      selectedCountry,
-      selectedState,
-      selectedCity,
-      MobileNo,
-    } = this.state;
+    // console.log(this.state);
 
-    let payload = {
-      id: user?._id,
-      address: "dasfs",
-    };
-    this.setState({ paymentmode: true });
+    // this.setState({ paymentmode: true });
+    this.displayRazorpay();
     // debugger;
     // SaveDeliveryAddress(payload);
   };
@@ -295,10 +286,110 @@ class NavbarUser extends React.PureComponent {
       modal: !prevState.modal,
     }));
   };
-
+  loadScript(src) {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  }
+  displayRazorpay = async () => {
+    let userData = JSON.parse(localStorage.getItem("userData"));
+    const user = this.context;
+    var total = (user?.Currencyconvert * this.state.Grand).toFixed(2);
+    let totalamount = total.split(".")[0];
+    const options = {
+      key: "rzp_test_Vhg1kq9b86udsY",
+      currency: "INR",
+      amount: totalamount * 100,
+      name: "SoftNumen",
+      description: "Test Wallet Transaction",
+      image: image,
+      handler: async (response) => {
+        console.log(response);
+        console.log(response.razorpay_payment_id);
+        if (response.razorpay_payment_id) {
+          this.SavetoDb(response.razorpay_payment_id, totalamount, user);
+        }
+        // console.log(response.razorpay_order_id);
+        // console.log(response.razorpay_signature);
+        // toast.success("Order Success");
+        swal("Success", "Order Success");
+      },
+      prefill: {
+        name: `${userData?.UserName}`,
+        email: `${userData?.Primarymobileno}`,
+        contact: `${userData?.Primarymobileno}`,
+      },
+    };
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+  };
+  SavetoDb = (paymentid, totalamount, userinfo) => {
+    let user = JSON.parse(localStorage.getItem("userData"));
+    // console.log(user?._id);
+    // console.log(paymentid);
+    // console.log(totalamount);
+    const {
+      fullname,
+      Landmark,
+      address,
+      pincode,
+      Alternateno,
+      selectedCountry,
+      selectedState,
+      selectedCity,
+      MobileNo,
+      Shipping,
+      Taxamount,
+      Grand,
+    } = this.state;
+    let orderItems = userinfo?.PartsCatalougueCart?.map((ele, i) => {
+      return { productId: ele?.productId, quantity: this.state.Quantity[i] };
+    });
+    var shippingfee = (userinfo?.Currencyconvert * Shipping).toFixed(2);
+    var TaxAmount = (userinfo?.Currencyconvert * Taxamount).toFixed(2);
+    let deliveryAddress = `${address},${Landmark},${selectedCity?.name},${selectedState?.name},${selectedCountry?.name} ,Pincode: ${pincode}`;
+    let Payload = {
+      userId: user?.accountId,
+      fullName: fullname,
+      address: address,
+      MobileNo: Number(MobileNo),
+      alternateMobileNo: Number(Alternateno),
+      country: selectedCountry?.name,
+      state: selectedState?.name,
+      city: selectedCity?.name,
+      landMark: Landmark,
+      pincode: Number(pincode),
+      grandTotal: Number(totalamount),
+      shippingAmount: Number(shippingfee),
+      taxAmount: Number(TaxAmount),
+      paymentId: paymentid,
+      currency: userinfo?.PresentCurrency.split("_")[0],
+      DeliveryAddress: deliveryAddress,
+      orderItems: orderItems,
+    };
+    // console.log(Payload);
+    // debugger;
+    PlaceOrderpost(Payload)
+      .then((res) => {
+        console.log(res);
+        console.log(userinfo?.setPartsCatalougueCart([]));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   async componentDidMount() {
     const user = this.context;
     await this.handleShowCart();
+    this.loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
     let pageparmission = JSON.parse(localStorage.getItem("userData"));
 
@@ -428,7 +519,7 @@ class NavbarUser extends React.PureComponent {
     this.setState((prevState) => {
       const newQuantities = [...prevState.Quantity];
       newQuantities[index] += 1;
-      console.log(ele?.product?.Part_Price * newQuantities);
+      // console.log(ele?.product?.Part_Price * newQuantities);
       return { Quantity: newQuantities };
     });
   };
@@ -451,6 +542,9 @@ class NavbarUser extends React.PureComponent {
       Number(taxAmount) +
       Number(Shipping)
     ).toFixed(2);
+    this.setState({ Grand: Grand });
+    this.setState({ Taxamount: taxAmount });
+    this.setState({ Shipping: Shipping });
 
     const { userData } = this.state;
     const renderCartItems = this.state.shoppingCart?.map((item) => {
@@ -673,7 +767,7 @@ class NavbarUser extends React.PureComponent {
                                               value={this.state.fullname}
                                             />
                                           </Col>
-                                          <Col lg="6" md="6" sm="6" xs="6">
+                                          <Col lg="6" md="6" sm="6" xs="12">
                                             <Label>Mobile No *</Label>
                                             <PhoneInput
                                               required
@@ -696,14 +790,14 @@ class NavbarUser extends React.PureComponent {
                                             />
                                           </Col>
 
-                                          <Col lg="6" md="6" sm="6" xs="6">
+                                          <Col lg="6" md="6" sm="6" xs="12">
                                             <Label>
                                               Alternate Mobile No (optional)
                                             </Label>
                                             <PhoneInput
-                                              className="mb-1"
+                                              className=""
                                               countryCodeEditable={false}
-                                              // inputClass="myphoneinput"
+                                              inputClass="myphoneinput"
                                               name="Alternateno"
                                               country={"us"}
                                               onKeyDown={(e) => {
@@ -716,10 +810,6 @@ class NavbarUser extends React.PureComponent {
                                                 this.setState({
                                                   Alternateno: phone,
                                                 });
-                                                // setFormData({
-                                                //   ...formData,
-                                                //   [ele?.name?._text]: phone,
-                                                // });
                                               }}
                                             />
                                           </Col>
@@ -848,7 +938,7 @@ class NavbarUser extends React.PureComponent {
                         </>
                       ) : (
                         <>
-                          <h5>Cart ID : #055761</h5>
+                          {/* <h5>Cart ID : #055761</h5> */}
                           <Row>
                             <Col lg="2" md="2" sm="12" xs="12">
                               <Label>Tax Percentage Type</Label>
@@ -1138,7 +1228,8 @@ class NavbarUser extends React.PureComponent {
                                         user?.UserInformatio?.currency?.split(
                                           "_"
                                         )[1]
-                                      }
+                                      }{" "}
+                                      &nbsp;
                                       {(user?.Currencyconvert * Grand).toFixed(
                                         2
                                       )}
@@ -1452,7 +1543,7 @@ class NavbarUser extends React.PureComponent {
               {this.state.LoginData?.profileImage ? (
                 <>
                   <img
-                    src={`http://3.7.55.231:5000/Images/${user?.UserInformatio?.profileImage}`}
+                    src={`http://65.0.96.247:8000//Images/${user?.UserInformatio?.profileImage}`}
                     className="round"
                     height="40"
                     width="40"
