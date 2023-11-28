@@ -85,6 +85,8 @@ import {
   ticketTool_View,
   CreaterOrder_View,
   AddOrderComment,
+  ViewOrderComment,
+  CreateOrderSave,
   Order_ViewList,
   orders_ID,
 } from "./Api";
@@ -670,6 +672,16 @@ export const PlaceOrderpost = async (payload) => {
 export const CommentOrder = async (id, data) => {
   let response = await axiosConfig
     .post(`${AddOrderComment}` + id, data)
+    .then((res) => res.data);
+  return response;
+};
+export const GetCommentListView = async (id) => {
+  let response = await axiosConfig.get(`${ViewOrderComment}`+id)
+    .then((res) => res.data);
+  return response;
+};
+export const OrderDataSave = async (data) => {
+  let response = await axiosConfig.post(`${CreateOrderSave}`, data)
     .then((res) => res.data);
   return response;
 };

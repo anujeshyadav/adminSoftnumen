@@ -417,10 +417,10 @@ const CreateWarrenty = (args) => {
       formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     });
 
-    formdata.append("id", randomNumber);
-    if (Comments.length > 0) {
-      formdata.append(`Comments`, JSON.stringify(Comments));
-    }
+    // formdata.append("id", randomNumber);
+    // if (Comments.length > 0) {
+    //   formdata.append(`Comments`, JSON.stringify(Comments));
+    // }
 
     let user = JSON.parse(localStorage.getItem("userData"));
     if (formValues.length) {
@@ -501,7 +501,7 @@ const CreateWarrenty = (args) => {
                         </CustomInput>
                       </>
                     ) : null}
-                  </div>
+                  </div>submitHandler
                 </div>
               </div>
               <div>

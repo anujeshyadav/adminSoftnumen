@@ -55,10 +55,8 @@ class OrderedList extends React.Component {
   static contextType = UserContext;
   constructor(props) {
     super(props);
-    console.log(props);
     this.gridRef = React.createRef();
     this.gridApi = null;
-    // console.log(props.setPart);
     this.state = {
       isOpen: false,
       Arrindex: "",
@@ -97,10 +95,30 @@ class OrderedList extends React.Component {
       this.setState({ EditOneData: data });
     }
   };
-
+ProductRender = (selectedRow)=>{
+  
+  let productVal=  this.props.product[this.props.productIndex]
+  productVal["Shipping"]=selectedRow.ShippingCost;
+  productVal["productName"]=selectedRow["Part Name"];
+  productVal["availableQty"]=selectedRow["Part Quantity"];
+  productVal["price"]=selectedRow.Price;
+  productVal["discount"]=selectedRow.Discount;
+  productVal["tax"]=selectedRow.Tax;
+ this.props.toggle()
+}
+PartRender = (selectedRow)=>{
+  // console.log(selectedRow)
+  let partVal=  this.props.part[this.props.partIndex]
+  partVal["Shipping"]=selectedRow.ShippingCost;
+  partVal["partName"]=selectedRow["Part Name"];
+  partVal["availableQty"]=selectedRow["Part Quantity"];
+  partVal["price"]=selectedRow.Price;
+  partVal["discount"]=selectedRow.Discount;
+  partVal["tax"]=selectedRow.Tax;
+  this.props.toggle()
+}
   async componentDidMount() {
     let headings;
-    // let inputs;
     let maxKeys = 0;
     let elementWithMaxKeys = null;
     const UserInformation = this.context?.UserInformatio;
@@ -118,7 +136,7 @@ class OrderedList extends React.Component {
             elementWithMaxKeys = element;
           }
         }
-        console.log(maxKeys);
+        // console.log(maxKeys);
         let findheading = Object.keys(elementWithMaxKeys);
         let index = findheading.indexOf("_id");
         if (index > -1) {
@@ -365,35 +383,11 @@ class OrderedList extends React.Component {
     this.gridRef.current = params.api;
     this.gridApi.addEventListener("rowClicked", (event) => {
       const selectedRow = event.data;
-      console.log(selectedRow);
+      // console.log(selectedRow);
       selectedRow.Type === "Product"
-        ? this.props.setProduct([
-            {
-              Shipping: selectedRow.ShippingCost,
-              productName: selectedRow["Part Name"],
-              availableQty: selectedRow["Part Quantity"],
-              // rquiredQty: 1,
-              price: selectedRow.Price,
-              totalprice: "",
-              discount: selectedRow.Discount,
-              tax: selectedRow.Tax,
-              grandTotal: "",
-            },
-          ])
-        : this.props.setPart([
-            {
-              Shipping: selectedRow.ShippingCost,
-              part: "",
-              partName: selectedRow["Part Name"],
-              availableQty: selectedRow["Part Quantity"],
-              // rquiredQty: 1,
-              price: selectedRow.Price,
-              totalprice: "",
-              discount: selectedRow.Discount,
-              tax: selectedRow.Tax,
-              grandTotal: "",
-            },
-          ]);
+        ? this.ProductRender(selectedRow)
+        : this.PartRender(selectedRow)
+       
     });
     this.setState({
       currenPageSize: this.gridApi.paginationGetCurrentPage() + 1,
