@@ -67,6 +67,7 @@ export const Warranty_AuditHistoryViewone =
 
 // Order
 export const CreaterOrder_View = "/orders/get-xml"; //done
+export const List_CreaterOrderView = "/create-orders/view-create-order"; //done
 export const Order_ViewList = "/create-orders/view-create-order"; //done
 export const AddOrderComment = "/create-orders/comment-add/"; //done
 export const ViewOrderComment= "/create-orders/view-comments/"; //done

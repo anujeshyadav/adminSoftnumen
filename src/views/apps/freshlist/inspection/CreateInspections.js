@@ -140,11 +140,9 @@ const CreateInspections = () => {
   useEffect(() => {
     Inspection_ViewData()
       .then(res => {
-        // console.log(res);
+        console.log(res)
         const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
-        console.log(JSON.parse(jsonData)?.Inspection);
-        // let origionalpermission =
-        //   JSON.parse(jsonData)?.Warranty?.input[14].permissions?.role;
+        console.log(JSON.parse(jsonData));
         setCreatAccountView(JSON.parse(jsonData)?.Inspection);
         setdropdownValue(JSON.parse(jsonData)?.Inspection);
       })

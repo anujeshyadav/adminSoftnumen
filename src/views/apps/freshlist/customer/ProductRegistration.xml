@@ -1,4 +1,4 @@
-<ProductRegister>
+<ProductRegistration>
 
     <input>
 	<label>Product Serial Number</label>
@@ -231,4 +231,4 @@
 		
 	
  
-</ProductRegister>
+</ProductRegistration>

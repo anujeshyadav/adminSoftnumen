@@ -2,23 +2,14 @@ import React from "react";
 import { Row, Col, Card, CardTitle, CardText } from "reactstrap";
 import axiosConfig from "../../../axiosConfig";
 import axios from "axios";
-import DispatchedOrders from "./DispatchedOrders";
+// import DispatchedOrders from "./DispatchedOrders";
 import "../../../assets/scss/pages/dashboard-analytics.scss";
-import {
-  FcNews,
-  FcSalesPerformance,
-  FcRules,
-  FcCancel,
-  FcShop,
-  FcOk,
-  FcShipped,
-  FcBusinessman,
-} from "react-icons/fc";
+import {FcOk} from "react-icons/fc";
 import { FaWallet, Facart, FaCartArrowDown, FaBoxOpen } from "react-icons/fa";
-import { BsBoxSeam } from "react-icons/bs";
-import { TbTruckDelivery } from "react-icons/tb";
-import { AiOutlineCloseCircle } from "react-icons/ai";
-import MainDash from "./MainDash";
+// import { BsBoxSeam } from "react-icons/bs";
+// import { TbTruckDelivery } from "react-icons/tb";
+// import { AiOutlineCloseCircle } from "react-icons/ai";
+// import MainDash from "./MainDash";
 import EcommerceDashboard from "../../../layouts/views/dashboard/ecommerce/EcommerceDashboard";
 
 class AnalyticsDashboard extends React.Component {
@@ -44,11 +35,11 @@ class AnalyticsDashboard extends React.Component {
   componentDidMount() {
     let pageparmission = JSON.parse(localStorage.getItem("userData"));
     // console.log(pageparmission.role);
-    let newparmisson = pageparmission?.role?.find(
+    let newparmisson= pageparmission?.role?.find(
       (value) => value?.pageName === "Dashboard"
     );
     // console.log(newparmisson);
-    this.setState({ Viewpermisson: newparmisson?.permission.includes("View") });
+    this.setState({ Viewpermisson:newparmisson?.permission.includes("View") });
     // this.setState({
     //   Createpermisson: newparmisson?.permission.includes("Create"),
     // });
@@ -205,7 +196,7 @@ class AnalyticsDashboard extends React.Component {
                               className="mx-2"
                               style={{ color: "black" }}
                             >
-                              <b>{ele} </b>
+                              <b>{ele}</b>
                             </CardText>
                           </CardTitle>
                         </Card>
@@ -316,7 +307,7 @@ class AnalyticsDashboard extends React.Component {
           </>
         ) : (
           <>
-            <Row>
+            {/* <Row>
               <Col>
                 <div className="d-flex justify-content-center align itme center">
                   <h2 style={{ color: "red" }}>
@@ -325,7 +316,7 @@ class AnalyticsDashboard extends React.Component {
                   </h2>
                 </div>
               </Col>
-            </Row>
+            </Row> */}
           </>
         )}
 

@@ -28,6 +28,7 @@ import { FiSend } from "react-icons/fi";
 import "../../../../assets/scss/pages/users.scss";
 import {
   CreateOrder_ViewData,
+  ListCreaterOrderView,
   CommentOrder,
   OrderDataSave,
   CreateOrder_ID,
@@ -54,7 +55,12 @@ const CreateOrder = (args) => {
   const [UserInfo, setUserInfo] = useState({});
   const [modal, setModal] = useState(false);
   const [items, setItems] = useState("");
+  const [productTotal, setProductTotal] = useState("");
+  const [productGrand, setProductGrand] = useState("");
+  const [partTotal, setPartTotal] = useState("");
+  const [partGrand, setPartGrand] = useState("");
   const [audit, setAudit] = useState(false);
+
   const toggle = (item) => {
     setItems(item);
     setModal(!modal);
@@ -62,12 +68,13 @@ const CreateOrder = (args) => {
   const audittoggle = () => {
     setAudit(!audit);
   };
-  const handleopentoggle = (iteam,index) => {
-    toggle(iteam,index);
+  const handleopentoggle = (iteam, index) => {
+    toggle(iteam, index);
   };
   const handleHistory = () => {
     audittoggle();
   };
+ 
   const [product, setProduct] = useState([
     {
       product: "",
@@ -76,33 +83,31 @@ const CreateOrder = (args) => {
       rquiredQty: 1,
       price: "",
       totalprice: "",
-      discount: "",
-      Shipping: "",
-      tax: "",
-      grandTotal: "",
+      // discount: "",
+      // Shipping: "",
+      // tax: "",
+      // grandTotal: "",
     },
   ]);
   const [part, setPart] = useState([
     {
       part: "",
       partName: "",
-      Shipping: "",
       availableQty: "",
       rquiredQty: 1,
       price: "",
       totalprice: "",
-      discount: "",
-      tax: "",
-      grandTotal: "",
+      // Shipping: "",
+      // discount: "",
+      // tax: "",
+      // grandTotal: "",
     },
   ]);
 
   const [Comments, setComments] = useState([
     {
-      // name: JSON.parse(localStorage.getItem("userData")).UserName,
-      name: "Sadik",
-      // userRole: JSON.parse(localStorage.getItem("userData")).Role,
-      userRole: "admin",
+      name: JSON.parse(localStorage.getItem("userData")).UserName,
+      userRole: JSON.parse(localStorage.getItem("userData")).Role,
       comment: "",
       time: new Date().toString(),
     },
@@ -110,17 +115,20 @@ const CreateOrder = (args) => {
   const [formValues, setFormValues] = useState([{ files: [] }]);
 
   const newComment = {
-    name: JSON.parse(localStorage.getItem("userData")).UserName,
-    userRole: JSON.parse(localStorage.getItem("userData")).Role,
+    name: JSON.parse(localStorage.getItem("userData"))?.UserName,
+    userRole: JSON.parse(localStorage.getItem("userData"))?.Role,
     comment: "",
     time: new Date().toString(),
   };
-
+  const MyGrandTotalfun = (n1,n2,n3,n4)=>{
+    setProductGrand(n1+n2+n3+n4)
+        return n1+n2+n3+n4
+  }
   let handleComment = (i, e) => {
-    console.log(i,e.target.value)
+    console.log(i, e.target.value)
     let newFormValues = [...Comments];
-  //  const {name,value} =e.target
-  //  newFormValues[i][name]=value
+    //  const {name,value} =e.target
+    //  newFormValues[i][name]=value
     newFormValues[i][e.target.name] = e.target.value;
     setComments(newFormValues);
   };
@@ -142,35 +150,45 @@ const CreateOrder = (args) => {
   let addFileInput = () => {
     setFormValues([...formValues, { files: [] }]);
   };
-  const handleProductChangeQty = (e, index) => {
-    // console.log(index)
-  const { name, value } = e.target;
-    const productList = [...product];
-    productList[index][name] = value;
-    let amt = 0;
-    if (productList.length > 0) {
-      const x = productList?.map((value) => {
-        productList[index]["totalprice"] = value.rquiredQty * value.price;
-        return value.rquiredQty * value.price;
-      });
-      amt = x.reduce((a, b) => a + b);
+  const handleProductChangeQty = (e, productIndex, availableQty) => {
+    // console.log(productIndex)
+
+    if (availableQty >= e.target.value) {
+      const { name, value } = e.target;
+      const productList = [...product];
+      productList[productIndex][name] = value;
+      let productamt = 0;
+      if (productList.length > 0) {
+        const x = productList?.map((value) => {
+          productList[productIndex]["totalprice"] = value.rquiredQty * value.price;
+          return value.rquiredQty * value.price;
+        });
+      }
+      productamt = x.reduce((a, b) => a + b);
+      setProductTotal(productamt)
+      setProduct(productList);
     }
-    setProduct(productList);
+
   };
 
-  const handlePartChangeQty = (e, partindx) => {
- const { name, value } = e.target;
-    const partList = [...part];
-    partList[partindx][name] = value;
-    let amt = 0;
-    if (partList.length > 0) {
-      const x = partList?.map((value) => {
-        partList[partindx]["totalprice"] = value.rquiredQty * value.price;
-        return value.rquiredQty * value.price;
-      });
-      amt = x.reduce((a, b) => a + b);
-     }
-    setPart(partList);
+  const handlePartChangeQty = (e, partindx, availableQty) => {
+    if (availableQty >= e.target.value) {
+      const { name, value } = e.target;
+      const partList = [...part];
+      partList[partindx][name] = value;
+
+      let partamt = 0;
+      if (partList.length > 0) {
+        const x = partList?.map((value) => {
+          partList[partindx]["totalprice"] = value.rquiredQty * value.price;
+          return value.rquiredQty * value.price;
+        });
+        partamt = x.reduce((a, b) => a + b);
+        setPartTotal(partamt)
+        setPart(partList);
+      }
+    }
+    
   };
 
 
@@ -194,8 +212,12 @@ const CreateOrder = (args) => {
   };
   const handleInputChange = (e, type, i) => {
     const { name, value, checked } = e.target;
-    // console.log(value)
+    console.log(value)
     setindex(i);
+    setFormData({
+      ...formData,
+      [name]: value
+    })
     // if (type == "checkbox") {
     //   if (checked) {
     //     setFormData({
@@ -210,49 +232,51 @@ const CreateOrder = (args) => {
     //   }
     // } 
     // else {
-      if (type == "number") {
-        if (/^\d{0,10}$/.test(value)) {
-          setFormData({
-            ...formData,
-            [name]: value,
-          });
-          setError("");
-        } else {
-          setError(
-            "Please enter a valid number with a maximum length of 10 digits"
-          );
-        }
+    if (type == "number") {
+      if (/^\d{0,10}$/.test(value)) {
+        setFormData({
+          ...formData,
+          [name]: value,
+        });
+        setError("");
       } else {
-        if (value.length <= 10) {
-          setFormData({
-            ...formData,
-            [name]: value,
-          });
-          setError("");
-        } else {
-          setFormData({
-            ...formData,
-            [name]: value,
-          });
-        }
+        setError(
+          "Please enter a valid number with a maximum length of 10 digits"
+        );
       }
+    } else {
+      if (value.length <= 10) {
+        setFormData({
+          ...formData,
+          [name]: value,
+        });
+        setError("");
+      } else {
+        setFormData({
+          ...formData,
+          [name]: value,
+        });
+      }
+    }
     // }
   };
   // useEffect(()=>{
   //   // console.log(product)
   //     },[product])
   useEffect(() => {
-   const userDetails= JSON.parse(localStorage.getItem("userData"))
-   setUserDetails(userDetails)
-   console.log(userDetails._id)
+    const userDetails = JSON.parse(localStorage.getItem("userData"))
+    setUserDetails(userDetails)
+    //  console.log(userDetails._id)
   }, [formData]);
+
   useEffect(() => {
-    console.log(part,product)
-  }, [part,product]);
-  
+    console.log(part, product)
+  }, [part, product]);
+
   useEffect(() => {
+    // ListCreaterOrderView
     let userInfo = JSON.parse(localStorage.getItem("userData"));
-     setUserInfo(userInfo);
+    setUserInfo(userInfo);
     CreateOrder_ID()
       .then((res) => {
         const lastElement = res?.Order[res?.Order?.length - 1].id;
@@ -278,16 +302,16 @@ const CreateOrder = (args) => {
       .catch((err) => {
         console.log(err);
       });
-      
-      GetCommentListView(userInfo._id)
-      .then((res) => {
-        console.log(res)
-      setCommentshow(res)
 
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // GetCommentListView(userInfo._id)
+    // .then((res) => {
+    //   console.log(res)
+    // setCommentshow(res)
+
+    // })
+    // .catch((err) => {
+    //   console.log(err);
+    // });
 
   }, []);
 
@@ -301,14 +325,14 @@ const CreateOrder = (args) => {
         availableQty: "",
         rquiredQty: 1,
         price: "",
-        totalprice: "",
-        discount: "",
-        tax: "",
-        grandTotal: "",
+        // totalprice: "",
+        // discount: "",
+        // tax: "",
+        // grandTotal: "",
       },
-      
+
     ]);
-    setpartIndex(partindx+1)
+    setpartIndex(partindx + 1)
   };
   let removeMorePart = (i) => {
     let newFormValues = [...part];
@@ -317,8 +341,8 @@ const CreateOrder = (args) => {
   };
 
   let addMoreProduct = (newIndex) => {
-  // console.log(newIndex)
-  setProduct((product)=>[
+    // console.log(newIndex)
+    setProduct((product) => [
       ...product,
       {
         productName: "",
@@ -326,14 +350,14 @@ const CreateOrder = (args) => {
         rquiredQty: 1,
         price: "",
         totalprice: "",
-        discount: "",
-        Shipping: "",
-        tax: "",
-        grandTotal: "",
+        // discount: "",
+        // Shipping: "",
+        // tax: "",
+        // grandTotal: "",
       },
     ]);
-   setProductIndex(newIndex+1);
- };
+    setProductIndex(newIndex + 1);
+  };
   let removeMoreProduct = (i) => {
     let newFormValues = [...product];
     newFormValues.splice(i, 1);
@@ -347,63 +371,58 @@ const CreateOrder = (args) => {
 
   const submitHandler = (e) => {
     e.preventDefault();
+    console.log("All Form", formData)
     // const prefixStr = OrderID.substring(0, 5);
     // const updateNumber = parseInt(OrderID.match(/\d+$/)[0], 10) + 1;
     // const newOrderID = prefixStr + updateNumber;
     // setOrderID(newOrderID);
     let formdata = new FormData();
-    // console.log("comentsList",Comments)
-    console.log("product",product)
-    console.log("part",part)
-  // console.log("abc",formData)
-    // formdata.append(`WtpOnecode`, "WTP001");
+    console.log("comentsList", Comments)
+
+
 
     // CreatAccountView?.createOrder?.input?.map((ele, i)  => {
     //   formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     // });
 
-    // for (var value of formdata.values()) {
-    //   console.log(value);
-    // }
-    formdata.append(`WtpOnecode`, "WTP001");
-    formdata.append(`PartnerCode`, "PRT789");
-    formdata.append(`OrderedBy`, "JaneDoe");
-    formdata.append(`SuppliedBy`, "SupplierXYZ");
-    formdata.append(`OEMPartPrice`, "150");
-    formdata.append(`Wtponeadress`, "WTP Address, City");
-    formdata.append(`SupplierLocation`, "Supplier City");
-    formdata.append(`SupplierName`, "SupplierXYZ");
-    formdata.append(`WTPname`, "WTP XYZ");
-    formdata.append(`OrderId`, "ORD789");
-    formdata.append(`NewOrder`, "Yes");
-    formdata.append(`partorderId`, "PO123456");
-    formdata.append(`Tracking`, "ABC123456");
-    formdata.append(`ShippingCost`, "$15.00");
-    formdata.append(`ShippingAddress`, "456 Shipping Lane, City");
-    formdata.append(`BillingAddress`, "789 Billing Street, City");
-    formdata.append(`CreatedDate`, "2023-11-26T08:00:00Z");
-    formdata.append(`ModifiedDate`, "2023-11-26T10:30:00Z");
-    formdata.append(`OrderDate`, "2023-11-26T09:45:00Z");
-    formdata.append(`SupplierCode`, "SUP123");
-    formdata.append(`CourierBy`, "FastCourier");
-    formdata.append(`whatsapp`, "+1234567890");
-    formdata.append(`sms`, "+918889407856");
-    formdata.append(`gmail`, "test@example.com");
-    formdata.append(`DealerPartPrice`, "20");
-    formdata.append(`Warehouselocationname`, "Warehouse A");
-    formdata.append(`Warrantycovered`, "2");
-    formdata.append(`Tiedto`, "Some Information");
-    formdata.append(`Status`, "Pending");
-    formdata.append(`startDate`, "2023-11-26");
-    formdata.append(`EndDate`, "2024-11-26");
-    formdata.append(`Discount`, "10");
-    // formdata.append(`PartDetail`,part);
-    // formdata.append(`ProductDetail`, product);
-    // formdata.append(`Comments`,Comments );
+    // formdata.append("WtpOnecode", "WTP001");
+    // formdata.append("PartnerCode", "PRT789");
+    // formdata.append("OrderedBy", "JaneDoe");
+    // formdata.append("SuppliedBy", "SupplierXYZ");
+    // formdata.append("OEMPartPrice", "150");
+    // formdata.append("Wtponeadress", "WTP Address, City");
+    // formdata.append("SupplierLocation", "Supplier City");
+    // formdata.append("SupplierName", "SupplierXYZ");
+    // formdata.append("WTPname", "WTP XYZ");
+    // formdata.append("OrderId", "ORD789");
+    // formdata.append("NewOrder", "Yes");
+    // formdata.append("partorderId", "PO123456");
+    // formdata.append("Tracking", "ABC123456");
+    // formdata.append("ShippingCost", "$15.00");
+    // formdata.append("ShippingAddress", "456 Shipping Lane, City");
+    // formdata.append("BillingAddress", "789 Billing Street, City");
+    // formdata.append("SupplierCode", "SUP123");
+    // formdata.append("CourierBy", "FastCourier");
+    // formdata.append("whatsapp", "911234567890");
+    // formdata.append("sms", "+918889407856");
+    // formdata.append("gmail", "test@example.com");
+    // formdata.append("DealerPartPrice", "20");
+    // formdata.append("Warehouselocationname", "Warehouse A");
+    // formdata.append("Warrantycovered", "2");
+    // formdata.append("Tiedto", "Some Information");
+    // formdata.append("Status", "Pending");
+    // formdata.append("startDate", "2023-11-26");
+    // formdata.append("EndDate", "2024-11-26");
+    // formdata.append("Discount", "10");
+    // formdata.append("CreatedDate", "2023-11-26T08:00:00Z");
+    // formdata.append("ModifiedDate", "2023-11-26T10:30:00Z");
+    // formdata.append("OrderDate", "2023-11-26T09:45:00Z");
+    formdata.append("PartDetail", part);
+    formdata.append("ProductDetail", product);
     // formdata.append("id", JSON.stringify("wrn" + { randomNumber }));
-    // if (Comments.length > 0) {
-    //   formdata.append(`Comments`, JSON.stringify(Comments));
-    // }
+    if (Comments.length > 0) {
+      formdata.append(`Comments`, JSON.stringify(Comments));
+    }
     if (error) {
       swal("Error occured while Entering Details");
     } else {
@@ -452,7 +471,7 @@ const CreateOrder = (args) => {
                   <div>
                     {!!StatusDropDown && !!StatusDropDown ? (
                       <>
-                       <Label>{StatusDropDown?.label?._text}</Label>
+                        <Label>{StatusDropDown?.label?._text}</Label>
                         <CustomInput
                           required
                           type="select"
@@ -691,7 +710,7 @@ const CreateOrder = (args) => {
                                       [ele?.name?._text]: phone,
                                     });
                                   }}
-                                  // onChange={handleInputChange}
+                                // onChange={handleInputChange}
                                 />
                                 {index === i ? (
                                   <>
@@ -1067,7 +1086,7 @@ const CreateOrder = (args) => {
               <h2 className="text-center">Product Details</h2>
               {product &&
                 product?.map((product, productIndex) => (
-                 <Row className="productRow" key={productIndex}>
+                  <Row className="productRow" key={productIndex}>
                     <div className="setInput lookUp" lg="2" md="2" sm="12">
                       <div className="mainLook">
                         <Label>Product#</Label>
@@ -1079,10 +1098,10 @@ const CreateOrder = (args) => {
                             name="productN"
                             readOnly
                             placeholder="Product"
-                            // value={element.productName || ""}
+                          // value={element.productName || ""}
                           />
                           <Button
-                            onClick={() => handleopentoggle("Product",productIndex)}
+                            onClick={() => handleopentoggle("Product", productIndex)}
                             color="primary"
                             className="mybtn primary"
                           >
@@ -1126,7 +1145,7 @@ const CreateOrder = (args) => {
                           name="rquiredQty"
                           placeholder="Req_Qty"
                           value={product?.rquiredQty}
-                          onChange={(e) => handleProductChangeQty(e, productIndex)}
+                          onChange={(e) => handleProductChangeQty(e, productIndex, product.availableQty)}
                         />
                       </div>
                     </div>
@@ -1154,7 +1173,7 @@ const CreateOrder = (args) => {
                         />
                       </div>
                     </div>
-                    <div className="setInput" lg="2" md="2" sm="12">
+                    {/* <div className="setInput" lg="2" md="2" sm="12">
                       <div className="">
                         <Label>Dissct</Label>
                         <Input
@@ -1201,7 +1220,7 @@ const CreateOrder = (args) => {
                           value={product.grandTotal}
                         />
                       </div>
-                    </div>
+                    </div> */}
                     <div className="d-flex mt-2 abb" lg="" md="2" sm="12">
                       <div className="btnStyle">
                         {productIndex ? (
@@ -1229,11 +1248,20 @@ const CreateOrder = (args) => {
                     </div>
                   </Row>
                 ))}
+              <Row className="justify-content-end mt-2">
+                <ul className="calculationList">
+                  <li className="fontOfTotal">SubTotal:{productTotal ? productTotal : 0.00}</li>
+                  <li className="fontOfTotal">Discount:17.0</li>
+                  <li className="fontOfTotal">Tax:25.8</li>
+                  <li className="fontOfTotal">ShippingCost:0.0</li>
+                  <hr></hr>
+                  <li className="fontOfTotal"> Product GrandTotal:{Number(productTotal) + 17.0 + 25.8 + 0.0}</li>
+                </ul></Row>
               <hr></hr>
               <h2 className="text-center">Part Details</h2>
               {part.map((part, partindx) => (
-                  <Row className="" key={partindx}>
-                   <div className="setInput" lg="2" md="2" sm="12">
+                <Row className="" key={partindx}>
+                  <div className="setInput" lg="2" md="2" sm="12">
                     <Label>Part#</Label>
                     <InputGroup className="maininput">
                       <Input
@@ -1243,8 +1271,8 @@ const CreateOrder = (args) => {
                         name="part"
                         readOnly
                         placeholder="Part"
-                        // onChange={e => handleInputChange(e)}
-                        // value={element.productName || ""}
+                      // onChange={e => handleInputChange(e)}
+                      // value={element.productName || ""}
                       />
                       <Button
                         onClick={() => handleopentoggle("Part")}
@@ -1268,7 +1296,7 @@ const CreateOrder = (args) => {
                         readOnly
                         placeholder="PartName"
                         value={part.partName}
-                        // onChange={(e) => handlePartChange(partindx, e)}
+                      // onChange={(e) => handlePartChange(partindx, e)}
                       />
                     </div>
                   </div>
@@ -1292,7 +1320,7 @@ const CreateOrder = (args) => {
                         name="rquiredQty"
                         placeholder="Require Qty"
                         value={part?.rquiredQty}
-                        onChange={(e) => handlePartChangeQty(e, partindx)}
+                        onChange={(e) => handlePartChangeQty(e, partindx, part.availableQty)}
                       />
                     </div>
                   </div>
@@ -1320,7 +1348,7 @@ const CreateOrder = (args) => {
                       />
                     </div>
                   </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
+                  {/* <div className="setInput" lg="2" md="2" sm="12">
                     <div className="">
                       <Label>Dissct</Label>
                       <Input
@@ -1331,8 +1359,8 @@ const CreateOrder = (args) => {
                         value={part.discount}
                       />
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
+                  </div> */}
+                  {/* <div className="setInput" lg="2" md="2" sm="12">
                     <div className="">
                       <Label>Shipcst</Label>
                       <Input
@@ -1343,8 +1371,8 @@ const CreateOrder = (args) => {
                         value={part.Shipping}
                       />
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
+                  </div> */}
+                  {/* <div className="setInput" lg="2" md="2" sm="12">
                     <div className="Qntywidth">
                       <Label>Tax</Label>
                       <Input
@@ -1355,8 +1383,8 @@ const CreateOrder = (args) => {
                         value={part.tax}
                       />
                     </div>
-                  </div>
-                  <div className="setInput" lg="2" md="2" sm="12">
+                  </div> */}
+                  {/* <div className="setInput" lg="2" md="2" sm="12">
                     <div className="Qntywidth">
                       <Label>Grdttl</Label>
                       <Input
@@ -1367,7 +1395,7 @@ const CreateOrder = (args) => {
                         value={part.grandTotal}
                       />
                     </div>
-                  </div>
+                  </div> */}
                   <Col className="d-flex mt-2" lg="2" md="2" sm="12">
                     <div className="btnStyle">
                       {partindx ? (
@@ -1395,14 +1423,24 @@ const CreateOrder = (args) => {
                   </Col>
                 </Row>
               ))}
+              <Row className="justify-content-end mt-2">
+                <ul className="calculationList">
+                  <li className="fontOfTotal">SubTotal:{partTotal ? partTotal : 0.00}</li>
+                  <li className="fontOfTotal">Discount:17.0</li>
+                  <li className="fontOfTotal">Tax:25.0</li>
+                  <li className="fontOfTotal">ShippingCost:0.0</li>
+                  <hr></hr>
+                  {/* <li className="fontOfTotal"> Product GrandTotal:{MyGrandTotalfun(Number(partTotal), 17, 25 , 0)}</li> */}
+                  <li className="fontOfTotal"> Product GrandTotal:{(Number(partTotal)+17+ 25+0)}</li>
+                </ul></Row>
               <Row>
                 <Button.Ripple color="primary" type="submit" className="mt-2">
                   Submit
                 </Button.Ripple>
               </Row>
             </Form>
-         
-                {/* {Commentshow.length &&
+
+            {/* {Commentshow.length &&
                   Commentshow?.map((ele, i) => (
                     <Row key={i}>
                       {console.log(ele)}
@@ -1427,7 +1465,7 @@ const CreateOrder = (args) => {
                       </Col>
                     </Row>
                   ))} */}
-          
+
             {Comments &&
               Comments?.map((element, index) => (
                 <>
@@ -1532,7 +1570,7 @@ const CreateOrder = (args) => {
           <ModalHeader toggle={toggle}>Product List</ModalHeader>
           <ModalBody>
             <OrderedList
-             items={items}
+              items={items}
               setProduct={setProduct}
               product={product}
               productIndex={productIndex}

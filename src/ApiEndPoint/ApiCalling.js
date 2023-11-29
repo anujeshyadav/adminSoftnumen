@@ -51,6 +51,7 @@ import {
   Spare_PartsView,
   SparePart_CatalogueList,
   Orders_View,
+  List_CreaterOrderView,
   Add_To_Cart_Get,
   CampaignList_View,
   Edit_Profile,
@@ -659,6 +660,12 @@ export const CreateOrder_ViewData = async () => {
 export const OrderViewList = async () => {
   let response = await axiosConfig
     .get(`${Order_ViewList}`)
+    .then((res) => res.data);
+  return response;
+};
+export const ListCreaterOrderView = async () => {
+  let response = await axiosConfig
+    .get(`${List_CreaterOrderView}`)
     .then((res) => res.data);
   return response;
 };

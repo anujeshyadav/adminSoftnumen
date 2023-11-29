@@ -102,6 +102,7 @@ ProductRender = (selectedRow)=>{
   productVal["productName"]=selectedRow["Part Name"];
   productVal["availableQty"]=selectedRow["Part Quantity"];
   productVal["price"]=selectedRow.Price;
+  productVal["totalprice"]=selectedRow.Price*1;
   productVal["discount"]=selectedRow.Discount;
   productVal["tax"]=selectedRow.Tax;
  this.props.toggle()
@@ -113,6 +114,7 @@ PartRender = (selectedRow)=>{
   partVal["partName"]=selectedRow["Part Name"];
   partVal["availableQty"]=selectedRow["Part Quantity"];
   partVal["price"]=selectedRow.Price;
+  partVal["totalprice"]=selectedRow.Price*1;
   partVal["discount"]=selectedRow.Discount;
   partVal["tax"]=selectedRow.Tax;
   this.props.toggle()
@@ -127,7 +129,6 @@ PartRender = (selectedRow)=>{
         const rowData = res?.SparePart.filter(
           (value) => value.Type == this.props.items
         );
-        console.log(rowData[0]);
         this.setState({ rowData: rowData });
         for (const element of res?.SparePart) {
           const numKeys = Object.keys(element).length;
