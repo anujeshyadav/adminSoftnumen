@@ -225,7 +225,6 @@ const CreateWarrenty = (args) => {
   useEffect(() => {
     const handlePopstate = (event) => {
       if (event.state === null) {
-        // This condition is true when the user uses the browser's back button
         console.log("User used the browser back button.");
         // submitHandlerAfterback();
         // saving data as draft from here
@@ -270,8 +269,8 @@ const CreateWarrenty = (args) => {
   const handleViewone = async (e, ele) => {
     e.preventDefault();
     console.log(ele?.id);
-    debugger;
-    await WarrantyAuditHistoryViewOne(ele?.id)
+    
+ await WarrantyAuditHistoryViewOne(ele?.id)
       .then((res) => {
         console.log(res?.AuditHistory);
         setAudithistory(res?.AuditHistory);
@@ -1807,7 +1806,7 @@ const CreateWarrenty = (args) => {
                   size={30}
                   color="primary"
                   onClick={handleOrigionalAudithistory}
-                />{" "}
+                />
                 <input type="text" name="filter" className="" />
               </div>
               <Table striped>
@@ -1852,7 +1851,6 @@ const CreateWarrenty = (args) => {
                 </tbody>
               </Table>
             </div>
-            {/* <AuditHistory /> */}
           </ModalBody>
         </Modal>
       </div>

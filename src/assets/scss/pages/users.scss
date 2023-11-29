@@ -3,7 +3,7 @@
 
 
 .setInput {
-  margin: 9px;
+  margin: 7px;
 }
 .inputwidth {
   width: 100px;
@@ -25,10 +25,15 @@
   align-items: stretch;
   width: 80%;
 }
+.fontOfTotal{
+  font-weight: 800;
+}
 .users-avatar-shadow {
   box-shadow: 2px 4px 14px 0 rgba(34, 41, 47, 0.4);
 }
-
+ul.calculationList li {
+  list-style: none;
+}
 // aggrid actions dropdown
 .actions-dropdown {
   .btn-group .btn {

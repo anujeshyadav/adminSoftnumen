@@ -644,6 +644,12 @@ const CreatePolicy = lazy(() =>
 const SearchPolicy = lazy(() =>
   import("./views/apps/freshlist/policy/SearchPolicy")
 );
+const ExtendedPolicy = lazy(() =>
+  import("./views/apps/freshlist/policy/ExtendedPolicy")
+);
+const Amc = lazy(() =>
+  import("./views/apps/freshlist/policy/Amc")
+);
 // ticket
 const CreateTicket = lazy(() =>
   import("./views/apps/freshlist/customer/Ticketing/CreateTicket")
@@ -1871,6 +1877,14 @@ class AppRouter extends React.Component {
           <AppRoute
             path="/app/SoftNumen/policy/SearchPolicy"
             component={SearchPolicy}
+          />
+          <AppRoute
+            path="/app/SoftNumen/policy/ExtendedPolicy"
+            component={ExtendedPolicy}
+          />
+          <AppRoute
+            path="/app/SoftNumen/policy/AMC"
+            component={Amc}
           />
           {/* ticketing */}
           <AppRoute

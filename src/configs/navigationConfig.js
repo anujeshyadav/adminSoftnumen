@@ -523,7 +523,7 @@ const navigationConfig = [
         type: "item",
         icon: <BsImage size={15} />,
         permissions: ["admin", "editor"],
-        // navLink: "/app/softNumen/ticketing/PendingService",
+        navLink: "/app/SoftNumen/policy/ExtendedPolicy",
       },
       {
         id: "AMC",
@@ -531,7 +531,7 @@ const navigationConfig = [
         type: "item",
         icon: <BsImage size={15} />,
         permissions: ["admin", "editor"],
-        // navLink: "/app/softNumen/ticketing/PendingService",
+        navLink: "/app/SoftNumen/policy/AMC",
       },
     ],
   },
