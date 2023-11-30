@@ -27,11 +27,11 @@ export default function Payment({ amount, img, total }) {
     // });
 
     // let data = response.data;
-    let totalamount = total.split(".")[0];
+    // let totalamount = total?.split(".")[0];
     const options = {
       key: "rzp_test_Vhg1kq9b86udsY",
       currency: "INR",
-      amount: totalamount * 100,
+      amount: 10 * 100,
       name: "SoftNumen",
       description: "Test Wallet Transaction",
       image: image,

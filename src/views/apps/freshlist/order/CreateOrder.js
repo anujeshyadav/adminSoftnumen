@@ -15,11 +15,17 @@ import {
   ModalHeader,
   Modal,
   InputGroup,
+  Table,
 } from "reactstrap";
+import { Razorpay } from "react-razorpay";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { BiEnvelope } from "react-icons/bi";
-import { BsFillChatDotsFill, BsWhatsapp } from "react-icons/bs";
+import {
+  BsFillArrowLeftSquareFill,
+  BsFillChatDotsFill,
+  BsWhatsapp,
+} from "react-icons/bs";
 import { FaHistory } from "react-icons/fa";
 import { FcPhoneAndroid } from "react-icons/fc";
 import { AiOutlineSearch } from "react-icons/ai";
@@ -32,12 +38,15 @@ import {
   CommentOrder,
   OrderDataSave,
   CreateOrder_ID,
-  GetCommentListView
+  GetCommentListView,
+  WarrantyAuditHistoryList,
+  WarrantyAuditHistoryViewOne,
 } from "../../../../ApiEndPoint/ApiCalling";
 import "../../../../assets/scss/pages/users.scss";
-import Payment from "./payment/Payment";
+import SoftNumenLogo from "../../../../assets/img/logo/logowithoutback.png";
 import OrderedList from "./OrderedList";
 import AuditHistory from "./audithistory/AuditHistory";
+import swal from "sweetalert";
 const CreateOrder = (args) => {
   const [CreatAccountView, setCreatAccountView] = useState({});
   const [formData, setFormData] = useState({});
@@ -60,13 +69,40 @@ const CreateOrder = (args) => {
   const [partTotal, setPartTotal] = useState("");
   const [partGrand, setPartGrand] = useState("");
   const [audit, setAudit] = useState(false);
+  // const toggle = () => setModal(!modal);
+  const [modalone, setModalone] = useState(false);
+  const toggleone = () => setModalone(!modalone);
+  const [Audithistory, setAudithistory] = useState([]);
+  const [Allhistory, setAllhistory] = useState([]);
+ 
 
   const toggle = (item) => {
     setItems(item);
     setModal(!modal);
   };
+  // const audittoggle = () => {
+  //   setAudit(!audit);
+  // };
   const audittoggle = () => {
     setAudit(!audit);
+    WarrantyAuditHistoryList()
+      .then((res) => {
+        console.log(res?.AuditHistory);
+        const uniqueArray = Array.from(
+          new Set(res?.AuditHistory?.map((obj) => obj.id))
+        ).map((id) => {
+          return res?.AuditHistory?.find((obj) => obj?.id === id);
+        });
+
+        console.log(uniqueArray);
+        setAudithistory(uniqueArray);
+        setAllhistory(uniqueArray);
+      })
+      .catch((err) => {
+        console.log(err);
+        swal("Error", "Something Went Wrong");
+      });
+    // setModal(!modal);
   };
   const handleopentoggle = (iteam, index) => {
     toggle(iteam, index);
@@ -89,6 +125,23 @@ const CreateOrder = (args) => {
       // grandTotal: "",
     },
   ]);
+
+   
+    // Calculate subtotal
+    const subTotal = product.reduce((acc, item) => acc + item.price * item.rquiredQty, 0);
+    
+  // Calculate discount (example: 10% off if subtotal > 100)
+   const discountPercentage = subTotal > 100 ? 0.1 : 0;
+   const discount = subTotal * discountPercentage;
+   // Calculate tax (example: 5% tax)
+  const taxPercentage = 0.05;
+  const tax = subTotal * taxPercentage;
+
+  // Calculate shipping cost (example: $5 for orders under $50)
+  const shippingCost = subTotal < 50 ? 5 : 0;
+
+  // Calculate total
+  const total = subTotal - discount + tax + shippingCost;
   const [part, setPart] = useState([
     {
       part: "",
@@ -103,7 +156,22 @@ const CreateOrder = (args) => {
       // grandTotal: "",
     },
   ]);
-
+      // Calculate subtotal
+      const partSubTotal = part.reduce((acc, item) => acc + item.price * item.rquiredQty, 0);
+    
+      // Calculate discount (example: 10% off if subtotal > 100)
+       const partDiscountPercentage = partSubTotal > 100 ? 0.1 : 0;
+       const partDiscount = partSubTotal * partDiscountPercentage;
+       // Calculate tax (example: 5% tax)
+      const partTaxPercentage = 0.05;
+      const partTax = partSubTotal * partTaxPercentage;
+    
+      // Calculate shipping cost (example: $5 for orders under $50)
+      const partShippingCost = partSubTotal < 50 ? 5 : 0;
+    
+      // Calculate total
+      const PartTotal = partSubTotal - partDiscount + partTax + partShippingCost;
+  const productNdpart =total+PartTotal;
   const [Comments, setComments] = useState([
     {
       name: JSON.parse(localStorage.getItem("userData")).UserName,
@@ -120,10 +188,6 @@ const CreateOrder = (args) => {
     comment: "",
     time: new Date().toString(),
   };
-  const MyGrandTotalfun = (n1,n2,n3,n4)=>{
-    setProductGrand(n1+n2+n3+n4)
-        return n1+n2+n3+n4
-  }
   let handleComment = (i, e) => {
     console.log(i, e.target.value)
     let newFormValues = [...Comments];
@@ -163,14 +227,77 @@ const CreateOrder = (args) => {
           productList[productIndex]["totalprice"] = value.rquiredQty * value.price;
           return value.rquiredQty * value.price;
         });
+        productamt = x.reduce((a, b) => a + b);
+        setProductTotal(productamt)
       }
-      productamt = x.reduce((a, b) => a + b);
-      setProductTotal(productamt)
-      setProduct(productList);
+     setProduct(productList);
     }
 
   };
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
 
+  const displayRazorpay = async () => {
+    let userData = JSON.parse(localStorage.getItem("userData"));
+    console.log(userData.Primarymobileno)
+    // let response = await axios.post("http://localhost:3000/api/razorpay", {
+    //   totalBill,
+    // });
+   // let data = response.data;
+    // let totalamount = total?.split(".")[0];
+    // var total = (user?.Currencyconvert * this.state.Grand).toFixed(2);
+    // let totalamount =productTotal?.split(".")[0];
+  //  let finalTotalproduct=total.toFixed(2)
+   let finalTotalproduct=productNdpart.toFixed(2)
+    let totalAmount = typeof finalTotalproduct === 'string' ? finalTotalproduct.split(".")[0] : undefined;
+    const options = {
+      key: "rzp_test_Vhg1kq9b86udsY",
+      currency: "INR",
+      amount: totalAmount * 100,
+      name: "SoftNumen",
+      description: "Test Wallet Transaction",
+      image: SoftNumenLogo,
+      // order_id: 12,
+      handler: async (response) => {
+        console.log(response.razorpay_payment_id);
+        console.log(response.razorpay_order_id);
+        console.log(response.razorpay_signature);
+        swal("sucess","Order Success")
+        // toast.success("Order Success");
+
+        // dispatch(setDeliveryDetail(checkout));
+        // const res = await axios.post("http://localhost:3000/order/buynow", {
+        //   customerid: currentCustomer._id,
+        //   deliveryAddress: checkout.deliveryAddress,
+        //   contactNumber: checkout.contactNumber,
+        //   contactPerson: checkout.contactPerson,
+        //   orderItems: products,
+        // });
+        // console.log(res);
+        // toast.success("Order Placed Successfully");
+        // navigate("/ordersuccess");
+      },
+      prefill: {
+        name: `${userData?.UserName}`,
+        email: `${userData?.Primarymobileno}`,
+        // contact: `${userData?.Primarymobileno}`,
+        contact: "8889407856",
+      },
+    };
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+  };
   const handlePartChangeQty = (e, partindx, availableQty) => {
     if (availableQty >= e.target.value) {
       const { name, value } = e.target;
@@ -190,8 +317,7 @@ const CreateOrder = (args) => {
     }
     
   };
-
-
+  
   let removeFileAttach = (i) => {
     let newFormValues = [...formValues];
     newFormValues.splice(i, 1);
@@ -218,20 +344,6 @@ const CreateOrder = (args) => {
       ...formData,
       [name]: value
     })
-    // if (type == "checkbox") {
-    //   if (checked) {
-    //     setFormData({
-    //       ...formData,
-    //       [name]: checked,
-    //     });
-    //   } else {
-    //     setFormData({
-    //       ...formData,
-    //       [name]: checked,
-    //     });
-    //   }
-    // } 
-    // else {
     if (type == "number") {
       if (/^\d{0,10}$/.test(value)) {
         setFormData({
@@ -260,18 +372,33 @@ const CreateOrder = (args) => {
     }
     // }
   };
-  // useEffect(()=>{
-  //   // console.log(product)
-  //     },[product])
+
+  // useEffect(() => {
+    
+  //   //  console.log(userDetails._id)
+  // }, [formData]);
+  const handleOrigionalAudithistory = () => {
+    setAudithistory(Allhistory);
+  };
+  
+  const handleViewone = async (e, ele) => {
+    e.preventDefault();
+    console.log(ele?.id);
+    
+ await WarrantyAuditHistoryViewOne(ele?.id)
+      .then((res) => {
+        console.log(res?.AuditHistory);
+        setAudithistory(res?.AuditHistory);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   useEffect(() => {
+    // console.log(part, product)
     const userDetails = JSON.parse(localStorage.getItem("userData"))
     setUserDetails(userDetails)
-    //  console.log(userDetails._id)
-  }, [formData]);
-
-  useEffect(() => {
-    console.log(part, product)
-  }, [part, product]);
+  }, [part, product,formData]);
 
   useEffect(() => {
     // ListCreaterOrderView
@@ -312,6 +439,7 @@ const CreateOrder = (args) => {
     // .catch((err) => {
     //   console.log(err);
     // });
+    loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
   }, []);
 
@@ -371,17 +499,15 @@ const CreateOrder = (args) => {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log("All Form", formData)
+  
+    // console.log("All Form", formData)
     // const prefixStr = OrderID.substring(0, 5);
     // const updateNumber = parseInt(OrderID.match(/\d+$/)[0], 10) + 1;
     // const newOrderID = prefixStr + updateNumber;
     // setOrderID(newOrderID);
     let formdata = new FormData();
-    console.log("comentsList", Comments)
-
-
-
-    // CreatAccountView?.createOrder?.input?.map((ele, i)  => {
+    // console.log("comentsList", Comments)
+ // CreatAccountView?.createOrder?.input?.map((ele, i)  => {
     //   formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     // });
 
@@ -394,7 +520,7 @@ const CreateOrder = (args) => {
     // formdata.append("SupplierLocation", "Supplier City");
     // formdata.append("SupplierName", "SupplierXYZ");
     // formdata.append("WTPname", "WTP XYZ");
-    // formdata.append("OrderId", "ORD789");
+    formdata.append("OrderId", "ORD789");
     // formdata.append("NewOrder", "Yes");
     // formdata.append("partorderId", "PO123456");
     // formdata.append("Tracking", "ABC123456");
@@ -428,11 +554,15 @@ const CreateOrder = (args) => {
     } else {
       OrderDataSave(formdata)
         .then(res => {
-          console.log(res)
+          console.log(res,res?.message)
           if (res.status) {
             setFormData({});
+            setProduct([{}])
+            setComments([{}])
+            displayRazorpay()
             // window.location.reload();
-            swal("Order Created Successfully");
+            swal(`${res?.message}`);
+
           }
         })
         .catch(err => {
@@ -831,207 +961,7 @@ const CreateOrder = (args) => {
                       );
                     }
                   })}
-                {/* {partdetails &&
-                  partdetails?.input?.map(
-                    (ele, i) => {
-                   if (!!ele?.lookup) {
-                        return (
-                          <>
-                            <>
-                              <Col key={i} lg="6" md="6" sm="12">
-                                <FormGroup>
-                                  <Label>{ele?.label?._text}789</Label>
-                                  <InputGroup className="maininput">
-                                    <Input
-                                      className="form-control inputs"
-                                      type="text"
-                                      name={ele?.name?._text}
-                                      placeholder={ele?.name._text}
-                                      value={formData[ele?.name?._text]}
-                                      readOnly
-                                    />
-                                    <Button
-                                      onClick={handleopentoggle}
-                                      color="primary"
-                                      className="mybtn primary"
-                                    >
-                                      <AiOutlineSearch
-                                        onClick={e => e.preventDefault()}
-                                        fill="white"
-                                      />
-                                    </Button>
-                                  </InputGroup>
-
-                                  {index === i ? (
-                                    <>
-                                      {error && (
-                                        <span style={{ color: "red" }}>
-                                          {error}
-                                        </span>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <></>
-                                  )}
-                                </FormGroup>
-                              </Col>
-                            </>
-                          </>
-                        );
-                      }
-
-                      if (!!ele?.phoneinput) {
-                        return (
-                          <>
-                            <>
-                              <Col key={i} lg="6" md="6" sm="12">
-                                <FormGroup>
-                                  <Label>{ele?.label?._text}</Label>
-                                  <PhoneInput
-                                    inputClass="myphoneinput"
-                                    country={"us"}
-                                    onKeyDown={e => {
-                                      if (
-                                        ele?.type?._attributes?.type == "number"
-                                      ) {
-                                        ["e", "E", "+", "-"].includes(e.key) &&
-                                          e.preventDefault();
-                                      }
-                                    }}
-                                    countryCodeEditable={false}
-                                    name={ele?.name?._text}
-                                    value={formData[ele?.name?._text]}
-                                    onChange={phone => {
-                                      setFormData({
-                                        ...formData,
-                                        [ele?.name?._text]: phone,
-                                      });
-                                    }}
-                                    // onChange={handleInputChange}
-                                  />
-                                  {index === i ? (
-                                    <>
-                                      {error && (
-                                        <span style={{ color: "red" }}>
-                                          {error}
-                                        </span>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <></>
-                                  )}
-                                </FormGroup>
-                              </Col>
-                            </>
-                          </>
-                        );
-                      } else if (!!ele?.Readonly) {
-                        if (ele?.type._attributes?.type == "checkbox") {
-                          return (
-                            <>
-                              <div>
-                                <Label className="mx-2">
-                                  {ele?.heading?._text}
-                                </Label>
-                                <Col key={i} lg="12" md="12" sm="12">
-                                  <FormGroup>
-                                    <Input
-                                      disabled
-                                      className="mx-1"
-                                      type={ele?.type._attributes?.type}
-                                      name={ele?.name?._text}
-                                      placeholder={ele?.name._text}
-                                      value={formData[ele?.value?._text]}
-                                    />
-                                    <span className="mx-3 py-1">
-                                      {ele?.value?._text}
-                                    </span>
-                                    {index === i ? (
-                                      <>
-                                        {error && (
-                                          <span style={{ color: "red" }}>
-                                            {error}
-                                          </span>
-                                        )}
-                                      </>
-                                    ) : (
-                                      <></>
-                                    )}
-                                  </FormGroup>
-                                </Col>
-                              </div>
-                            </>
-                          );
-                        } else {
-                          return (
-                            <>
-                              <Col key={i} lg="6" md="6" sm="12">
-                                <Label>{ele?.label?._text}</Label>
-                                <FormGroup>
-                                  <Input
-                                    disabled
-                                    className="form-control"
-                                    type={ele?.type._attributes?.type}
-                                    name={ele?.name?._text}
-                                    placeholder={ele?.name._text}
-                                    value={formData[ele?.value?._text]}
-                                  />
-                                  <span className="mx-2">
-                                    {ele?.value?._text}
-                                  </span>
-                                  {index === i ? (
-                                    <>
-                                      {error && (
-                                        <span style={{ color: "red" }}>
-                                          {error}
-                                        </span>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <></>
-                                  )}
-                                </FormGroup>
-                              </Col>
-                            </>
-                          );
-                        }
-                      } else {
-                        return (
-                          <>
-                            <Col key={i} lg="6" md="6" sm="12">
-                              <Label>{ele?.label?._text}</Label>
-
-                              <Input
-                                type={ele?.type?._attributes?.type}
-                                placeholder={ele?.placeholder?._text}
-                                name={ele?.name?._text}
-                                value={formData[ele?.name?._text]}
-                                onChange={e =>
-                                  handleInputChange(
-                                    e,
-                                    ele?.type?._attributes?.type,
-                                    i
-                                  )
-                                }
-                              />
-                              {index === i ? (
-                                <>
-                                  {error && (
-                                    <span style={{ color: "red" }}>
-                                      {error}
-                                    </span>
-                                  )}
-                                </>
-                              ) : (
-                                <></>
-                              )}
-                            </Col>
-                          </>
-                        );
-                      }
-                    }
-                  )} */}
-
+               
                 <div className="container">
                   <Label className="py-1">Notification</Label>
                   <div>
@@ -1086,6 +1016,7 @@ const CreateOrder = (args) => {
               <h2 className="text-center">Product Details</h2>
               {product &&
                 product?.map((product, productIndex) => (
+                 <>
                   <Row className="productRow" key={productIndex}>
                     <div className="setInput lookUp" lg="2" md="2" sm="12">
                       <div className="mainLook">
@@ -1247,16 +1178,18 @@ const CreateOrder = (args) => {
                       </div>
                     </div>
                   </Row>
+                  
+                 </>
                 ))}
               <Row className="justify-content-end mt-2">
-                <ul className="calculationList">
-                  <li className="fontOfTotal">SubTotal:{productTotal ? productTotal : 0.00}</li>
-                  <li className="fontOfTotal">Discount:17.0</li>
-                  <li className="fontOfTotal">Tax:25.8</li>
-                  <li className="fontOfTotal">ShippingCost:0.0</li>
-                  <hr></hr>
-                  <li className="fontOfTotal"> Product GrandTotal:{Number(productTotal) + 17.0 + 25.8 + 0.0}</li>
-                </ul></Row>
+                   <ul className="calculationList">    
+                     <li className="fontOfTotal">SubTotal:${subTotal.toFixed(2) ? subTotal.toFixed(2) : 0}</li>
+                     <li className="fontOfTotal">Discount:${discount.toFixed(2)}</li>
+                     <li className="fontOfTotal">Tax:${tax.toFixed(2)}</li>
+                     <li className="fontOfTotal">ShippingCost:${shippingCost.toFixed(2)}</li>
+                     <hr></hr>
+                     <li className="fontOfTotal">Product GrandTotal:${total.toFixed(2)}</li>
+                   </ul></Row>
               <hr></hr>
               <h2 className="text-center">Part Details</h2>
               {part.map((part, partindx) => (
@@ -1425,13 +1358,13 @@ const CreateOrder = (args) => {
               ))}
               <Row className="justify-content-end mt-2">
                 <ul className="calculationList">
-                  <li className="fontOfTotal">SubTotal:{partTotal ? partTotal : 0.00}</li>
-                  <li className="fontOfTotal">Discount:17.0</li>
-                  <li className="fontOfTotal">Tax:25.0</li>
-                  <li className="fontOfTotal">ShippingCost:0.0</li>
+                  <li className="fontOfTotal">SubTotal:${partSubTotal? partSubTotal.toFixed(2) : 0}</li>
+                  <li className="fontOfTotal">Discount:{partDiscount.toFixed(2)}</li>
+                  <li className="fontOfTotal">Tax:${partTax.toFixed(2)}</li>
+                  <li className="fontOfTotal">ShippingCost:${partShippingCost.toFixed(2)}</li>
                   <hr></hr>
-                  {/* <li className="fontOfTotal"> Product GrandTotal:{MyGrandTotalfun(Number(partTotal), 17, 25 , 0)}</li> */}
-                  <li className="fontOfTotal"> Product GrandTotal:{(Number(partTotal)+17+ 25+0)}</li>
+                  
+                  <li className="fontOfTotal"> Part GrandTotal:${PartTotal.toFixed(2)}</li>
                 </ul></Row>
               <Row>
                 <Button.Ripple color="primary" type="submit" className="mt-2">
@@ -1556,7 +1489,6 @@ const CreateOrder = (args) => {
                 </Row>
               ))}
             </div>
-            <Payment />
           </CardBody>
         </Card>
         <Modal
@@ -1583,8 +1515,22 @@ const CreateOrder = (args) => {
             />
           </ModalBody>
         </Modal>
-        <Modal
+        {/* <Modal
           fullscreen="xl"
+          size="lg"
+          backdrop={false}
+          isOpen={audit}
+          toggle={audittoggle}
+          {...args}
+        >
+          <ModalHeader toggle={audittoggle}>Audit History List1111111</ModalHeader>
+          <ModalBody>
+            <AuditHistory />
+          </ModalBody>
+        </Modal> */}
+        <Modal
+          className="modal-dialog modal-xl"
+          // className="modal-dialog modal-lg"
           size="lg"
           backdrop={false}
           isOpen={audit}
@@ -1593,7 +1539,65 @@ const CreateOrder = (args) => {
         >
           <ModalHeader toggle={audittoggle}>Audit History List</ModalHeader>
           <ModalBody>
-            <AuditHistory />
+            <div className="d-flex justify-content-center">
+              <h2>Audit History </h2>
+            </div>
+            <div className="container p-1">
+              <div
+                style={{ justifyContent: "space-between" }}
+                className="d-flex "
+              >
+                <BsFillArrowLeftSquareFill
+                  className="mb-1"
+                  style={{ cursor: "pointer" }}
+                  size={30}
+                  color="primary"
+                  onClick={handleOrigionalAudithistory}
+                />
+                <input type="text" name="filter" className="" />
+              </div>
+              <Table striped>
+                <thead>
+                  <tr>
+                    <th>#ID</th>
+                    <th>Status</th>
+                    <th>userName</th>
+                    <th>Role</th>
+                    <th>timestamp</th>
+                    <th>timelag</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Audithistory && Audithistory ? (
+                    <>
+                      {Audithistory &&
+                        Audithistory?.map((ele, i) => {
+                          return (
+                            <>
+                              <tr
+                                onClick={(e) => handleViewone(e, ele)}
+                                style={{ cursor: "pointer" }}
+                                key={i}
+                              >
+                                <th scope="row">{ele?.id}</th>
+                                <td>{ele?.status}</td>
+                                <td>{ele?.userName}</td>
+                                <td>{ele?.Role}</td>
+                                <td>{ele?.timestamp}</td>
+                                <td>{ele?.timeLag}</td>
+                              </tr>
+                            </>
+                          );
+                        })}
+                    </>
+                  ) : (
+                    <>
+                      <h2>No Audit history Found</h2>
+                    </>
+                  )}
+                </tbody>
+              </Table>
+            </div>
           </ModalBody>
         </Modal>
       </div>

@@ -1793,7 +1793,7 @@ const CreateWarrenty = (args) => {
           <ModalHeader toggle={audittoggle}>Audit History List</ModalHeader>
           <ModalBody>
             <div className="d-flex justify-content-center">
-              <h2>Choose Audit Number </h2>
+              <h2>Audit History </h2>
             </div>
             <div className="container p-1">
               <div
