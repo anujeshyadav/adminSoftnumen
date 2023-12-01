@@ -37,8 +37,9 @@ import {
   ListCreaterOrderView,
   CommentOrder,
   OrderDataSave,
+  CreatedOrderList,
   CreateOrder_ID,
-  GetCommentListView,
+  // GetCommentListView,
   WarrantyAuditHistoryList,
   WarrantyAuditHistoryViewOne,
 } from "../../../../ApiEndPoint/ApiCalling";
@@ -65,7 +66,7 @@ const CreateOrder = (args) => {
   const [modal, setModal] = useState(false);
   const [items, setItems] = useState("");
   const [productTotal, setProductTotal] = useState("");
-  const [productGrand, setProductGrand] = useState("");
+  // const [productGrand, setProductGrand] = useState("");
   const [partTotal, setPartTotal] = useState("");
   const [partGrand, setPartGrand] = useState("");
   const [audit, setAudit] = useState(false);
@@ -251,6 +252,7 @@ const CreateOrder = (args) => {
   const displayRazorpay = async () => {
     let userData = JSON.parse(localStorage.getItem("userData"));
     console.log(userData.Primarymobileno)
+
     // let response = await axios.post("http://localhost:3000/api/razorpay", {
     //   totalBill,
     // });
@@ -261,6 +263,9 @@ const CreateOrder = (args) => {
   //  let finalTotalproduct=total.toFixed(2)
    let finalTotalproduct=productNdpart.toFixed(2)
     let totalAmount = typeof finalTotalproduct === 'string' ? finalTotalproduct.split(".")[0] : undefined;
+//     var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+let sanitizedText=userData.UserName;
+let username = sanitizedText.replace(/[!@#$^&%*()+=\[\]\\\/{}|:<>?,_]/g, '');
     const options = {
       key: "rzp_test_Vhg1kq9b86udsY",
       currency: "INR",
@@ -273,9 +278,7 @@ const CreateOrder = (args) => {
         console.log(response.razorpay_payment_id);
         console.log(response.razorpay_order_id);
         console.log(response.razorpay_signature);
-        swal("sucess","Order Success")
-        // toast.success("Order Success");
-
+         myOrderApiCall()
         // dispatch(setDeliveryDetail(checkout));
         // const res = await axios.post("http://localhost:3000/order/buynow", {
         //   customerid: currentCustomer._id,
@@ -286,18 +289,37 @@ const CreateOrder = (args) => {
         // });
         // console.log(res);
         // toast.success("Order Placed Successfully");
+        swal("sucess","Order Placed Successfully")
         // navigate("/ordersuccess");
       },
       prefill: {
-        name: `${userData?.UserName}`,
+        name: `${username}`,
         email: `${userData?.Primarymobileno}`,
         // contact: `${userData?.Primarymobileno}`,
         contact: "8889407856",
       },
+      theme: {
+        color: '#055761'
+      },
+      // Define the error handler function
+      modal: {
+        ondismiss: function () {
+          // This function will be called if the payment window is closed without completing the payment
+          alert('Payment window closed');
+        },
+        onerror: function (error) {
+          // This function will be called if an error occurs during payment
+          // console.error('Razorpay Error:', error);
+          // swal("Error", "Payment failed. Please try again later");
+          alert('Payment failed. Please try again later.');
+        }
+      }
     };
     const paymentObject = new window.Razorpay(options);
     paymentObject.open();
   };
+
+
   const handlePartChangeQty = (e, partindx, availableQty) => {
     if (availableQty >= e.target.value) {
       const { name, value } = e.target;
@@ -324,13 +346,30 @@ const CreateOrder = (args) => {
     setFormValues(newFormValues);
   };
 
-  let handleFileChange = (i, e) => {
+  // let handleFileChange = (i, e) => {
+  //   console.log(i,e.target.files[0])
+  //   const newFormValues = [...formValues];
+  //   const selectedFiles = e.target.files;
+  //   newFormValues[i].files = selectedFiles;
+  //   // console.log(object)
+  //   setFormValues(newFormValues);
+  // };
+ 
+  const handleFileChange = (i, e) => {
     const newFormValues = [...formValues];
     const selectedFiles = e.target.files;
-    newFormValues[i].files = selectedFiles;
-    // console.log(object)
+    
+    // Update the 'files' property of the specific form value at index 'i'
+    newFormValues[i] = {
+      ...newFormValues[i],
+      files: selectedFiles,
+    };
+  
     setFormValues(newFormValues);
   };
+  
+
+
   let removeFormFields = (i) => {
     let newFormValues = [...Comments];
     newFormValues.splice(i, 1);
@@ -373,10 +412,7 @@ const CreateOrder = (args) => {
     // }
   };
 
-  // useEffect(() => {
-    
-  //   //  console.log(userDetails._id)
-  // }, [formData]);
+ 
   const handleOrigionalAudithistory = () => {
     setAudithistory(Allhistory);
   };
@@ -404,11 +440,15 @@ const CreateOrder = (args) => {
     // ListCreaterOrderView
     let userInfo = JSON.parse(localStorage.getItem("userData"));
     setUserInfo(userInfo);
-    CreateOrder_ID()
+    CreatedOrderList()
       .then((res) => {
-        const lastElement = res?.Order[res?.Order?.length - 1].id;
-        const prefix = lastElement?.substring(0, 5);
-        const number = parseInt(lastElement?.match(/\d+$/)[0], 10) + 1;
+console.log(res.Order)
+let lastElement = res.Order[res.Order.length - 1];
+const lastStrOrder = lastElement.OrderId
+
+        // const lastElement = res?.Order[res?.Order?.length - 1].id;
+        const prefix = lastStrOrder?.substring(0, 5);
+        const number = parseInt(lastStrOrder?.match(/\d+$/)[0], 10) + 1;
         const concatenatedString = prefix + number;
         setOrderID(concatenatedString);
       })
@@ -491,25 +531,20 @@ const CreateOrder = (args) => {
     newFormValues.splice(i, 1);
     setProduct(newFormValues);
   };
-  let handlePartChange = (i, e) => {
-    let newFormValues = [...part];
-    newFormValues[i][e.target.name] = e.target.value;
-    setPart(newFormValues);
-  };
-
-  const submitHandler = (e) => {
-    e.preventDefault();
-  
-    // console.log("All Form", formData)
-    // const prefixStr = OrderID.substring(0, 5);
-    // const updateNumber = parseInt(OrderID.match(/\d+$/)[0], 10) + 1;
-    // const newOrderID = prefixStr + updateNumber;
-    // setOrderID(newOrderID);
-    let formdata = new FormData();
-    // console.log("comentsList", Comments)
+  // let handlePartChange = (i, e) => {
+  //   let newFormValues = [...part];
+  //   newFormValues[i][e.target.name] = e.target.value;
+  //   setPart(newFormValues);
+  // };
+const myOrderApiCall =()=>{
+  let formdata = new FormData();
+ dropdownValue?.createOrder?.MyDropDown?.map((drop, i)  => {
+      formdata.append(`${drop?.name?._text}`, formData[drop?.name?._text]);
+    });
  // CreatAccountView?.createOrder?.input?.map((ele, i)  => {
     //   formdata.append(`${ele?.name?._text}`, formData[ele?.name?._text]);
     // });
+
 
     // formdata.append("WtpOnecode", "WTP001");
     // formdata.append("PartnerCode", "PRT789");
@@ -520,7 +555,7 @@ const CreateOrder = (args) => {
     // formdata.append("SupplierLocation", "Supplier City");
     // formdata.append("SupplierName", "SupplierXYZ");
     // formdata.append("WTPname", "WTP XYZ");
-    formdata.append("OrderId", "ORD789");
+    
     // formdata.append("NewOrder", "Yes");
     // formdata.append("partorderId", "PO123456");
     // formdata.append("Tracking", "ABC123456");
@@ -543,32 +578,57 @@ const CreateOrder = (args) => {
     // formdata.append("CreatedDate", "2023-11-26T08:00:00Z");
     // formdata.append("ModifiedDate", "2023-11-26T10:30:00Z");
     // formdata.append("OrderDate", "2023-11-26T09:45:00Z");
-    formdata.append("PartDetail", part);
-    formdata.append("ProductDetail", product);
-    // formdata.append("id", JSON.stringify("wrn" + { randomNumber }));
-    if (Comments.length > 0) {
-      formdata.append(`Comments`, JSON.stringify(Comments));
-    }
-    if (error) {
-      swal("Error occured while Entering Details");
-    } else {
-      OrderDataSave(formdata)
-        .then(res => {
-          console.log(res,res?.message)
-          if (res.status) {
-            setFormData({});
-            setProduct([{}])
-            setComments([{}])
-            displayRazorpay()
-            // window.location.reload();
-            swal(`${res?.message}`);
+  formdata.append("OrderId", OrderID);
+  formdata.append("PartDetail", part);
+  formdata.append("ProductDetail", product);
 
-          }
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
+  if (formValues.length) {
+    let myarr = [];
+    formValues?.map((ele, i) => {
+      let newdata = Array.from(ele?.files);
+      myarr.push(newdata);
+    });
+    let totalimg = myarr.flat();
+    totalimg?.map((ele, i) => {
+      formdata.append("files", ele);
+    });
+  }
+  if (Comments.length > 0) {
+    formdata.append(`Comments`, JSON.stringify(Comments));
+  }
+  if (error) {
+    swal("Error occured while Entering Details");
+  } else {
+   
+    OrderDataSave(formdata)
+      .then(res => {
+        console.log(res,res?.message)
+        if (res.status) {
+          // setFormData({});
+          // setProduct([{}])
+          // setComments([{}])
+          // window.location.reload();
+          swal(`${res?.message}`);
+
+        }
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+}
+  const submitHandler = (e) => {
+    e.preventDefault();
+    displayRazorpay()
+    const prefixStr = OrderID.substring(0, 5);
+    const updateNumber = parseInt(OrderID.match(/\d+$/)[0], 10) + 1;
+    const newOrderID = prefixStr + updateNumber;
+    setOrderID(newOrderID);
+   
+
+
+  
+   
   };
   return (
     <div>
@@ -1365,6 +1425,9 @@ const CreateOrder = (args) => {
                   <hr></hr>
                   
                   <li className="fontOfTotal"> Part GrandTotal:${PartTotal.toFixed(2)}</li>
+                  <hr></hr>
+                  <hr></hr>
+                  <li className="fontOfTotal"> Product&Part GrandTotal:${productNdpart}</li>
                 </ul></Row>
               <Row>
                 <Button.Ripple color="primary" type="submit" className="mt-2">
@@ -1562,7 +1625,9 @@ const CreateOrder = (args) => {
                     <th>#ID</th>
                     <th>Status</th>
                     <th>userName</th>
-                    <th>Role</th>
+                    {/* <th>Role</th> */}
+                    <th>OldRole</th>
+                    <th>CurrentRole</th>
                     <th>timestamp</th>
                     <th>timelag</th>
                   </tr>
@@ -1582,6 +1647,7 @@ const CreateOrder = (args) => {
                                 <th scope="row">{ele?.id}</th>
                                 <td>{ele?.status}</td>
                                 <td>{ele?.userName}</td>
+                                <td>{ele?.Role}</td>
                                 <td>{ele?.Role}</td>
                                 <td>{ele?.timestamp}</td>
                                 <td>{ele?.timeLag}</td>

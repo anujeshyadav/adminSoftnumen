@@ -73,6 +73,7 @@ export const AddOrderComment = "/create-orders/comment-add/"; //done
 export const ViewOrderComment= "/create-orders/view-comments/"; //done
 export const CreateOrderSave= "/create-orders/save-create-order"; //done
 export const PlaceOrder_post = "/orders/place-order/"; //done
+export const Created_OrderList = "/create-orders/view-create-order"; //done
 
 // Inspection
 export const Inspection_XMLView = "/inspection/get-xml"; //done

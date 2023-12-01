@@ -1,356 +1,598 @@
-import React from "react";
-import { Tabs, Tab } from "react-bootstrap-tabs";
-import { Container } from "reactstrap";
-import CustomerDetails from "./EditOrder/CustomerDetails";
-import Products from "./EditOrder/Products";
-import PaymentDetails from "./EditOrder/PaymentDetails";
-import ShippingDetails from "./EditOrder/ShippingDetails";
-import Totals from "./EditOrder/Totals";
-function EditOrder() {
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import xmlJs from "xml-js";
+import {
+  Card,
+  CardBody,
+  Col,
+  Form,
+  Row,
+  Input,
+  Label,
+  Button,
+  FormGroup,
+  CustomInput,
+} from "reactstrap";
+import { history } from "../../../../history";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { BiEnvelope } from "react-icons/bi";
+import { FcPhoneAndroid } from "react-icons/fc";
+import { BsWhatsapp } from "react-icons/bs";
+import swal from "sweetalert";
+import { Country, State, City } from "country-state-city";
+import Select from "react-select";
+import "../../../../../src/layouts/assets/scss/pages/users.scss";
+
+import {
+  CreateAccountSave,
+  CreateAccountUpdate,
+  CreateAccountView,
+} from "../../../../ApiEndPoint/ApiCalling";
+
+const EditOrder = ({ EditOneData }) => {
+  const [CreatAccountView, setCreatAccountView] = useState({});
+  const [formData, setFormData] = useState({});
+  const [dropdownValue, setdropdownValue] = useState({});
+  const [index, setindex] = useState("");
+  const [error, setError] = useState("");
+  const Params = useParams();
+
+  const handleInputChange = (e, type, i) => {
+    const { name, value, checked } = e.target;
+    setindex(i);
+    if (type == "checkbox") {
+      if (checked) {
+        setFormData({
+          ...formData,
+          [name]: checked,
+        });
+      } else {
+        setFormData({
+          ...formData,
+          [name]: checked,
+        });
+      }
+    } else {
+      if (type == "number") {
+        if (/^\d{0,10}$/.test(value)) {
+          setFormData({
+            ...formData,
+            [name]: value,
+          });
+          setError("");
+        } else {
+          setError(
+            "Please enter a valid number with a maximum length of 10 digits"
+          );
+        }
+      } else {
+        if (value.length <= 10) {
+          setFormData({
+            ...formData,
+            [name]: value,
+          });
+          // console.log(value);
+          setError("");
+        } else {
+          setFormData({
+            ...formData,
+            [name]: value,
+          });
+          // setError("Input length exceeds the maximum of 10 characters");
+        }
+      }
+    }
+  };
+  // console.log(formData);
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
+
+  useEffect(() => {
+    console.log(EditOneData);
+    setFormData(EditOneData);
+    // CreateAccountUpdate(Params.id)
+    //   .then((res) => {
+    //     console.log(res);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+    CreateAccountView()
+      .then((res) => {
+        const jsonData = xmlJs.xml2json(res.data, { compact: true, spaces: 2 });
+        // console.log(JSON.parse(jsonData));
+        setCreatAccountView(JSON.parse(jsonData));
+        setdropdownValue(JSON.parse(jsonData));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    console.log(formData, EditOneData?._id);
+    CreateAccountUpdate(EditOneData?._id, formData)
+      .then((res) => {
+        if (res.status) {
+          setFormData({});
+          // window.location.reload();
+          swal("Acccont Updated Successfully");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <div>
-      <Container>
-        <Tabs onSelect={(index, label) => console.log(label + " selected")}>
-          <Tab label="Customer Details">
-            <CustomerDetails />
-          </Tab>
-          <Tab label="Products">
-            <Products />
-          </Tab>
-          <Tab label="Payment Details">
-            <PaymentDetails />
-          </Tab>
-          <Tab label="Shipping Details">
-            <ShippingDetails />
-          </Tab>
-          <Tab label="Totals">
-            <Totals />
-          </Tab>
-        </Tabs>
-        <hr />
-      </Container>
+      <div>
+        <Card>
+          <Row className="m-2">
+            <Col>
+              <h1 className="float-left">Edit Order Information</h1>
+            </Col>
+          </Row>
+
+          <CardBody>
+            <Form className="m-1" onSubmit={submitHandler}>
+              <Row className="mb-2">
+                <Col lg="6" md="6">
+                  <FormGroup>
+                    <Label>
+                      {
+                        dropdownValue.CreateAccount?.MyDropdown?.dropdown?.label
+                          ?._text
+                      }
+                    </Label>
+                    <CustomInput
+                      required
+                      type="select"
+                      name={
+                        dropdownValue.CreateAccount?.MyDropdown?.dropdown?.name
+                          ?._text
+                      }
+                      value={
+                        formData[
+                          dropdownValue.CreateAccount?.MyDropdown?.dropdown
+                            ?.name?._text
+                        ]
+                      }
+                      onChange={handleInputChange}
+                    >
+                      <option value="">--Select Role--</option>
+                      {dropdownValue?.CreateAccount?.MyDropdown?.dropdown?.option.map(
+                        (option, index) => (
+                          <option
+                            key={index}
+                            value={option?._attributes?.value}
+                          >
+                            {option?._attributes?.value}
+                          </option>
+                        )
+                      )}
+                    </CustomInput>
+                  </FormGroup>
+                </Col>
+
+                {CreatAccountView &&
+                  CreatAccountView?.CreateAccount?.input?.map((ele, i) => {
+                    let View = "";
+                    let Edit = "";
+                    if (ele?.role) {
+                      let roles = ele?.role?.find(
+                        (role) => role._attributes?.name === "WARRANTY APPROVER"
+                      );
+                      View = roles?.permissions?._text.includes("View");
+                      Edit = roles?.permissions?._text.includes("Edit");
+                    }
+                    if (!!ele?.phoneinput) {
+                      return (
+                        <>
+                          {Edit && Edit ? (
+                            <>
+                              <Col key={i} lg="6" md="6" sm="12">
+                                <FormGroup>
+                                  <Label>{ele?.label?._text}</Label>
+                                  <PhoneInput
+                                    inputClass="myphoneinput"
+                                    country={"us"}
+                                    onKeyDown={(e) => {
+                                      if (
+                                        ele?.type?._attributes?.type == "number"
+                                      ) {
+                                        ["e", "E", "+", "-"].includes(e.key) &&
+                                          e.preventDefault();
+                                      }
+                                    }}
+                                    countryCodeEditable={false}
+                                    name={ele?.name?._text}
+                                    value={formData[ele?.name?._text]}
+                                    onChange={(phone) => {
+                                      setFormData({
+                                        ...formData,
+                                        [ele?.name?._text]: phone,
+                                      });
+                                    }}
+                                  />
+                                  {index === i ? (
+                                    <>
+                                      {error && (
+                                        <span style={{ color: "red" }}>
+                                          {error}
+                                        </span>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <></>
+                                  )}
+                                </FormGroup>
+                              </Col>
+                            </>
+                          ) : (
+                            <>
+                              {View && View ? (
+                                <>
+                                  <Col key={i} lg="6" md="6" sm="12">
+                                    <FormGroup>
+                                      <Label>{ele?.label?._text}</Label>
+                                      <PhoneInput
+                                        disabled
+                                        inputClass="myphoneinput"
+                                        country={"us"}
+                                        onKeyDown={(e) => {
+                                          if (
+                                            ele?.type?._attributes?.type ==
+                                            "number"
+                                          ) {
+                                            ["e", "E", "+", "-"].includes(
+                                              e.key
+                                            ) && e.preventDefault();
+                                          }
+                                        }}
+                                        countryCodeEditable={false}
+                                        name={ele?.name?._text}
+                                        value={formData[ele?.name?._text]}
+                                        onChange={(phone) => {
+                                          setFormData({
+                                            ...formData,
+                                            [ele?.name?._text]: phone,
+                                          });
+                                        }}
+                                      />
+                                      {index === i ? (
+                                        <>
+                                          {error && (
+                                            <span style={{ color: "red" }}>
+                                              {error}
+                                            </span>
+                                          )}
+                                        </>
+                                      ) : (
+                                        <></>
+                                      )}
+                                    </FormGroup>
+                                  </Col>
+                                </>
+                              ) : null}
+                            </>
+                          )}
+                        </>
+                      );
+                    } else if (!!ele?.library) {
+                      if (ele?.label._text?.includes("ountry")) {
+                        return (
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>{ele?.label?._text}</Label>
+                              <Select
+                                inputClass="countryclass"
+                                className="countryclassnw"
+                                options={Country.getAllCountries()}
+                                getOptionLabel={(options) => {
+                                  return options["name"];
+                                }}
+                                getOptionValue={(options) => {
+                                  return options["name"];
+                                }}
+                                value={formData.country}
+                                onChange={(country) => {
+                                  setFormData({
+                                    ...formData,
+                                    ["country"]: country,
+                                  });
+                                }}
+                              />
+                              {index === i ? (
+                                <>
+                                  {error && (
+                                    <span style={{ color: "red" }}>
+                                      {error}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <></>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        );
+                      } else if (ele?.label._text?.includes("tate")) {
+                        return (
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>{ele?.label?._text}</Label>
+                              <Select
+                                options={State?.getStatesOfCountry(
+                                  formData?.country?.isoCode
+                                )}
+                                getOptionLabel={(options) => {
+                                  return options["name"];
+                                }}
+                                getOptionValue={(options) => {
+                                  return options["name"];
+                                }}
+                                value={formData.State}
+                                onChange={(State) => {
+                                  setFormData({
+                                    ...formData,
+                                    ["State"]: State,
+                                  });
+                                }}
+                              />
+                              {index === i ? (
+                                <>
+                                  {error && (
+                                    <span style={{ color: "red" }}>
+                                      {error}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <></>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        );
+                      } else if (ele?.label._text?.includes("ity")) {
+                        return (
+                          <Col key={i} lg="6" md="6" sm="12">
+                            <FormGroup>
+                              <Label>{ele?.label?._text}</Label>
+                              <Select
+                                options={City?.getCitiesOfState(
+                                  formData?.State?.countryCode,
+                                  formData?.State?.isoCode
+                                )}
+                                getOptionLabel={(options) => {
+                                  return options["name"];
+                                }}
+                                getOptionValue={(options) => {
+                                  return options["name"];
+                                }}
+                                value={formData.City}
+                                onChange={(City) => {
+                                  setFormData({
+                                    ...formData,
+                                    ["City"]: City,
+                                  });
+                                }}
+                              />
+                              {index === i ? (
+                                <>
+                                  {error && (
+                                    <span style={{ color: "red" }}>
+                                      {error}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <></>
+                              )}
+                            </FormGroup>
+                          </Col>
+                        );
+                      }
+                    } else {
+                      return (
+                        <>
+                          {Edit && Edit ? (
+                            <Col key={i} lg="6" md="6" sm="12">
+                              <FormGroup>
+                                <Label>{ele?.label?._text}</Label>
+
+                                <Input
+                                  onKeyDown={(e) => {
+                                    if (
+                                      ele?.type?._attributes?.type == "number"
+                                    ) {
+                                      ["e", "E", "+", "-"].includes(e.key) &&
+                                        e.preventDefault();
+                                    }
+                                  }}
+                                  type={ele?.type?._attributes?.type}
+                                  placeholder={ele?.placeholder?._text}
+                                  name={ele?.name?._text}
+                                  value={formData[ele?.name?._text]}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      e,
+                                      ele?.type?._attributes?.type,
+                                      i
+                                    )
+                                  }
+                                />
+                                {index === i ? (
+                                  <>
+                                    {error && (
+                                      <span style={{ color: "red" }}>
+                                        {error}
+                                      </span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <></>
+                                )}
+                              </FormGroup>
+                            </Col>
+                          ) : (
+                            <>
+                              {View && View ? (
+                                <>
+                                  <Col key={i} lg="6" md="6" sm="12">
+                                    <FormGroup>
+                                      <Label>{ele?.label?._text}</Label>
+
+                                      <Input
+                                        disabled
+                                        onKeyDown={(e) => {
+                                          if (
+                                            ele?.type?._attributes?.type ==
+                                            "number"
+                                          ) {
+                                            ["e", "E", "+", "-"].includes(
+                                              e.key
+                                            ) && e.preventDefault();
+                                          }
+                                        }}
+                                        type={ele?.type?._attributes?.type}
+                                        placeholder={ele?.placeholder?._text}
+                                        name={ele?.name?._text}
+                                        value={formData[ele?.name?._text]}
+                                        onChange={(e) =>
+                                          handleInputChange(
+                                            e,
+                                            ele?.type?._attributes?.type,
+                                            i
+                                          )
+                                        }
+                                      />
+                                      {index === i ? (
+                                        <>
+                                          {error && (
+                                            <span style={{ color: "red" }}>
+                                              {error}
+                                            </span>
+                                          )}
+                                        </>
+                                      ) : (
+                                        <></>
+                                      )}
+                                    </FormGroup>
+                                  </Col>
+                                </>
+                              ) : null}
+                            </>
+                          )}
+                        </>
+                      );
+                    }
+                  })}
+                <div className="container">
+                  <Label className="py-1">Notification</Label>
+                  <div>
+                    {CreatAccountView &&
+                      CreatAccountView?.CreateAccount?.CheckBox?.input?.map(
+                        (ele, i) => {
+                          return (
+                            <>
+                              <span key={i} className="mx-2">
+                                <Input
+                                  style={{ marginRight: "3px" }}
+                                  type={ele?.type?._attributes?.type}
+                                  name={ele?.name?._text}
+                                  onChange={(e) =>
+                                    handleInputChange(e, "checkbox")
+                                  }
+                                />{" "}
+                                <span
+                                  className="mt-1 mx-1"
+                                  style={{ marginRight: "40px" }}
+                                >
+                                  {ele?.label?._text == "Whatsapp" ? (
+                                    <BsWhatsapp
+                                      className="mx-1"
+                                      color="#59CE72"
+                                      size={25}
+                                    />
+                                  ) : (
+                                    <>
+                                      {ele.label?._text == "SMS" ? (
+                                        <>
+                                          <FcPhoneAndroid size={30} />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <BiEnvelope className="" size={30} />
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+                                </span>
+                              </span>
+                            </>
+                          );
+                        }
+                      )}
+                  </div>
+                </div>
+              </Row>
+              <hr />
+              <Row className="mt-2 ">
+                <Col lg="6" md="6" sm="6" className="mb-2">
+                  <Label className="">
+                    <h4>Status</h4>
+                  </Label>
+                  <div className="form-label-group mx-1">
+                    {CreatAccountView &&
+                      CreatAccountView?.CreateAccount?.Radiobutton?.input?.map(
+                        (ele, i) => {
+                          return (
+                            <FormGroup key={i}>
+                              <Input
+                                key={i}
+                                style={{ marginRight: "3px" }}
+                                required
+                                type={ele?.type?._attributes?.type}
+                                name={ele?.name?._text}
+                                value={`${
+                                  ele?.label?._text == "Active"
+                                    ? "Active"
+                                    : "Deactive"
+                                }`}
+                                onChange={handleInputChange}
+                              />{" "}
+                              <span
+                                className="mt-2"
+                                style={{ marginLeft: "20px" }}
+                              >
+                                {ele?.label?._text}
+                              </span>
+                            </FormGroup>
+                          );
+                        }
+                      )}
+                  </div>
+                </Col>
+              </Row>
+
+              <Row>
+                <Button.Ripple
+                  color="primary"
+                  type="submit"
+                  className="mr-1 mt-2 mx-2"
+                >
+                  Update
+                </Button.Ripple>
+              </Row>
+            </Form>
+          </CardBody>
+        </Card>
+      </div>
     </div>
   );
-}
-
+};
 export default EditOrder;
-
-// import React, { Component } from "react";
-// import {
-//   Card,
-//   CardBody,
-//   Col,
-//   Form,
-//   Row,
-//   Input,
-//   Label,
-//   Table,
-//   Button,
-//   FormGroup,
-//   CustomInput,
-// } from "reactstrap";
-// import { Route } from "react-router-dom";
-// import { history } from "../../../../history";
-// import axiosConfig from "../../../../axiosConfig";
-
-// export class EditOrder extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       order_zone: "",
-//       phone_no: "",
-//       delivery_add: "",
-//       email: "",
-//       delivery_slot: "",
-//       time_slot: "",
-//       assing_drive: "",
-//       status: "",
-//       name: "",
-//       orderId: "",
-//       // product: "",
-//       // attribute: "",
-//       // quantity: "",
-//       // orderd_from: "",
-//       // billing_add: "",
-//       // order_date: "",
-//       // items: "",
-//       // data: "",
-//     };
-//     this.handleChange = this.handleChange.bind(this);
-//   }
-//   handleChange(e) {
-//     this.setState({ [e.target.name]: e.target.value });
-//   }
-
-//   changeHandler = (e) => {
-//     this.setState({ [e.target.name]: e.target.value });
-//   };
-
-//   submitHandler = (e) => {
-//     e.preventDefault();
-//     console.log(this.state.email);
-//     let { id } = this.props.match.params;
-//     console.log(id);
-//     axiosConfig
-//       .post(`/admin/edit_order/${id}`, this.state)
-//       .then((response) => {
-//         console.log(response);
-//         this.props.history.push("/app/softNumen/order/placeorder");
-//       })
-//       .catch((error) => {
-//         console.log(error.response.data);
-//       });
-//   };
-
-//   componentDidMount() {
-//     console.log(this.props.match.params);
-//     let { id } = this.props.match.params;
-
-//     axiosConfig
-//       .get(`/admin/viewone_order/${id}`)
-//       .then((response) => {
-//         console.log("viewdata", response.data.data);
-//         this.setState({
-//           email: response.data.data.email,
-//           phone_no: response.data.data.phone_no,
-//           order_zone: response.data.data.order_zone,
-//           orderId: response.data.data.orderId,
-//           delivery_add: response.data.data.delivery_add,
-//           delivery_slot: response.data.data.delivery_slot,
-//           time_slot: response.data.data.time_slot,
-//           name: response.data.data.name,
-//           status: response.data.data.status,
-//         });
-//       })
-//       .catch((error) => {
-//         console.log(error);
-//       });
-//   }
-//   render() {
-//     return (
-//       <div>
-//         <Card>
-//           <Row className="m-2">
-//             <Col>
-//               <h1 col-sm-6 className="float-left">
-//                 Edit Order
-//               </h1>
-//             </Col>
-//             <Col>
-//               <Route
-//                 render={({ history }) => (
-//                   <Button
-//                     className=" btn btn-danger float-right"
-//                     onClick={() => history.push("/app/softNumen/order/placeorder")}
-//                   >
-//                     Back
-//                   </Button>
-//                 )}
-//               />
-//             </Col>
-//           </Row>
-//           <CardBody>
-//             <Form className="m-1" onSubmit={this.submitHandler}>
-//               <Row className="mb-2">
-//                 <Col lg="6" md="6">
-//                   <FormGroup>
-//                     <Label>Order ID</Label>
-//                     <Input
-//                       type="text"
-//                       disabled={true}
-//                       name=" orderId"
-//                       value={this.state.orderId}
-//                       onChange={this.changeHandler}
-//                     />
-//                   </FormGroup>
-//                 </Col>
-
-//                 <Col lg="6" md="6">
-//                   <FormGroup>
-//                     <Label>Email</Label>
-//                     <Input
-//                       type="email"
-//                       placeholder="Enter Email"
-//                       name="email"
-//                       value={this.state.email}
-//                       onChange={this.changeHandler}
-//                     />
-//                   </FormGroup>
-//                 </Col>
-//                 <Col lg="6" md="6">
-//                   <FormGroup>
-//                     <Label>Mobile No</Label>
-//                     <Input
-//                       type="Number"
-//                       placeholder="Enter No."
-//                       name="phone_no"
-//                       size={10}
-//                       value={this.state.phone_no}
-//                       onChange={this.changeHandler}
-//                     />
-//                   </FormGroup>
-//                 </Col>
-//                 <Col lg="6" md="6">
-//                   <FormGroup>
-//                     <Label>Order Zone</Label>
-//                     <Input
-//                       type="text"
-//                       placeholder="Order Zone"
-//                       name="order_zone"
-//                       value={this.state.order_zone}
-//                       onChange={this.changeHandler}
-//                     />
-//                   </FormGroup>
-//                 </Col>
-//                 <Col lg="6" md="6">
-//                   <FormGroup>
-//                     <Label>delivery_add</Label>
-//                     <Input
-//                       type="text"
-//                       placeholder="Delivery Address"
-//                       name="delivery_add"
-//                       value={this.state.delivery_add}
-//                       onChange={this.changeHandler}
-//                     />
-//                   </FormGroup>
-//                 </Col>
-//                 <Col lg="6" md="6">
-//                   <FormGroup>
-//                     <Label>Delivery Slot</Label>
-//                     <Input
-//                       type="text"
-//                       placeholder="Delivery Slot"
-//                       name="delivery_slot"
-//                       value={this.state.delivery_slot}
-//                       onChange={this.changeHandler}
-//                     />
-//                   </FormGroup>
-//                 </Col>
-//                 <Col lg="6" md="6">
-//                   <FormGroup>
-//                     <Label>Time Slot</Label>
-//                     <Input
-//                       type="time"
-//                       placeholder="Time Slot"
-//                       name="time_slot"
-//                       value={this.state.time_slot}
-//                       onChange={this.changeHandler}
-//                     />
-//                   </FormGroup>
-//                 </Col>
-//                 <Col lg="6" md="6">
-//                   <FormGroup>
-//                     <Label>Name</Label>
-//                     <Input
-//                       type="text"
-//                       placeholder="Name"
-//                       // disabled={true}
-//                       name="name"
-//                       value={this.state.name}
-//                       onChange={this.changeHandler}
-//                     />
-//                   </FormGroup>
-//                 </Col>
-//                 <Col lg="6" md="6">
-//                   <Label>Order Status</Label>
-//                   <CustomInput
-//                     type="select"
-//                     placeholder=""
-//                     name="status"
-//                     value={this.state.status}
-//                     onChange={this.changeHandler}
-//                   >
-//                     <option>--Select--</option>
-//                     <option value="pending">Pending</option>
-//                     <option value="complete">Completed</option>
-//                     <option value="delivery">Delivery</option>
-//                     <option value="canceled">Canceled</option>
-//                   </CustomInput>
-//                 </Col>
-//               </Row>
-//               <Row className="my-2">
-//                 <Table>
-//                   <thead>
-//                     <tr>
-//                       <th>SNo.</th>
-//                       <th>Quantity</th>
-//                       <th>Attribute</th>
-//                       <th>Name</th>
-//                       <th>U.Price</th>
-//                       <th>GST</th>
-//                       <th>Total</th>
-//                       <th>Sub Total</th>
-//                       <th>Donation</th>
-//                       <th>Tips</th>
-//                     </tr>
-//                   </thead>
-//                   <tbody>
-//                     <tr>
-//                       <th scope="row">1</th>
-//                       <td>2</td>
-//                       <td>1Kg</td>
-//                       <td>Onion</td>
-//                       <td>40</td>
-//                       <td>10%</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                     </tr>
-//                     <tr>
-//                       <th scope="row">1</th>
-//                       <td>2</td>
-//                       <td>1Kg</td>
-//                       <td>Onion</td>
-//                       <td>40</td>
-//                       <td>10%</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                     </tr>
-//                     <tr>
-//                       <th scope="row">1</th>
-//                       <td>2</td>
-//                       <td>1Kg</td>
-//                       <td>Onion</td>
-//                       <td>40</td>
-//                       <td>10%</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                     </tr>
-//                     <tr>
-//                       <th scope="row">1</th>
-//                       <td>2</td>
-//                       <td>1Kg</td>
-//                       <td>Onion</td>
-//                       <td>40</td>
-//                       <td>10%</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                       <td>Rs.80</td>
-//                     </tr>
-//                   </tbody>
-//                 </Table>
-//               </Row>
-
-//               <Row>
-//                 <Button.Ripple
-//                   color="danger"
-//                   type="submit"
-//                   className="mr-1 mb-1"
-//                 >
-//                   Update
-//                 </Button.Ripple>
-//               </Row>
-//             </Form>
-//           </CardBody>
-//         </Card>
-//       </div>
-//     );
-//   }
-// }
-// export default EditOrder;
