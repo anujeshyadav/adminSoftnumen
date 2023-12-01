@@ -268,7 +268,7 @@ const navigationConfig = [
         type: "item",
         icon: <FaCircle size={8} />,
         permissions: ["admin", "editor"],
-        navLink: "/app/softNumen/system/WareHouseListSoft",
+        navLink: "/app/softNumen/system/CreateWareHouse",
       },
       {
         id: "WarehouseSearch",
